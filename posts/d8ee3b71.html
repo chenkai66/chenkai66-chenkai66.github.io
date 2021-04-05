@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    Python深度学习（一）神经网络入门 |  言念君子
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      
+      <canvas width="1777" height="841"
+        style="position: fixed; left: 0px; top: 0px; z-index: 99999; pointer-events: none;"></canvas>
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Python深度学习（一）神经网络入门"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Python深度学习（一）神经网络入门
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/posts/d8ee3b71.html" class="article-date">
+  <time datetime="2021-04-05T15:15:14.509Z" itemprop="datePublished">2021-04-05</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/DeepLearning/">DeepLearning</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">8.4k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">37 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="一、电影评论分类：二分类问题"><a href="#一、电影评论分类：二分类问题" class="headerlink" title="一、电影评论分类：二分类问题"></a>一、电影评论分类：二分类问题</h1><p>二分类问题可能是应用最广泛的机器学习问题。在这个例子中，你将学习根据电影评论的文字内容将其划分为正面或负面。</p>
+<h2 id="1-IMDB-数据集"><a href="#1-IMDB-数据集" class="headerlink" title="1. IMDB 数据集"></a>1. IMDB 数据集</h2><p>本节使用IMDB 数据集，它包含来自互联网电影数据库（IMDB）的50 000条严重两极分化的评论。数据集被分为用于训练的25 000 条评论与用于测试的25 000 条评论，训练集和测试集都包含50% 的正面评论和50% 的负面评论。</p>
+<p>为什么要将训练集和测试集分开？因为你不应该将训练机器学习模型的同一批数据再用于测试模型！模型在训练数据上的表现很好，并不意味着它在前所未见的数据上也会表现得很好，而且你真正关心的是模型在新数据上的性能（因为你已经知道了训练数据对应的标签，显然不再需要模型来进行预测）。例如，你的模型最终可能只是记住了训练样本和目标值之间的映射关系，但这对在前所未见的数据上进行预测毫无用处。后面将会更详细地讨论这一点。</p>
+<p>与MNIST 数据集一样，IMDB 数据集也内置于Keras 库。它已经过预处理：评论（单词序列）已经被转换为整数序列，其中每个整数代表字典中的某个单词。</p>
+<p>下列代码将会加载IMDB 数据集（第一次运行时会下载大约80MB 的数据）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> keras <span class="keyword">import</span> layers</span><br><span class="line"><span class="keyword">from</span> keras <span class="keyword">import</span> models</span><br><span class="line"><span class="keyword">from</span> keras.datasets <span class="keyword">import</span> imdb</span><br><span class="line">(train_data, train_labels), (test_data, test_labels) = imdb.load_data(num_words=<span class="number">10000</span>)</span><br></pre></td></tr></table></figure>
+<pre><code>Using TensorFlow backend.
+</code></pre><p>参数 <code>num_words=10000</code> 的意思是仅保留训练数据中前10 000个最常出现的单词。低频单词将被舍弃。这样得到的向量数据不会太大，便于处理。</p>
+<p><code>train_data</code> 和 <code>test_data</code> 这两个变量都是评论组成的列表，每条评论又是单词索引组成的列表（表示一系列单词）。<code>train_labels</code> 和 <code>test_labels</code> 都是0 和1 组成的列表，其中0代表负面（negative），1 代表正面（positive）。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">print(<span class="string">'train data'</span>, train_data[<span class="number">0</span>], <span class="string">'\ntrain label'</span>, train_labels[<span class="number">0</span>])</span><br></pre></td></tr></table></figure>
+<pre><code>train data [1, 14, 22, 16, 43, 530, 973, 1622, 1385, 65, 458, 4468, 66, 3941, 4, 173, 36, 256, 5, 25, 100, 43, 838, 112, 50, 670, 2, 9, 35, 480, 284, 5, 150, 4, 172, 112, 167, 2, 336, 385, 39, 4, 172, 4536, 1111, 17, 546, 38, 13, 447, 4, 192, 50, 16, 6, 147, 2025, 19, 14, 22, 4, 1920, 4613, 469, 4, 22, 71, 87, 12, 16, 43, 530, 38, 76, 15, 13, 1247, 4, 22, 17, 515, 17, 12, 16, 626, 18, 2, 5, 62, 386, 12, 8, 316, 8, 106, 5, 4, 2223, 5244, 16, 480, 66, 3785, 33, 4, 130, 12, 16, 38, 619, 5, 25, 124, 51, 36, 135, 48, 25, 1415, 33, 6, 22, 12, 215, 28, 77, 52, 5, 14, 407, 16, 82, 2, 8, 4, 107, 117, 5952, 15, 256, 4, 2, 7, 3766, 5, 723, 36, 71, 43, 530, 476, 26, 400, 317, 46, 7, 4, 2, 1029, 13, 104, 88, 4, 381, 15, 297, 98, 32, 2071, 56, 26, 141, 6, 194, 7486, 18, 4, 226, 22, 21, 134, 476, 26, 480, 5, 144, 30, 5535, 18, 51, 36, 28, 224, 92, 25, 104, 4, 226, 65, 16, 38, 1334, 88, 12, 16, 283, 5, 16, 4472, 113, 103, 32, 15, 16, 5345, 19, 178, 32] 
+train label 1
+</code></pre><p>由于限定为前10 000 个最常见的单词，单词索引都不会超过10 000。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">max([max(sequence) <span class="keyword">for</span> sequence <span class="keyword">in</span> train_data])</span><br></pre></td></tr></table></figure>
+<pre><code>9999
+</code></pre><p>下面这段代码很有意思，你可以将某条评论迅速解码为英文单词。<br>注：</p>
+<ol>
+<li>索引减去了3，因为0、1、2是为“padding”（填充）、“start of sequence”（序列开始）、“unknown”（未知词）分别保留的索引</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">word_index = imdb.get_word_index()</span><br><span class="line">print(<span class="string">'word index of fawn: '</span>, word_index[<span class="string">'fawn'</span>])</span><br><span class="line">reverse_word_index = dict([(value, key) <span class="keyword">for</span> (key, value) <span class="keyword">in</span> word_index.items()])</span><br><span class="line">print(<span class="string">'the word with index 0, 1, 2 are: '</span>, reverse_word_index[<span class="number">1</span>], reverse_word_index[<span class="number">2</span>], reverse_word_index[<span class="number">3</span>])</span><br><span class="line">decoded_review = <span class="string">' '</span>.join(reverse_word_index.get(i<span class="number">-3</span>,<span class="string">'?'</span>) <span class="keyword">for</span> i <span class="keyword">in</span> train_data[<span class="number">0</span>])</span><br><span class="line">print(<span class="string">'decoded review of the first train data: '</span>, decoded_review)</span><br></pre></td></tr></table></figure>
+<pre><code>word index of fawn:  34701
+the word with index 0, 1, 2 are:  the and a
+decoded review of the first train data:  ? this film was just brilliant casting location scenery story direction everyone&#39;s really suited the part they played and you could just imagine being there robert ? is an amazing actor and now the same being director ? father came from the same scottish island as myself so i loved the fact there was a real connection with this film the witty remarks throughout the film were great it was just brilliant so much that i bought the film as soon as it was released for ? and would recommend it to everyone to watch and the fly fishing was amazing really cried at the end it was so sad and you know what they say if you cry at a film it must have been good and this definitely was also ? to the two little boy&#39;s that played the ? of norman and paul they were just brilliant children are often left out of the ? list i think because the stars that play them all grown up are such a big profile for the whole film but these children are amazing and should be praised for what they have done don&#39;t you think the whole story was so lovely because it was true and was someone&#39;s life after all that was shared with us all
+</code></pre><h2 id="2-准备数据"><a href="#2-准备数据" class="headerlink" title="2. 准备数据"></a>2. 准备数据</h2><p>你不能将整数序列直接输入神经网络。你需要将列表转换为张量。转换方法有以下两种：</p>
+<ul>
+<li>填充列表，使其具有相同的长度，再将列表转换成形状为 (samples, word_indices)的整数张量，然后网络第一层使用能处理这种整数张量的层（即Embedding层）。</li>
+<li>对列表进行 one-hot 编码，将其转换为 0 和 1 组成的向量。举个例子，序列[3, 5]将会被转换为10 000 维向量，只有索引为3 和5 的元素是1，其余元素都是0。然后网络第一层可以用Dense 层，它能够处理浮点数向量数据。</li>
+</ul>
+<p>下面我们采用后一种方法将数据向量化。为了加深理解，我们可以手动实现这一方法，如下所示。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 将整数序列编码为二进制矩阵</span></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">vectorize_sequences</span><span class="params">(sequences, dimension=<span class="number">10000</span>)</span>:</span></span><br><span class="line">    results = np.zeros((len(sequences), dimension))</span><br><span class="line">    <span class="keyword">for</span> i, sequence <span class="keyword">in</span> enumerate(sequences):</span><br><span class="line">        results[i, sequence] = <span class="number">1.</span></span><br><span class="line">    <span class="keyword">return</span> results</span><br><span class="line"></span><br><span class="line">x_train = vectorize_sequences(train_data)</span><br><span class="line">x_test = vectorize_sequences(test_data)</span><br></pre></td></tr></table></figure>
+<p>样本现在变成了这样：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">print(x_train[<span class="number">0</span>])</span><br></pre></td></tr></table></figure>
+<pre><code>[0. 1. 1. ... 0. 0. 0.]
+</code></pre><p>你还应该将标签向量化，代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">y_train = np.asarray(train_labels).astype(<span class="string">'float32'</span>)</span><br><span class="line">y_test = np.asarray(test_labels).astype(<span class="string">'float32'</span>)</span><br></pre></td></tr></table></figure>
+<p>现在可以将数据输入到神经网络中。</p>
+<h2 id="3-构建网络"><a href="#3-构建网络" class="headerlink" title="3. 构建网络"></a>3. 构建网络</h2><p>输入数据是向量，而标签是标量（1 和0），这是你会遇到的最简单的情况。有一类网络在这种问题上表现很好，就是带有<code>relu</code>激活的全连接层（Dense）的简单堆叠，比如<code>Dense(16, activation=&#39;relu&#39;)</code>。</p>
+<p>传入<code>Dense</code>层的参数（16）是该层隐藏单元的个数。一个隐藏单元（hidden unit）是该层表示空间的一个维度。每个带有<code>relu</code>激活的<code>Dense</code>层都实现了下列张量运算：<code>output = relu(dot(W, input) + b)</code></p>
+<p>16 个隐藏单元对应的权重矩阵<code>W</code>的形状为(input_dimension, 16)，与<code>W</code>做点积相当于将输入数据投影到16 维表示空间中（然后再加上偏置向量<code>b</code>并应用relu 运算）。你可以将表示空间的维度直观地理解为“网络学习内部表示时所拥有的自由度”。隐藏单元越多（即更高维的表示空间），网络越能够学到更加复杂的表示，但网络的计算代价也变得更大，而且可能会导致学到不好的模式（这种模式会提高训练数据上的性能，但不会提高测试数据上的性能）。</p>
+<p>对于这种Dense 层的堆叠，你需要确定以下两个关键架构：</p>
+<ul>
+<li>网络有多少层；</li>
+<li>每层有多少个隐藏单元。</li>
+</ul>
+<p>现在只需要选择下列架构：</p>
+<ul>
+<li>两个中间层，每层都有 16 个隐藏单元；</li>
+<li>第三层输出一个标量，预测当前评论的情感。<br>中间层使用 relu 作为激活函数，最后一层使用 sigmoid 激活以输出一个0~1 范围内的概率值（表示样本的目标值等于1的可能性，即评论为正面的可能性）。 relu（rectified linear unit，整流线性单元）函数将所有负值归零，而sigmoid函数则将任意值“压缩”到<code>[0,1]</code>区间内，其输出值可以看作概率值。</li>
+</ul>
+<center>
+    <img src="\Pic\DeepLearning_Pic\relu1.png" width="400" height="400" alt="整体线性流函数" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">整体线性流函数</div>
+</center>
+
+<center>
+    <img src="\Pic\DeepLearning_Pic\sigmoid1.png" width="400" height="400" alt="sigmoid函数" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">sigmoid函数</div>
+</center>
+
+<p>下图显示了网络的结构：</p>
+<center>
+    <img src="\Pic\DeepLearning_Pic\structure_imdb_1.png" width="200" height="200" alt="structure_imdb_1" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">三层网络结构</div>
+</center>
+
+<h2 id="4-模型定义"><a href="#4-模型定义" class="headerlink" title="4. 模型定义"></a>4. 模型定义</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> keras <span class="keyword">import</span> layers</span><br><span class="line"><span class="keyword">from</span> keras <span class="keyword">import</span> models</span><br><span class="line">model = models.Sequential()</span><br><span class="line">model.add(layers.Dense(<span class="number">16</span>, activation=<span class="string">"relu"</span>, input_shape=(<span class="number">10000</span>, )))</span><br><span class="line">model.add(layers.Dense(<span class="number">16</span>, activation=<span class="string">"relu"</span>))</span><br><span class="line">model.add(layers.Dense(<span class="number">1</span>, activation=<span class="string">"sigmoid"</span>))</span><br></pre></td></tr></table></figure>
+<p>最后，你需要选择损失函数和优化器。由于你面对的是一个二分类问题，网络输出是一个概率值（网络最后一层使用<code>sigmoid</code>激活函数，仅包含一个单元），那么最好使用<code>binary_crossentropy</code>（二元交叉熵）损失。这并不是唯一可行的选择，比如你还可以使用<code>mean_squared_error</code>（均方误差）。但对于输出概率值的模型，交叉熵（crossentropy）往往是最好的选择。交叉熵是来自于信息论领域的概念，用于衡量概率分布之间的距离，在这个例子中就<br>是真实分布与预测值之间的距离。</p>
+<p>下面的步骤是用<code>rmsprop</code>优化器和<code>binary_crossentropy</code>损失函数来配置模型。注意，我们还在训练过程中监控精度。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">model.compile(optimizer=<span class="string">"rmsprop"</span>, loss=<span class="string">"binary_crossentropy"</span>, metrics=[<span class="string">"accuracy"</span>])</span><br></pre></td></tr></table></figure>
+<p>上述代码将优化器、损失函数和指标作为字符串传入，这是因为<code>rmsprop</code>、<code>binary_crossentropy</code>和<code>accuracy</code>都是Keras 内置的一部分。有时你可能希望配置自定义优化器的参数，或者传入自定义的损失函数或指标函数，前者可通过向<code>optimizer</code>参数传入一个优化器类实例来实现</p>
+<h2 id="5-划分数据并训练模型"><a href="#5-划分数据并训练模型" class="headerlink" title="5. 划分数据并训练模型"></a>5. 划分数据并训练模型</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">x_val = x_train[:<span class="number">10000</span>]</span><br><span class="line">partial_x_train = x_train[<span class="number">10000</span>:]</span><br><span class="line">y_val = y_train[:<span class="number">10000</span>]</span><br><span class="line">partial_y_train = y_train[<span class="number">10000</span>:]</span><br></pre></td></tr></table></figure>
+<p>现在使用512 个样本组成的小批量，将模型训练20 个轮次（即对<code>x_train</code>和<code>y_train</code>两个张量中的所有样本进行20 次迭代）。与此同时，你还要监控在留出的10 000 个样本上的损失和精度。你可以通过将验证数据传入<code>validation_data</code>参数来完成。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">history = model.fit(partial_x_train,</span><br><span class="line">                    partial_y_train,</span><br><span class="line">                    epochs=<span class="number">20</span>,</span><br><span class="line">                    batch_size=<span class="number">512</span>,</span><br><span class="line">                    validation_data=(x_val, y_val))</span><br></pre></td></tr></table></figure>
+<pre><code>Train on 15000 samples, validate on 10000 samples
+Epoch 1/20
+15000/15000 [==============================] - 10s 637us/step - loss: 0.5054 - accuracy: 0.7994 - val_loss: 0.3811 - val_accuracy: 0.8697
+Epoch 2/20
+15000/15000 [==============================] - 6s 402us/step - loss: 0.3009 - accuracy: 0.9039 - val_loss: 0.3074 - val_accuracy: 0.8841
+Epoch 3/20
+15000/15000 [==============================] - 2s 151us/step - loss: 0.2207 - accuracy: 0.9309 - val_loss: 0.2773 - val_accuracy: 0.8910
+Epoch 4/20
+15000/15000 [==============================] - 2s 137us/step - loss: 0.1777 - accuracy: 0.9433 - val_loss: 0.2731 - val_accuracy: 0.8912
+Epoch 5/20
+15000/15000 [==============================] - 2s 129us/step - loss: 0.1428 - accuracy: 0.9555 - val_loss: 0.2797 - val_accuracy: 0.8888
+Epoch 6/20
+15000/15000 [==============================] - 2s 137us/step - loss: 0.1201 - accuracy: 0.9629 - val_loss: 0.3101 - val_accuracy: 0.8818
+Epoch 7/20
+15000/15000 [==============================] - 2s 134us/step - loss: 0.1007 - accuracy: 0.9705 - val_loss: 0.3096 - val_accuracy: 0.8817
+Epoch 8/20
+15000/15000 [==============================] - 2s 129us/step - loss: 0.0845 - accuracy: 0.9768 - val_loss: 0.3309 - val_accuracy: 0.8826
+Epoch 9/20
+15000/15000 [==============================] - 2s 126us/step - loss: 0.0715 - accuracy: 0.9809 - val_loss: 0.3477 - val_accuracy: 0.8817
+Epoch 10/20
+15000/15000 [==============================] - 2s 127us/step - loss: 0.0604 - accuracy: 0.9848 - val_loss: 0.3675 - val_accuracy: 0.8788
+Epoch 11/20
+15000/15000 [==============================] - 2s 125us/step - loss: 0.0504 - accuracy: 0.9879 - val_loss: 0.4077 - val_accuracy: 0.8692
+Epoch 12/20
+15000/15000 [==============================] - 2s 125us/step - loss: 0.0410 - accuracy: 0.9908 - val_loss: 0.4214 - val_accuracy: 0.8725
+Epoch 13/20
+15000/15000 [==============================] - 2s 125us/step - loss: 0.0322 - accuracy: 0.9947 - val_loss: 0.4783 - val_accuracy: 0.8704
+Epoch 14/20
+15000/15000 [==============================] - 2s 125us/step - loss: 0.0291 - accuracy: 0.9939 - val_loss: 0.4782 - val_accuracy: 0.8741
+Epoch 15/20
+15000/15000 [==============================] - 2s 125us/step - loss: 0.0222 - accuracy: 0.9962 - val_loss: 0.5157 - val_accuracy: 0.8679
+Epoch 16/20
+15000/15000 [==============================] - 2s 126us/step - loss: 0.0188 - accuracy: 0.9966 - val_loss: 0.5413 - val_accuracy: 0.8714
+Epoch 17/20
+15000/15000 [==============================] - 2s 125us/step - loss: 0.0120 - accuracy: 0.9990 - val_loss: 0.5762 - val_accuracy: 0.8659
+Epoch 18/20
+15000/15000 [==============================] - 2s 129us/step - loss: 0.0129 - accuracy: 0.9979 - val_loss: 0.6005 - val_accuracy: 0.8674
+Epoch 19/20
+15000/15000 [==============================] - 2s 125us/step - loss: 0.0085 - accuracy: 0.9993 - val_loss: 0.6336 - val_accuracy: 0.8689
+Epoch 20/20
+15000/15000 [==============================] - 2s 124us/step - loss: 0.0070 - accuracy: 0.9993 - val_loss: 0.6647 - val_accuracy: 0.8675
+</code></pre><p>在CPU 上运行，每轮的时间不到2秒，训练过程将在20 秒内结束。每轮结束时会有短暂的停顿，因为模型要计算在验证集的10 000 个样本上的损失和精度。</p>
+<p>注意，调用<code>model.fit()</code>返回了一个<code>history</code>对象。这个对象有一个成员<code>history</code>，它是一个字典，包含训练过程中的所有数据，我们来看一下。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">history_dict = history.history</span><br><span class="line">history_dict.keys()</span><br></pre></td></tr></table></figure>
+<pre><code>dict_keys([&#39;val_loss&#39;, &#39;val_accuracy&#39;, &#39;loss&#39;, &#39;accuracy&#39;])
+</code></pre><h2 id="6-绘制训练损失和验证损失"><a href="#6-绘制训练损失和验证损失" class="headerlink" title="6. 绘制训练损失和验证损失"></a>6. 绘制训练损失和验证损失</h2><p>字典中包含4 个条目，对应训练过程和验证过程中监控的指标。我们将使用Matplotlib 在同一张图上绘制训练损失和验证损失，以及训练精度和验证精度。请注意，由于网络的随机初始化不同，你得到的结果可能会略有不同。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line">history_dict = history.history</span><br><span class="line">loss_values = history_dict[<span class="string">'loss'</span>]</span><br><span class="line">val_loss_values = history_dict[<span class="string">'val_loss'</span>]</span><br><span class="line">epochs = range(<span class="number">1</span>, len(loss_values)+<span class="number">1</span>)</span><br><span class="line">plt.plot(epochs, loss_values, <span class="string">'bo'</span>, label=<span class="string">'Training loss'</span>)</span><br><span class="line">plt.plot(epochs, val_loss_values, <span class="string">'b'</span>, label=<span class="string">'Validation loss'</span>)</span><br><span class="line">plt.title(<span class="string">'Training and validation loss'</span>)</span><br><span class="line">plt.xlabel(<span class="string">'Epochs'</span>)</span><br><span class="line">plt.ylabel(<span class="string">'Loss'</span>)</span><br><span class="line">plt.legend()</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<center>
+    <img src="\Pic\DeepLearning_Pic\output_26_0.png" width="400" height="400" alt="训练损失和验证损失" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">训练损失和验证损失</div>
+</center>
+
+
+<h2 id="7-绘制训练精度和验证精度"><a href="#7-绘制训练精度和验证精度" class="headerlink" title="7. 绘制训练精度和验证精度"></a>7. 绘制训练精度和验证精度</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">plt.clf()</span><br><span class="line">acc = history_dict[<span class="string">'accuracy'</span>]</span><br><span class="line">val_acc = history_dict[<span class="string">'val_accuracy'</span>]</span><br><span class="line">plt.plot(epochs, acc, <span class="string">'bo'</span>, label=<span class="string">'Training accuracy'</span>)</span><br><span class="line">plt.plot(epochs, val_acc, <span class="string">'b'</span>, label=<span class="string">'Validation accuracy'</span>)</span><br><span class="line">plt.title(<span class="string">'Training and validation accuracy'</span>)</span><br><span class="line">plt.xlabel(<span class="string">'Epochs'</span>)</span><br><span class="line">plt.ylabel(<span class="string">'Accuracy'</span>)</span><br><span class="line">plt.legend()</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<center>
+    <img src="\Pic\DeepLearning_Pic\output_28_0.png" width="400" height="400" alt="训练精度和验证精度" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">训练精度和验证精度</div>
+</center>
+
+
+<p>如你所见，训练损失每轮都在降低，训练精度每轮都在提升。这就是梯度下降优化的预期结果——你想要最小化的量随着每次迭代越来越小。但验证损失和验证精度并非如此：它们似乎在第四轮达到最佳值。这就是我们之前警告过的一种情况：模型在训练数据上的表现越来越好，但在前所未见的数据上不一定表现得越来越好。准确地说，你看到的是过拟合（overfit）：在第二轮之后，你对训练数据过度优化，最终学到的表示仅针对于训练数据，无法泛化到训练集之外的数据。</p>
+<p>在这种情况下，为了防止过拟合，你可以在3 轮之后停止训练。通常来说，你可以使用许多方法来降低过拟合，我们将在后面详细介绍。</p>
+<p>我们从头开始训练一个新的网络，训练4 轮，然后在测试数据上评估模型。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">model = models.Sequential()</span><br><span class="line">model.add(layers.Dense(<span class="number">16</span>, activation=<span class="string">'relu'</span>, input_shape=(<span class="number">10000</span>,)))</span><br><span class="line">model.add(layers.Dense(<span class="number">16</span>, activation=<span class="string">'relu'</span>))</span><br><span class="line">model.add(layers.Dense(<span class="number">1</span>, activation=<span class="string">'sigmoid'</span>))</span><br><span class="line">model.compile(optimizer=<span class="string">'rmsprop'</span>, loss=<span class="string">'binary_crossentropy'</span>, metrics=[<span class="string">'accuracy'</span>])</span><br><span class="line">model.fit(x_train, y_train, epochs=<span class="number">4</span>, batch_size=<span class="number">512</span>)</span><br><span class="line">results = model.evaluate(x_test, y_test)</span><br><span class="line">print(results)</span><br></pre></td></tr></table></figure>
+<pre><code>Epoch 1/4
+25000/25000 [==============================] - 3s 100us/step - loss: 0.4556 - accuracy: 0.8245
+Epoch 2/4
+25000/25000 [==============================] - 2s 78us/step - loss: 0.2628 - accuracy: 0.9074
+Epoch 3/4
+25000/25000 [==============================] - 2s 81us/step - loss: 0.2002 - accuracy: 0.9290
+Epoch 4/4
+25000/25000 [==============================] - 2s 88us/step - loss: 0.1687 - accuracy: 0.9394
+25000/25000 [==============================] - 7s 270us/step
+[0.30153122137069704, 0.880840003490448]
+</code></pre><p>这种相当简单的方法得到了88% 的精度。利用最先进的方法，你应该能够得到接近95% 的精度。</p>
+<h2 id="8-使用训练好的网络在新数据上生成预测结果"><a href="#8-使用训练好的网络在新数据上生成预测结果" class="headerlink" title="8. 使用训练好的网络在新数据上生成预测结果"></a>8. 使用训练好的网络在新数据上生成预测结果</h2><p>训练好网络之后，你希望将其用于实践。你可以用<code>predict</code>方法来得到评论为正面的可能性大小。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">model.predict(x_test)</span><br></pre></td></tr></table></figure>
+<pre><code>array([[0.17173755],
+       [0.99980915],
+       [0.77910084],
+       ...,
+       [0.08216667],
+       [0.04566944],
+       [0.51742095]], dtype=float32)
+</code></pre><h1 id="二、新闻分类：多分类问题"><a href="#二、新闻分类：多分类问题" class="headerlink" title="二、新闻分类：多分类问题"></a>二、新闻分类：多分类问题</h1><p>下面你会构建一个网络，将路透社新闻划分为46 个互斥的主题。因为有多个类别，所以这是多分类（multiclass classification）问题的一个例子。因为每个数据点只能划分到一个类别，所以更具体地说，这是单标签、多分类（single-label, multiclass classification）问题的一个例子。如果每个数据点可以划分到多个类别（主题），那它就是一个多标签、多分类（multilabel,multiclass classification）问题。</p>
+<h2 id="1-路透社数据集"><a href="#1-路透社数据集" class="headerlink" title="1. 路透社数据集"></a>1. 路透社数据集</h2><p>本节使用路透社数据集，它包含许多短新闻及其对应的主题，由路透社在1986 年发布。它是一个简单的、广泛使用的文本分类数据集。它包括46 个不同的主题：某些主题的样本更多，但训练集中每个主题都有至少10 个样本。与IMDB 和MNIST 类似，路透社数据集也内置为Keras 的一部分。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> keras.datasets <span class="keyword">import</span> reuters</span><br><span class="line">(train_data, train_labels), (test_data, test_labels) = reuters.load_data(num_words=<span class="number">10000</span>)</span><br><span class="line">print(<span class="string">'the length of train data: '</span>, len(train_data), <span class="string">'\nthe length of test data: '</span>, len(test_data))</span><br><span class="line">print(<span class="string">'train data 10: '</span>, train_data[<span class="number">10</span>], <span class="string">'\ntrain label 10: '</span>, train_labels[<span class="number">10</span>])</span><br></pre></td></tr></table></figure>
+<pre><code>the length of train data:  8982 
+the length of test data:  2246
+train data 10:  [1, 245, 273, 207, 156, 53, 74, 160, 26, 14, 46, 296, 26, 39, 74, 2979, 3554, 14, 46, 4689, 4329, 86, 61, 3499, 4795, 14, 61, 451, 4329, 17, 12] 
+train label 10:  3
+</code></pre><p>如果好奇的话，你可以用下列代码将索引解码为单词。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">word_index = reuters.get_word_index()</span><br><span class="line">reverse_word_index = dict([(value, key) <span class="keyword">for</span> (key, value) <span class="keyword">in</span> word_index.items()])</span><br><span class="line">decoded_newswire = <span class="string">' '</span>.join([reverse_word_index.get(i - <span class="number">3</span>, <span class="string">'?'</span>) <span class="keyword">for</span> i <span class="keyword">in</span> train_data[<span class="number">0</span>]])</span><br><span class="line">print(decoded_newswire)</span><br></pre></td></tr></table></figure>
+<pre><code>? ? ? said as a result of its december acquisition of space co it expects earnings per share in 1987 of 1 15 to 1 30 dlrs per share up from 70 cts in 1986 the company said pretax net should rise to nine to 10 mln dlrs from six mln dlrs in 1986 and rental operation revenues to 19 to 22 mln dlrs from 12 5 mln dlrs it said cash flow per share this year should be 2 50 to three dlrs reuter 3
+</code></pre><h2 id="2-准备数据-1"><a href="#2-准备数据-1" class="headerlink" title="2. 准备数据"></a>2. 准备数据</h2><p>你可以使用与上一个例子相同的代码将数据向量化。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">vectorize_sequences</span><span class="params">(sequences, dimension=<span class="number">10000</span>)</span>:</span></span><br><span class="line">    results = np.zeros((len(sequences), dimension))</span><br><span class="line">    <span class="keyword">for</span> i, sequence <span class="keyword">in</span> enumerate(sequences):</span><br><span class="line">        results[i, sequence] = <span class="number">1.</span></span><br><span class="line">    <span class="keyword">return</span> results</span><br><span class="line">x_train = vectorize_sequences(train_data)</span><br><span class="line">x_test = vectorize_sequences(test_data)</span><br></pre></td></tr></table></figure>
+<p>将标签向量化有两种方法：你可以将标签列表转换为整数张量，或者使用one-hot 编码。</p>
+<p>one-hot 编码是分类数据广泛使用的一种格式，也叫分类编码（categorical encoding）,在这个例子中，标签的one-hot 编码就是将每个标签表示为全零向量，只有标签索引对应的元素为1。其代码实现如下。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">to_one_hot</span><span class="params">(labels, dimension=<span class="number">46</span>)</span>:</span></span><br><span class="line">    results = np.zeros((len(labels), dimension))</span><br><span class="line">    <span class="keyword">for</span> i, label <span class="keyword">in</span> enumerate(labels):</span><br><span class="line">        results[i, label] = <span class="number">1.</span></span><br><span class="line">    <span class="keyword">return</span> results</span><br><span class="line">one_hot_train_labels = to_one_hot(train_labels)</span><br><span class="line">one_hot_test_labels = to_one_hot(test_labels)</span><br></pre></td></tr></table></figure>
+<p>注意，Keras 内置方法可以实现这个操作：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> keras.utils.np_utils <span class="keyword">import</span> to_categorical</span><br><span class="line">one_hot_train_labels = to_categorical(train_labels)</span><br><span class="line">one_hot_test_labels = to_categorical(test_labels)</span><br></pre></td></tr></table></figure>
+<h2 id="3-构建网络-1"><a href="#3-构建网络-1" class="headerlink" title="3. 构建网络"></a>3. 构建网络</h2><p>这个主题分类问题与前面的电影评论分类问题类似，两个例子都是试图对简短的文本片段进行分类。但这个问题有一个新的约束条件：输出类别的数量从2 个变为46 个。输出空间的维度要大得多。</p>
+<p>对于前面用过的Dense 层的堆叠，每层只能访问上一层输出的信息。如果某一层丢失了与分类问题相关的一些信息，那么这些信息无法被后面的层找回，也就是说，每一层都可能成为信息瓶颈。上一个例子使用了16 维的中间层，但对这个例子来说16 维空间可能太小了，无法学会区分46 个不同的类别。这种维度较小的层可能成为信息瓶颈，永久地丢失相关信息。</p>
+<p>出于这个原因，下面将使用维度更大的层，包含64 个单元。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> keras <span class="keyword">import</span> models</span><br><span class="line"><span class="keyword">from</span> keras <span class="keyword">import</span> layers</span><br><span class="line">model = models.Sequential()</span><br><span class="line">model.add(layers.Dense(<span class="number">64</span>, activation=<span class="string">'relu'</span>, input_shape=(<span class="number">10000</span>,)))</span><br><span class="line">model.add(layers.Dense(<span class="number">64</span>, activation=<span class="string">'relu'</span>))</span><br><span class="line">model.add(layers.Dense(<span class="number">46</span>, activation=<span class="string">'softmax'</span>))</span><br></pre></td></tr></table></figure>
+<p>关于这个架构还应该注意另外两点：</p>
+<ul>
+<li>网络的最后一层是大小为 46 的 <code>Dense</code> 层。这意味着，对于每个输入样本，网络都会输出一个46 维向量。这个向量的每个元素（即每个维度）代表不同的输出类别。</li>
+<li>最后一层使用了 <code>softmax</code> 激活。你在 MNIST 例子中见过这种用法。网络将输出在 46个不同输出类别上的概率分布——对于每一个输入样本，网络都会输出一个46 维向量，其中<code>output[i]</code>是样本属于第<code>i</code>个类别的概率。46 个概率的总和为1。</li>
+</ul>
+<p>对于这个例子，最好的损失函数是<code>categorical_crossentropy</code>（分类交叉熵）。它用于衡量两个概率分布之间的距离，这里两个概率分布分别是网络输出的概率分布和标签的真实分布。通过将这两个分布的距离最小化，训练网络可使输出结果尽可能接近真实标签。</p>
+<h2 id="4-编译模型"><a href="#4-编译模型" class="headerlink" title="4. 编译模型"></a>4. 编译模型</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">model.compile(optimizer=<span class="string">'rmsprop'</span>,</span><br><span class="line">            loss=<span class="string">'categorical_crossentropy'</span>,</span><br><span class="line">            metrics=[<span class="string">'accuracy'</span>])</span><br></pre></td></tr></table></figure>
+<h2 id="5-验证你的方法"><a href="#5-验证你的方法" class="headerlink" title="5. 验证你的方法"></a>5. 验证你的方法</h2><p>我们在训练数据中留出1000 个样本作为验证集。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">x_val = x_train[:<span class="number">1000</span>]</span><br><span class="line">partial_x_train = x_train[<span class="number">1000</span>:]</span><br><span class="line">y_val = one_hot_train_labels[:<span class="number">1000</span>]</span><br><span class="line">partial_y_train = one_hot_train_labels[<span class="number">1000</span>:]</span><br></pre></td></tr></table></figure>
+<p>现在开始训练网络，共20 个轮次。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">history = model.fit(partial_x_train,</span><br><span class="line">                    partial_y_train,</span><br><span class="line">                    epochs=<span class="number">20</span>,</span><br><span class="line">                    batch_size=<span class="number">512</span>,</span><br><span class="line">                    validation_data=(x_val, y_val))</span><br></pre></td></tr></table></figure>
+<pre><code>Train on 7982 samples, validate on 1000 samples
+Epoch 1/20
+7982/7982 [==============================] - 2s 197us/step - loss: 2.7220 - accuracy: 0.5438 - val_loss: 1.7716 - val_accuracy: 0.6510
+Epoch 2/20
+7982/7982 [==============================] - 1s 90us/step - loss: 1.4464 - accuracy: 0.7068 - val_loss: 1.3297 - val_accuracy: 0.7160
+Epoch 3/20
+7982/7982 [==============================] - 1s 90us/step - loss: 1.0637 - accuracy: 0.7737 - val_loss: 1.1569 - val_accuracy: 0.7520
+Epoch 4/20
+7982/7982 [==============================] - 1s 92us/step - loss: 0.8311 - accuracy: 0.8247 - val_loss: 1.0649 - val_accuracy: 0.7690
+Epoch 5/20
+7982/7982 [==============================] - 1s 90us/step - loss: 0.6618 - accuracy: 0.8629 - val_loss: 0.9799 - val_accuracy: 0.7900
+Epoch 6/20
+7982/7982 [==============================] - 1s 90us/step - loss: 0.5263 - accuracy: 0.8905 - val_loss: 0.9437 - val_accuracy: 0.7910
+Epoch 7/20
+7982/7982 [==============================] - 1s 91us/step - loss: 0.4242 - accuracy: 0.9118 - val_loss: 0.9042 - val_accuracy: 0.8170
+Epoch 8/20
+7982/7982 [==============================] - 1s 92us/step - loss: 0.3445 - accuracy: 0.9295 - val_loss: 0.8994 - val_accuracy: 0.8200
+Epoch 9/20
+7982/7982 [==============================] - 1s 90us/step - loss: 0.2905 - accuracy: 0.9365 - val_loss: 0.9082 - val_accuracy: 0.8180
+Epoch 10/20
+7982/7982 [==============================] - 1s 89us/step - loss: 0.2414 - accuracy: 0.9437 - val_loss: 0.9217 - val_accuracy: 0.8090
+Epoch 11/20
+7982/7982 [==============================] - 1s 91us/step - loss: 0.2108 - accuracy: 0.9474 - val_loss: 0.9495 - val_accuracy: 0.8210
+Epoch 12/20
+7982/7982 [==============================] - 1s 91us/step - loss: 0.1879 - accuracy: 0.9530 - val_loss: 0.9722 - val_accuracy: 0.7960
+Epoch 13/20
+7982/7982 [==============================] - 1s 89us/step - loss: 0.1656 - accuracy: 0.9526 - val_loss: 1.0056 - val_accuracy: 0.7950
+Epoch 14/20
+7982/7982 [==============================] - 1s 91us/step - loss: 0.1504 - accuracy: 0.9545 - val_loss: 0.9687 - val_accuracy: 0.8090
+Epoch 15/20
+7982/7982 [==============================] - 1s 88us/step - loss: 0.1433 - accuracy: 0.9563 - val_loss: 1.0085 - val_accuracy: 0.8090
+Epoch 16/20
+7982/7982 [==============================] - 1s 90us/step - loss: 0.1312 - accuracy: 0.9551 - val_loss: 1.0123 - val_accuracy: 0.8040
+Epoch 17/20
+7982/7982 [==============================] - 1s 93us/step - loss: 0.1249 - accuracy: 0.9577 - val_loss: 1.0555 - val_accuracy: 0.8010
+Epoch 18/20
+7982/7982 [==============================] - 1s 90us/step - loss: 0.1226 - accuracy: 0.9554 - val_loss: 1.0423 - val_accuracy: 0.8000
+Epoch 19/20
+7982/7982 [==============================] - 1s 91us/step - loss: 0.1163 - accuracy: 0.9572 - val_loss: 1.0554 - val_accuracy: 0.8000
+Epoch 20/20
+7982/7982 [==============================] - 1s 113us/step - loss: 0.1086 - accuracy: 0.9588 - val_loss: 1.1368 - val_accuracy: 0.7790
+</code></pre><h2 id="6-绘制图像"><a href="#6-绘制图像" class="headerlink" title="6. 绘制图像"></a>6. 绘制图像</h2><p>最后，我们来绘制损失曲线和精度曲线</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line">loss = history.history[<span class="string">'loss'</span>]</span><br><span class="line">val_loss = history.history[<span class="string">'val_loss'</span>]</span><br><span class="line">epochs = range(<span class="number">1</span>, len(loss) + <span class="number">1</span>)</span><br><span class="line">plt.plot(epochs, loss, <span class="string">'bo'</span>, label=<span class="string">'Training loss'</span>)</span><br><span class="line">plt.plot(epochs, val_loss, <span class="string">'b'</span>, label=<span class="string">'Validation loss'</span>)</span><br><span class="line">plt.title(<span class="string">'Training and validation loss'</span>)</span><br><span class="line">plt.xlabel(<span class="string">'Epochs'</span>)</span><br><span class="line">plt.ylabel(<span class="string">'Loss'</span>)</span><br><span class="line">plt.legend()</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<center>
+    <img src="\Pic\DeepLearning_Pic\output_53_0.png" width="400" height="400" alt="训练损失和验证损失" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">训练损失和验证损失</div>
+</center>
+
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">plt.clf()</span><br><span class="line">acc = history.history[<span class="string">'accuracy'</span>]</span><br><span class="line">val_acc = history.history[<span class="string">'val_accuracy'</span>]</span><br><span class="line">plt.plot(epochs, acc, <span class="string">'bo'</span>, label=<span class="string">'Training accuracy'</span>)</span><br><span class="line">plt.plot(epochs, val_acc, <span class="string">'b'</span>, label=<span class="string">'Validation accuracy'</span>)</span><br><span class="line">plt.title(<span class="string">'Training and validation accuracy'</span>)</span><br><span class="line">plt.xlabel(<span class="string">'Epochs'</span>)</span><br><span class="line">plt.ylabel(<span class="string">'Accuracy'</span>)</span><br><span class="line">plt.legend()</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<center>
+    <img src="\Pic\DeepLearning_Pic\output_54_0.png" width="400" height="400" alt="训练精度和验证精度" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">训练精度和验证精度</div>
+</center>
+
+
+<p>网络在训练9轮后开始过拟合。我们从头开始训练一个新网络，共9个轮次，然后在测试集上评估模型。</p>
+<h2 id="7-从头开始重新训练一个模型"><a href="#7-从头开始重新训练一个模型" class="headerlink" title="7. 从头开始重新训练一个模型"></a>7. 从头开始重新训练一个模型</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">model = models.Sequential()</span><br><span class="line">model.add(layers.Dense(<span class="number">64</span>, activation=<span class="string">'relu'</span>, input_shape=(<span class="number">10000</span>,)))</span><br><span class="line">model.add(layers.Dense(<span class="number">64</span>, activation=<span class="string">'relu'</span>))</span><br><span class="line">model.add(layers.Dense(<span class="number">46</span>, activation=<span class="string">'softmax'</span>))</span><br><span class="line">model.compile(optimizer=<span class="string">'rmsprop'</span>,</span><br><span class="line">            loss=<span class="string">'categorical_crossentropy'</span>,</span><br><span class="line">            metrics=[<span class="string">'accuracy'</span>])</span><br><span class="line">model.fit(partial_x_train,</span><br><span class="line">        partial_y_train,</span><br><span class="line">        epochs=<span class="number">9</span>,</span><br><span class="line">        batch_size=<span class="number">512</span>,</span><br><span class="line">        validation_data=(x_val, y_val))</span><br><span class="line">results = model.evaluate(x_test, one_hot_test_labels)</span><br></pre></td></tr></table></figure>
+<pre><code>Train on 7982 samples, validate on 1000 samples
+Epoch 1/9
+7982/7982 [==============================] - 1s 116us/step - loss: 2.7007 - accuracy: 0.5041 - val_loss: 1.7970 - val_accuracy: 0.6230
+Epoch 2/9
+7982/7982 [==============================] - 1s 103us/step - loss: 1.4223 - accuracy: 0.7050 - val_loss: 1.3018 - val_accuracy: 0.7210
+Epoch 3/9
+7982/7982 [==============================] - 1s 106us/step - loss: 1.0310 - accuracy: 0.7791 - val_loss: 1.1309 - val_accuracy: 0.7470
+Epoch 4/9
+7982/7982 [==============================] - 1s 106us/step - loss: 0.8089 - accuracy: 0.8242 - val_loss: 1.0300 - val_accuracy: 0.7800
+Epoch 5/9
+7982/7982 [==============================] - 1s 124us/step - loss: 0.6437 - accuracy: 0.8629 - val_loss: 0.9679 - val_accuracy: 0.7970
+Epoch 6/9
+7982/7982 [==============================] - 1s 116us/step - loss: 0.5177 - accuracy: 0.8931 - val_loss: 0.9502 - val_accuracy: 0.8040
+Epoch 7/9
+7982/7982 [==============================] - 1s 125us/step - loss: 0.4128 - accuracy: 0.9143 - val_loss: 0.9156 - val_accuracy: 0.8060
+Epoch 8/9
+7982/7982 [==============================] - 1s 123us/step - loss: 0.3394 - accuracy: 0.9267 - val_loss: 0.9121 - val_accuracy: 0.8110
+Epoch 9/9
+7982/7982 [==============================] - 1s 136us/step - loss: 0.2785 - accuracy: 0.9386 - val_loss: 0.8915 - val_accuracy: 0.8110
+2246/2246 [==============================] - 0s 156us/step
+</code></pre><p>这种方法可以得到约80% 的精度。对于平衡的二分类问题，完全随机的分类器能够得到50% 的精度。但在这个例子中，完全随机的精度约为19%，所以上述结果相当不错，至少和随机的基准比起来还不错。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> copy</span><br><span class="line">test_labels_copy = copy.copy(test_labels)</span><br><span class="line">np.random.shuffle(test_labels_copy)</span><br><span class="line">hits_array = np.array(test_labels) == np.array(test_labels_copy)</span><br><span class="line">float(np.sum(hits_array)) / len(test_labels)</span><br></pre></td></tr></table></figure>
+<pre><code>0.18655387355298308
+</code></pre><h2 id="8-在新数据上生成预测结果"><a href="#8-在新数据上生成预测结果" class="headerlink" title="8. 在新数据上生成预测结果"></a>8. 在新数据上生成预测结果</h2><p>你可以验证，模型实例的<code>predict</code>方法返回了在46 个主题上的概率分布。我们对所有测试数据生成主题预测。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">predictions = model.predict(x_test)</span><br></pre></td></tr></table></figure>
+<p>predictions 中的每个元素都是长度为46 的向量</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">predictions[<span class="number">0</span>].shape</span><br></pre></td></tr></table></figure>
+<pre><code>(46,)
+</code></pre><p>最大的元素就是预测类别，即概率最大的类别。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">np.argmax(predictions[<span class="number">0</span>])</span><br></pre></td></tr></table></figure>
+<pre><code>3
+</code></pre><h2 id="9-处理标签和损失的另一种方法"><a href="#9-处理标签和损失的另一种方法" class="headerlink" title="9. 处理标签和损失的另一种方法"></a>9. 处理标签和损失的另一种方法</h2><p>前面提到了另一种编码标签的方法，就是将其转换为整数张量，如下所示。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">y_train = np.array(train_labels)</span><br><span class="line">y_test = np.array(test_labels)</span><br></pre></td></tr></table></figure><br>对于这种编码方法，唯一需要改变的是损失函数的选择。对于代码清单3-21 使用的损失函数<code>categorical_crossentropy</code>，标签应该遵循分类编码。对于整数标签，你应该使用<code>sparse_categorical_crossentropy</code>。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">model.compile(optimizer=<span class="string">'rmsprop'</span>,</span><br><span class="line">loss=<span class="string">'sparse_categorical_crossentropy'</span>,</span><br><span class="line">metrics=[<span class="string">'acc'</span>])</span><br></pre></td></tr></table></figure><br>这个新的损失函数在数学上与<code>categorical_crossentropy</code>完全相同，二者只是接口不同</p>
+<h1 id="三、预测房价：回归问题"><a href="#三、预测房价：回归问题" class="headerlink" title="三、预测房价：回归问题"></a>三、预测房价：回归问题</h1><p>前面两个例子都是分类问题，其目标是预测输入数据点所对应的单一离散的标签。另一种常见的机器学习问题是回归问题，它预测一个连续值而不是离散的标签，例如，根据气象数据预测明天的气温，或者根据软件说明书预测完成软件项目所需要的时间。</p>
+<h2 id="1-波士顿房价数据集"><a href="#1-波士顿房价数据集" class="headerlink" title="1. 波士顿房价数据集"></a>1. 波士顿房价数据集</h2><p>下面将要预测20 世纪70 年代中期波士顿郊区房屋价格的中位数，已知当时郊区的一些数据点，比如犯罪率、当地房产税率等。</p>
+<p>该数据集包含的数据点相对较少，只有506 个，分为404 个训练样本和102 个测试样本。输入数据的每个特征（比如犯罪率）都有不同的取值范围。例如，有些特性是比例，取值范围为0~1；有的取值范围为1~12；还有的取值范围为0~100，等等。</p>
+<h2 id="2-加载波士顿房价数据"><a href="#2-加载波士顿房价数据" class="headerlink" title="2. 加载波士顿房价数据"></a>2. 加载波士顿房价数据</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> keras.datasets <span class="keyword">import</span> boston_housing</span><br><span class="line">(train_data, train_targets), (test_data, test_targets) = boston_housing.load_data()</span><br><span class="line">print(train_data.shape, test_data.shape)</span><br></pre></td></tr></table></figure>
+<pre><code>(404, 13) (102, 13)
+</code></pre><p>如你所见，我们有404 个训练样本和102 个测试样本，每个样本都有13 个数值特征，比如人均犯罪率、每个住宅的平均房间数、高速公路可达性等。</p>
+<p>目标函数是房屋价格的中位数，单位是千美元。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">train_targets[:<span class="number">20</span>]</span><br></pre></td></tr></table></figure>
+<pre><code>array([15.2, 42.3, 50. , 21.1, 17.7, 18.5, 11.3, 15.6, 15.6, 14.4, 12.1,
+       17.9, 23.1, 19.9, 15.7,  8.8, 50. , 22.5, 24.1, 27.5])
+</code></pre><p>房价大都在10 000~50 000 美元。如果你觉得这很便宜，不要忘记当时是20 世纪70 年代中期，而且这些价格没有根据通货膨胀进行调整。</p>
+<h2 id="3-准备数据"><a href="#3-准备数据" class="headerlink" title="3. 准备数据"></a>3. 准备数据</h2><p>将取值范围差异很大的数据输入到神经网络中，这是有问题的。网络可能会自动适应这种取值范围不同的数据，但学习肯定变得更加困难。对于这种数据，普遍采用的最佳实践是对每个特征做标准化，即对于输入数据的每个特征（输入数据矩阵中的列），减去特征平均值，再除以标准差，这样得到的特征平均值为0，标准差为1。用Numpy 可以很容易实现标准化。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 数据标准化</span></span><br><span class="line">mean = train_data.mean(axis=<span class="number">0</span>)</span><br><span class="line">train_data -= mean</span><br><span class="line">std = train_data.std(axis=<span class="number">0</span>)</span><br><span class="line">train_data /= std</span><br><span class="line">test_data -= mean</span><br><span class="line">test_data /= std</span><br></pre></td></tr></table></figure>
+<p>注意，用于测试数据标准化的均值和标准差都是在训练数据上计算得到的。在工作流程中，你不能使用在测试数据上计算得到的任何结果，即使是像数据标准化这么简单的事情也不行。</p>
+<h2 id="4-构建网络"><a href="#4-构建网络" class="headerlink" title="4. 构建网络"></a>4. 构建网络</h2><p>由于样本数量很少，我们将使用一个非常小的网络，其中包含两个隐藏层，每层有64 个单元。一般来说，训练数据越少，过拟合会越严重，而较小的网络可以降低过拟合。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 模型定义</span></span><br><span class="line"><span class="keyword">from</span> keras <span class="keyword">import</span> models</span><br><span class="line"><span class="keyword">from</span> keras <span class="keyword">import</span> layers</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">build_model</span><span class="params">()</span>:</span></span><br><span class="line">    model = models.Sequential()</span><br><span class="line">    model.add(layers.Dense(<span class="number">64</span>, activation=<span class="string">'relu'</span>, input_shape=(train_data.shape[<span class="number">1</span>],)))</span><br><span class="line">    model.add(layers.Dense(<span class="number">64</span>, activation=<span class="string">'relu'</span>))</span><br><span class="line">    model.add(layers.Dense(<span class="number">1</span>))</span><br><span class="line">    model.compile(optimizer=<span class="string">'rmsprop'</span>, loss=<span class="string">'mse'</span>, metrics=[<span class="string">'mae'</span>])</span><br><span class="line">    <span class="keyword">return</span> model</span><br></pre></td></tr></table></figure>
+<p>网络的最后一层只有一个单元，<strong>没有激活</strong>，是一个线性层。这是标量回归（标量回归是预测单一连续值的回归）的典型设置。添加激活函数将会限制输出范围。例如，如果向最后一层添加sigmoid 激活函数，网络只能学会预测0~1 范围内的值。这里最后一层是纯线性的，所以网络可以学会预测任意范围内的值。</p>
+<p>注意，编译网络用的是<code>mse</code>损失函数，即均方误差（MSE，mean squared error），预测值与目标值之差的平方。这是回归问题常用的损失函数。</p>
+<p>在训练过程中还监控一个新指标：平均绝对误差（MAE，mean absolute error）。它是预测值与目标值之差的绝对值。比如，如果这个问题的MAE 等于0.5，就表示你预测的房价与实际价格平均相差500 美元。</p>
+<h2 id="5-利用K折验证来验证你的方法"><a href="#5-利用K折验证来验证你的方法" class="headerlink" title="5. 利用K折验证来验证你的方法"></a>5. 利用K折验证来验证你的方法</h2><p>为了在调节网络参数（比如训练的轮数）的同时对网络进行评估，你可以将数据划分为训练集和验证集，正如前面例子中所做的那样。但由于数据点很少，验证集会非常小（比如大约100 个样本）。因此，验证分数可能会有很大波动，这取决于你所选择的验证集和训练集。也就是说，验证集的划分方式可能会造成验证分数上有很大的方差，这样就无法对模型进行可靠的评估。</p>
+<center>
+    <img src="\Pic\DeepLearning_Pic\k-fold.png" width="400" height="400" alt="k-fold" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">k折验证</div>
+</center>
+
+<p>在这种情况下，最佳做法是使用<code>K</code>折交叉验证。这种方法将可用数据划分为<code>K</code>个分区（<code>K</code>通常取4 或5），实例化<code>K</code>个相同的模型，将每个模型在<code>K-1</code>个分区上训练，并在剩下的一个分区上进行评估。模型的验证分数等于<code>K</code>个验证分数的平均值。这种方法的代码实现很简单：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">k = <span class="number">4</span></span><br><span class="line">num_val_samples = len(train_data) // k</span><br><span class="line">num_epochs = <span class="number">100</span></span><br><span class="line">all_scores = []</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(k):</span><br><span class="line">    print(<span class="string">'processing fold #'</span>, i)</span><br><span class="line">    val_data = train_data[i * num_val_samples: (i + <span class="number">1</span>) * num_val_samples]</span><br><span class="line">    val_targets = train_targets[i * num_val_samples: (i + <span class="number">1</span>) * num_val_samples]</span><br><span class="line">    partial_train_data = np.concatenate([train_data[:i * num_val_samples],train_data[(i + <span class="number">1</span>) * num_val_samples:]],axis=<span class="number">0</span>)</span><br><span class="line">    partial_train_targets = np.concatenate([train_targets[:i * num_val_samples],train_targets[(i + <span class="number">1</span>) * num_val_samples:]],axis=<span class="number">0</span>)</span><br><span class="line">    model = build_model()</span><br><span class="line">    model.fit(partial_train_data, partial_train_targets,</span><br><span class="line">    epochs=num_epochs, batch_size=<span class="number">1</span>, verbose=<span class="number">0</span>)</span><br><span class="line">    val_mse, val_mae = model.evaluate(val_data, val_targets, verbose=<span class="number">0</span>)</span><br><span class="line">    all_scores.append(val_mae)</span><br></pre></td></tr></table></figure>
+<pre><code>processing fold # 0
+processing fold # 1
+processing fold # 2
+processing fold # 3
+</code></pre><p>运行结果如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">print(<span class="string">'所有得分：'</span>, all_scores, <span class="string">'\n平均值为'</span>, np.mean(all_scores))</span><br></pre></td></tr></table></figure>
+<pre><code>所有得分： [2.0891380310058594, 2.6256139278411865, 2.7675087451934814, 2.588402271270752] 
+平均值为 2.51766574382782
+</code></pre><p>每次运行模型得到的验证分数有很大差异，从2.6 到3.2 不等。平均分数（3.0）是比单一分数更可靠的指标——这就是K 折交叉验证的关键。在这个例子中，预测的房价与实际价格平均相差3000 美元，考虑到实际价格范围在10 000~50 000 美元，这一差别还是很大的。</p>
+<p>我们可以让训练时间更长一点，达到500 个轮次。为了记录模型在每轮的表现，我们需要修改训练循环，以保存每轮的验证分数记录。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">num_epochs = <span class="number">500</span></span><br><span class="line">all_mae_histories = []</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(k):</span><br><span class="line">    print(<span class="string">'processing fold #'</span>, i)</span><br><span class="line">    val_data = train_data[i * num_val_samples: (i + <span class="number">1</span>) * num_val_samples]</span><br><span class="line">    val_targets = train_targets[i * num_val_samples: (i + <span class="number">1</span>) * num_val_samples]</span><br><span class="line">    partial_train_data = np.concatenate([train_data[:i * num_val_samples],train_data[(i + <span class="number">1</span>) * num_val_samples:]],axis=<span class="number">0</span>)</span><br><span class="line">    partial_train_targets = np.concatenate([train_targets[:i * num_val_samples],train_targets[(i + <span class="number">1</span>) * num_val_samples:]],axis=<span class="number">0</span>)</span><br><span class="line">    model = build_model()</span><br><span class="line">    history = model.fit(partial_train_data, partial_train_targets,</span><br><span class="line">    validation_data=(val_data, val_targets),</span><br><span class="line">    epochs=num_epochs, batch_size=<span class="number">1</span>, verbose=<span class="number">0</span>)</span><br><span class="line">    mae_history = history.history[<span class="string">'val_mean_absolute_error'</span>]</span><br><span class="line">    all_mae_histories.append(mae_history)</span><br></pre></td></tr></table></figure><br>然后你可以计算每个轮次中所有折MAE 的平均值。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">average_mae_history = [np.mean([x[i] <span class="keyword">for</span> x <span class="keyword">in</span> all_mae_histories]) <span class="keyword">for</span> i <span class="keyword">in</span> range(num_epochs)]</span><br></pre></td></tr></table></figure><br>我们画图来看一下：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line">plt.plot(range(<span class="number">1</span>, len(average_mae_history) + <span class="number">1</span>), average_mae_history)</span><br><span class="line">plt.xlabel(<span class="string">'Epochs'</span>)</span><br><span class="line">plt.ylabel(<span class="string">'Validation MAE'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
+<center>
+    <img src="\Pic\DeepLearning_Pic\MAE_1.png" width="400" height="400" alt="MAE_1" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">每轮的验证MAE</div>
+</center>
+
+<p>因为纵轴的范围较大，且数据方差相对较大，所以难以看清这张图的规律。我们来重新绘制一张图。</p>
+<ul>
+<li>删除前 10 个数据点，因为它们的取值范围与曲线上的其他点不同。</li>
+<li>将每个数据点替换为前面数据点的指数移动平均值，以得到光滑的曲线。<br>代码如下所示：<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">smooth_curve</span><span class="params">(points, factor=<span class="number">0.9</span>)</span>:</span></span><br><span class="line">    smoothed_points = []</span><br><span class="line">    <span class="keyword">for</span> point <span class="keyword">in</span> points:</span><br><span class="line">        <span class="keyword">if</span> smoothed_points:</span><br><span class="line">            previous = smoothed_points[<span class="number">-1</span>]</span><br><span class="line">            smoothed_points.append(previous * factor + point * (<span class="number">1</span> - factor))</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            smoothed_points.append(point)</span><br><span class="line">    <span class="keyword">return</span> smoothed_points</span><br><span class="line">smooth_mae_history = smooth_curve(average_mae_history[<span class="number">10</span>:])</span><br><span class="line">plt.plot(range(<span class="number">1</span>, len(smooth_mae_history) + <span class="number">1</span>), smooth_mae_history)</span><br><span class="line">plt.xlabel(<span class="string">'Epochs'</span>)</span><br><span class="line">plt.ylabel(<span class="string">'Validation MAE'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+从图中可以看出验证MAE 在80 轮后不再显著降低，之后就开始过拟合。</li>
+</ul>
+<center>
+    <img src="\Pic\DeepLearning_Pic\MAE_2.png" width="400" height="400" alt="MAE_2" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">每轮的验证MAE（删除前十个数据点）</div>
+</center>
+
+<p>完成模型调参之后（除了轮数，还可以调节隐藏层大小），你可以使用最佳参数在所有训练数据上训练最终的生产模型，然后观察模型在测试集上的性能。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">model = build_model()</span><br><span class="line">model.fit(train_data, train_targets,</span><br><span class="line">epochs=<span class="number">80</span>, batch_size=<span class="number">16</span>, verbose=<span class="number">0</span>)</span><br><span class="line">test_mse_score, test_mae_score = model.evaluate(test_data, test_targets)</span><br><span class="line">print(test_mae_score)</span><br></pre></td></tr></table></figure>
+<pre><code>102/102 [==============================] - 0s 147us/step
+2.905885696411133
+</code></pre><p>你预测的房价还是和实际价格相差约2905 美元。</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://chenkai66.github.io/posts/d8ee3b71.html" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/posts/1fc7d624.html" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Python深度学习（二）深度学习用于计算机视觉
+          
+        </div>
+      </a>
+    
+    
+      <a href="/posts/8c5e1ebd.html" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">XGBoost（二）解决二分类和多分类问题</div>
+      </a>
+    
+  </nav>
+
+   
+<!-- valine评论 -->
+<div id="vcomments-box">
+  <div id="vcomments"></div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+<script>
+  new Valine({
+    el: "#vcomments",
+    app_id: "TQy5bHTePagP10u5BBsesx61-gzGzoHsz",
+    app_key: "O6UyJYxBFgMKQMjktBh4KGad",
+    path: window.location.pathname,
+    avatar: "monsterid",
+    placeholder: "给我的文章加点评论吧~",
+    recordIP: true,
+  });
+  const infoEle = document.querySelector("#vcomments .info");
+  if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+    infoEle.childNodes.forEach(function (item) {
+      item.parentNode.removeChild(item);
+    });
+  }
+</script>
+<style>
+  #vcomments-box {
+    padding: 5px 30px;
+  }
+
+  @media screen and (max-width: 800px) {
+    #vcomments-box {
+      padding: 5px 0px;
+    }
+  }
+
+  #vcomments-box #vcomments {
+    background-color: #fff;
+  }
+
+  .v .vlist .vcard .vh {
+    padding-right: 20px;
+  }
+
+  .v .vlist .vcard {
+    padding-left: 10px;
+  }
+</style>
+
+ 
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2020-2021
+        <i class="ri-heart-fill heart_icon"></i> chenk
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        由 帅气的CK本尊 强力驱动
+        
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></s>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="言念君子"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+
+<script src="/js/clickBoom2.js"></script>
+
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+<script src="/js/dz.js"></script>
+
+
+
+    
+  </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"live2d-widget-model-haruto"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>
