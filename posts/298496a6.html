@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    XGBoost（一）简单机器学习示例 |  言念君子
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      
+      <canvas width="1777" height="841"
+        style="position: fixed; left: 0px; top: 0px; z-index: 99999; pointer-events: none;"></canvas>
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-XGBoost（一）简单机器学习示例"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  XGBoost（一）简单机器学习示例
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/posts/298496a6.html" class="article-date">
+  <time datetime="2021-04-05T15:04:54.302Z" itemprop="datePublished">2021-04-05</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/XGBoost/">XGBoost</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">5.1k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">21 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="一、XGBoost简单应用"><a href="#一、XGBoost简单应用" class="headerlink" title="一、XGBoost简单应用"></a>一、XGBoost简单应用</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> xgboost <span class="keyword">as</span> xgb</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> warnings</span><br><span class="line">warnings.filterwarnings(<span class="string">"ignore"</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">xgb_train = xgb.DMatrix(<span class="string">"xgboost_source_code/demo/data/agaricus.txt.train"</span>)</span><br><span class="line">xgb_test = xgb.DMatrix(<span class="string">"xgboost_source_code/demo/data/agaricus.txt.test"</span>)</span><br><span class="line">param = &#123;<span class="string">'max_depth'</span>:<span class="number">2</span>, <span class="string">'eta'</span>:<span class="number">1</span>, <span class="string">'objective'</span>:<span class="string">'binary:logistic'</span>&#125;</span><br><span class="line">num_round = <span class="number">5</span></span><br><span class="line">watch_list = [(xgb_train, <span class="string">"train"</span>), (xgb_test, <span class="string">"test"</span>)]</span><br><span class="line">model = xgb.train(param, xgb_train, num_round, watch_list)</span><br></pre></td></tr></table></figure>
+<pre><code>[0]    train-error:0.04652    test-error:0.04283
+[1]    train-error:0.02226    test-error:0.02173
+[2]    train-error:0.00706    test-error:0.00621
+[3]    train-error:0.01520    test-error:0.01800
+[4]    train-error:0.00706    test-error:0.00621
+</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">preds = model.predict(xgb_test)</span><br><span class="line">preds</span><br></pre></td></tr></table></figure>
+<pre><code>array([0.08073306, 0.92217326, 0.08073306, ..., 0.98059034, 0.01182149,
+       0.98059034], dtype=float32)
+</code></pre><h1 id="二、机器学习算法基础"><a href="#二、机器学习算法基础" class="headerlink" title="二、机器学习算法基础"></a>二、机器学习算法基础</h1><p>我们首先介绍几个基础的机器学习算法的实现原理和应用，如KNN、线性回归、逻辑回归等，使读者对机器学习算法有一个基本认识的同时，了解如何在模型训练过程中进行优化，以及如何对模型结果进行评估。然后，对决策树模型做了详细介绍。决策树是XGBoost模型的重要组成部分，学习和掌握决策树的生成、剪枝等内容将会对后续的学习提供巨大帮助。排序问题是机器学习中的常见问题，神经网络和支持向量机也是经常采用的机器学习算法，最后将分别介绍两者的实现原理，结合详细的公式推导过程，使读者能够深入理解算法背后的数学原理。</p>
+<h2 id="1-KNN做鸢尾花数据预测"><a href="#1-KNN做鸢尾花数据预测" class="headerlink" title="1. KNN做鸢尾花数据预测"></a>1. KNN做鸢尾花数据预测</h2><p>KNN的主要算法思想为：特征空间中的一个样本，如果与其最相似的k个样本中的大部分属于某个类别，则该样本也属于该类别。KNN既可以用于解决分类问题，也可以用于回归问题。</p>
+<p>对于分类问题，离样本最近的k个邻居中占多数的类别作为该样本的类别，如果k=1，则选取最近邻居的类别作为该样本的类别。对于回归问题，样本的预测值是最近的k个邻居的平均值。</p>
+<p>KNN的计算步骤如下。</p>
+<ol>
+<li>计算测试样本与训练集中所有（或大部分）样本的距离，该距离可以是欧氏距离、余弦距离等，较常用的是欧氏距离。</li>
+<li>找到步骤1中距离最短的k个样本，作为预测样本的邻居。</li>
+<li>对于分类问题，通过投票机制选出k个邻居中最多的类别作为预测样本的预测值。对于回归问题，则采用k个邻居的平均值。</li>
+</ol>
+<p>Iris也称鸢尾花卉数据集，是一类多重变量分析的数据集。数据集包含150个数据集，分为3类，每类50个数据，每个数据包含4个属性。可通过花萼长度，花萼宽度，花瓣长度，花瓣宽度4个属性预测鸢尾花卉属于（Setosa，Versicolour，Virginica）三个种类中的哪一类。</p>
+<p><strong>数据描述</strong></p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>变量名</th>
+<th>sepal_length</th>
+<th>sepal_width</th>
+<th>petal_length</th>
+<th>petal_width</th>
+<th>species</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>变量解释</td>
+<td>花萼长度（单位cm）</td>
+<td>花萼宽度（单位cm）</td>
+<td>花瓣长度（单位cm）</td>
+<td>花瓣宽度（单位cm）</td>
+<td>种类</td>
+</tr>
+<tr>
+<td>数据类型</td>
+<td>numeric</td>
+<td>numeric</td>
+<td>numeric</td>
+<td>numeric</td>
+<td>categorical</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="1-1-导入数据集并观察分布"><a href="#1-1-导入数据集并观察分布" class="headerlink" title="1.1 导入数据集并观察分布"></a>1.1 导入数据集并观察分布</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> matplotlib <span class="keyword">import</span> pyplot</span><br><span class="line"><span class="keyword">from</span> sklearn.datasets <span class="keyword">import</span> load_iris</span><br><span class="line">iris = load_iris()</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pd.DataFrame(iris.data, columns=iris.feature_names).head()</span><br></pre></td></tr></table></figure>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>sepal length (cm)</th>
+      <th>sepal width (cm)</th>
+      <th>petal length (cm)</th>
+      <th>petal width (cm)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>5.1</td>
+      <td>3.5</td>
+      <td>1.4</td>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>4.9</td>
+      <td>3.0</td>
+      <td>1.4</td>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>4.7</td>
+      <td>3.2</td>
+      <td>1.3</td>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4.6</td>
+      <td>3.1</td>
+      <td>1.5</td>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5.0</td>
+      <td>3.6</td>
+      <td>1.4</td>
+      <td>0.2</td>
+    </tr>
+  </tbody>
+</table>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">setosa_sepal_len = iris.data[:<span class="number">50</span>, <span class="number">0</span>]</span><br><span class="line">setosa_sepal_width = iris.data[:<span class="number">50</span>, <span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">versi_sepal_len = iris.data[<span class="number">50</span>:<span class="number">100</span>, <span class="number">0</span>]</span><br><span class="line">versi_sepal_width = iris.data[<span class="number">50</span>:<span class="number">100</span>, <span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">vergi_sepal_len = iris.data[<span class="number">100</span>:, <span class="number">0</span>]</span><br><span class="line">vergi_sepal_width = iris.data[<span class="number">100</span>:, <span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">pyplot.scatter(setosa_sepal_len, setosa_sepal_width, marker = <span class="string">'o'</span>, c = <span class="string">'b'</span>,  s = <span class="number">30</span>, label = <span class="string">'Setosa'</span>)</span><br><span class="line">pyplot.scatter(versi_sepal_len, versi_sepal_width, marker = <span class="string">'o'</span>, c = <span class="string">'r'</span>,  s = <span class="number">50</span>, label = <span class="string">'Versicolour'</span>)</span><br><span class="line">pyplot.scatter(vergi_sepal_len, vergi_sepal_width, marker = <span class="string">'o'</span>, c = <span class="string">'y'</span>,  s = <span class="number">35</span>, label = <span class="string">'Virginica'</span>)</span><br><span class="line">pyplot.xlabel(<span class="string">"sepal length"</span>)</span><br><span class="line">pyplot.ylabel(<span class="string">"sepal width"</span>)</span><br><span class="line">pyplot.title(<span class="string">"sepal length and width scatter"</span>)</span><br><span class="line">pyplot.legend(loc = <span class="string">"upper right"</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="\Pic\XGBoost_Pic\output_7_1.png" alt="png"></p>
+<h3 id="2-绘制各个品种各个特征平均值的直方图"><a href="#2-绘制各个品种各个特征平均值的直方图" class="headerlink" title="2. 绘制各个品种各个特征平均值的直方图"></a>2. 绘制各个品种各个特征平均值的直方图</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">iris_data = pd.DataFrame(iris.data, columns=iris.feature_names)</span><br><span class="line">iris_data[<span class="string">"class"</span>] = iris.target</span><br><span class="line">iris_data.head()</span><br></pre></td></tr></table></figure>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>sepal length (cm)</th>
+      <th>sepal width (cm)</th>
+      <th>petal length (cm)</th>
+      <th>petal width (cm)</th>
+      <th>class</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>5.1</td>
+      <td>3.5</td>
+      <td>1.4</td>
+      <td>0.2</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>4.9</td>
+      <td>3.0</td>
+      <td>1.4</td>
+      <td>0.2</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>4.7</td>
+      <td>3.2</td>
+      <td>1.3</td>
+      <td>0.2</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4.6</td>
+      <td>3.1</td>
+      <td>1.5</td>
+      <td>0.2</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5.0</td>
+      <td>3.6</td>
+      <td>1.4</td>
+      <td>0.2</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> matplotlib <span class="keyword">import</span> pyplot <span class="keyword">as</span> plt</span><br><span class="line">grouped_data = iris_data.groupby(<span class="string">"class"</span>)</span><br><span class="line">group_mean = grouped_data.mean()</span><br><span class="line">group_mean.plot(kind=<span class="string">'bar'</span>)</span><br><span class="line">plt.legend(loc=<span class="string">"center right"</span>, bbox_to_anchor=(<span class="number">1.4</span>, <span class="number">0.3</span>), ncol=<span class="number">1</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<p><img src="\Pic\XGBoost_Pic\output_10_0.png" alt="png"></p>
+<h3 id="3-划分数据集"><a href="#3-划分数据集" class="headerlink" title="3. 划分数据集"></a>3. 划分数据集</h3><p>因为我们至少需要一个训练集来训练模型（KNN则用于最终预测计算），一个测试集来检验模型对新样本的预测能力，而目前只有一个数据集，因此需要对数据集进行划分。划分数据集有很多方法，比如留出法（hold-out）、交叉验证法等，本示例采用较常用的留出法。留出法的实现原理是，按照一定比例将数据集划分为互不相交的两部分，分别作为训练集和测试集。此处选用的训练集、测试集的比例为4:1，代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">msk = np.random.rand(len(iris_data)) &lt; <span class="number">0.8</span></span><br><span class="line">train_data_origin = iris_data[msk]</span><br><span class="line">test_data_origin = iris_data[~msk]</span><br><span class="line"></span><br><span class="line">train_data = train_data_origin.reset_index(drop=<span class="literal">True</span>)</span><br><span class="line">test_data = test_data_origin.reset_index(drop=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">train_label = train_data[<span class="string">"class"</span>]</span><br><span class="line">test_label = test_data[<span class="string">"class"</span>]</span><br><span class="line"></span><br><span class="line">train_fea = train_data.drop(<span class="string">"class"</span>, <span class="number">1</span>)</span><br><span class="line">test_fea = test_data.drop(<span class="string">"class"</span>, <span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 数据归一化</span></span><br><span class="line">train_norm = (train_fea - train_fea.min()) / (train_fea.max() - train_fea.min())</span><br><span class="line">test_norm = (test_fea - test_fea.min()) / (test_fea.max() - test_fea.min())</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> neighbors</span><br><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> accuracy_score</span><br><span class="line">knn = neighbors.KNeighborsClassifier(n_neighbors=<span class="number">3</span>)</span><br><span class="line">knn.fit(train_norm, train_label)</span><br><span class="line">predict = knn.predict(test_norm)</span><br><span class="line">accuracy = accuracy_score(test_label, predict)</span><br><span class="line">accuracy</span><br></pre></td></tr></table></figure>
+<pre><code>0.9166666666666666
+</code></pre><p>KNN算法是机器学习中最简单、有效的算法。上面通过鸢尾花品种分类的示例详细介绍了KNN算法的实现原理和应用。KNN算法属于懒惰学习算法，当数据集的样本容量比较大时，计算量也会比较大，并且需要较大的存储空间。此外，它无法给出数据的任何基础结构信息，后面介绍的算法将会解决这个问题。</p>
+<h2 id="2-线性回归预测波士顿房价"><a href="#2-线性回归预测波士顿房价" class="headerlink" title="2. 线性回归预测波士顿房价"></a>2. 线性回归预测波士顿房价</h2><p>下面通过一个示例来说明如何应用线性回归。以波士顿房屋价格数据集作为示例数据集，该数据集包含了波士顿房屋以及周边环境的一些详细信息，包括城镇人均犯罪率、一氧化碳浓度、住宅平均房屋数等。该数据集包含506个样本、13个特征字段、1个label字段</p>
+<p><strong>数据描述</strong></p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>No</th>
+<th>属性</th>
+<th>数据类型</th>
+<th>字段描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>CRIM</td>
+<td>Float</td>
+<td>城镇人均犯罪率</td>
+</tr>
+<tr>
+<td>2</td>
+<td>ZN</td>
+<td>Float</td>
+<td>占地面积超过2.5万平方英尺的住宅用地比例</td>
+</tr>
+<tr>
+<td>3</td>
+<td>INDUS</td>
+<td>Float</td>
+<td>城镇非零售业务地区的比例</td>
+</tr>
+<tr>
+<td>4</td>
+<td>CHAS</td>
+<td>Integer</td>
+<td>查尔斯河虚拟变量 (= 1 如果土地在河边；否则是0)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>NOX</td>
+<td>Float</td>
+<td>一氧化氮浓度（每1000万份）</td>
+</tr>
+<tr>
+<td>6</td>
+<td>RM</td>
+<td>Float</td>
+<td>平均每居民房数</td>
+</tr>
+<tr>
+<td>7</td>
+<td>AGE</td>
+<td>Float</td>
+<td>在1940年之前建成的所有者占用单位的比例</td>
+</tr>
+<tr>
+<td>8</td>
+<td>DIS</td>
+<td>Float</td>
+<td>与五个波士顿就业中心的加权距离</td>
+</tr>
+<tr>
+<td>9</td>
+<td>RAD</td>
+<td>Integer</td>
+<td>辐射状公路的可达性指数</td>
+</tr>
+<tr>
+<td>10</td>
+<td>TAX</td>
+<td>Float</td>
+<td>每10,000美元的全额物业税率</td>
+</tr>
+<tr>
+<td>11</td>
+<td>PTRATIO</td>
+<td>Float</td>
+<td>城镇师生比例</td>
+</tr>
+<tr>
+<td>12</td>
+<td>B</td>
+<td>Float</td>
+<td>1000（Bk - 0.63）^ 2其中Bk是城镇黑人的比例</td>
+</tr>
+<tr>
+<td>13</td>
+<td>LSTAT</td>
+<td>Float</td>
+<td>人口中地位较低人群的百分数</td>
+</tr>
+<tr>
+<td>14</td>
+<td>MEDV</td>
+<td>Float</td>
+<td>（目标变量/类别属性）以1000美元计算的自有住房的中位数</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.datasets <span class="keyword">import</span> load_boston</span><br><span class="line">boston = load_boston()</span><br><span class="line">X = boston.data</span><br><span class="line">y = boston.target</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split</span><br><span class="line">X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=<span class="number">0.2</span>, random_state=<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> LinearRegression</span><br><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> cross_val_score</span><br><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> mean_squared_error</span><br><span class="line"></span><br><span class="line">lr = LinearRegression()</span><br><span class="line">lr.fit(X_train, y_train)</span><br><span class="line">y_pred = lr.predict(X_test)</span><br><span class="line">mean_squared_error(y_test, y_pred)</span><br></pre></td></tr></table></figure>
+<pre><code>23.380836480270315
+</code></pre><p>另外XGBoost也提供了线性回归的API，其数据加载步骤与上述<code>scikit-learn</code>的方法相同，不再赘述。使用XGBoost，首先要把数据转化为其自定义的<code>DMatrix</code>格式，该格式为XGBoost特定的输入格式。然后定义模型参数，此处定义较为简单，只选用了2个参数，如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">params = &#123;<span class="string">"objective"</span>:<span class="string">"reg:linear"</span>, <span class="string">"booster"</span>:<span class="string">"gblinear"</span>&#125;</span><br></pre></td></tr></table></figure>
+<p>其中，<code>objective</code>用于确定模型的目标函数，这里以<code>reg:squarederror</code>作为目标函数。参数<code>booster</code>用于确定采用什么样的模型，此处选择的是线性模型（gblinear），读者也可根据应用场景选择其他模型（gbtree、dart），因本节主要介绍线性回归，因此选用线性模型。定义好参数后即可训练模型，最后用该模型对测试集进行预测。代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">train_xgb = xgb.DMatrix(X_train, y_train)</span><br><span class="line">params = &#123;<span class="string">"objective"</span>:<span class="string">"reg:squarederror"</span>, <span class="string">"booster"</span>:<span class="string">"gblinear"</span>&#125;</span><br><span class="line">model = xgb.train(dtrain=train_xgb, params=params)</span><br><span class="line">y_pred = model.predict(xgb.DMatrix(X_test))</span><br></pre></td></tr></table></figure>
+<p>综上，线性回归是一种解决回归问题的常见方法。在线性回归中，求解最优参数的方法是最小化其损失函数。最小化损失函数有两种方法：<strong>正规方程和梯度下降法</strong>。</p>
+<p>正规方程通过矩阵运算求得最优参数，但其必须满足$X^TX$可逆，当样本数比特征数还少时，$X^TX$的逆是不能直接计算的。</p>
+<p>梯度下降法是沿负梯度的方向一步步最小化损失函数，求解最优参数。梯度下降法需要指定步长并进行多次迭代，但相比于正规方程，梯度下降法可以应用于特征数较大的情况。最后，通过波士顿房价的示例展示了通过scikit-learn和XGBoost如何应用线性回归。</p>
+<h2 id="3-逻辑回归预测良性-恶性乳腺肿瘤"><a href="#3-逻辑回归预测良性-恶性乳腺肿瘤" class="headerlink" title="3. 逻辑回归预测良性/恶性乳腺肿瘤"></a>3. 逻辑回归预测良性/恶性乳腺肿瘤</h2><p>下面将使用逻辑回归预测乳腺肿瘤是良性的还是恶性的。示例采用的数据集为威斯康星诊断乳腺癌数据集，它通过细胞核的相关特征来预测乳腺肿瘤为良性/恶性，这是一个非常著名的二分类数据集。该数据集包含569个样本，其中有212个恶性肿瘤样本，357个良性肿瘤样本。共有32个字段，字段1为ID，字段2为label，其他30个字段为细胞核的相关特征，例如：</p>
+<ul>
+<li>半径（从中心到周边点的平均距离）</li>
+<li>纹理（灰度值的标准偏差）</li>
+<li>周长</li>
+<li>面积</li>
+<li>光滑度（半径长度的局部变化）</li>
+<li>紧凑性（周长的二次方/面积的负一次方）</li>
+<li>凹度（轮廓的凹陷程度）</li>
+<li>凹点（轮廓中凹部的数量）</li>
+<li>对称</li>
+<li>分形维数</li>
+</ul>
+<p>对于每张图像，分别计算以上10个特征的平均值、标准误差和最差/最大（最大的3个值的平均）值，由此生成30个特征。例如，字段3表示平均半径，字段13表示半径的标准误差，字段23表示最差半径。所有特征都保留4位有效数字。</p>
+<p>scikit-learn已经集成了该数据集，并进行了相应的处理（如去掉了ID字段），使用时直接加载即可，如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.datasets <span class="keyword">import</span> load_breast_cancer</span><br><span class="line">cancer = load_breast_cancer()</span><br><span class="line">X = cancer.data</span><br><span class="line">y = cancer.target</span><br></pre></td></tr></table></figure>
+<p>其中，X为特征数据，包含上面介绍的30个特征，y为标签数据，标记乳腺肿瘤类型，1代表良性，0代表恶性。下面按4:1的比例将数据集划分为训练集和测试集：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split</span><br><span class="line">X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=<span class="number">0.2</span>, random_state=<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> LogisticRegression</span><br><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> classification_report</span><br><span class="line">lr = LogisticRegression()</span><br><span class="line">lr.fit(X_train, y_train)</span><br><span class="line">y_pred = lr.predict(X_test)</span><br><span class="line">print(classification_report(y_test, y_pred, target_names=[<span class="string">"Benign"</span>, <span class="string">"Malignant"</span>]))</span><br></pre></td></tr></table></figure>
+<pre><code>              precision    recall  f1-score   support
+
+      Benign       0.95      0.90      0.93        42
+   Malignant       0.95      0.97      0.96        72
+
+    accuracy                           0.95       114
+   macro avg       0.95      0.94      0.94       114
+weighted avg       0.95      0.95      0.95       114
+</code></pre><p>其中，列表的左边一列为分类的标签名，<code>avg/total</code>为各列的均值。<code>support</code>表示该类别样本出现的次数。</p>
+<p>XGBoost提供了逻辑回归的API，读者可以通过XGBoost中的逻辑回归对数据集进行预测，代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">train_xgb = xgb.DMatrix(X_train, y_train)</span><br><span class="line">params = &#123;<span class="string">"objective"</span>:<span class="string">"reg:logistic"</span>, <span class="string">"booster"</span>:<span class="string">"gblinear"</span>&#125;</span><br><span class="line">model = xgb.train(dtrain=train_xgb, params=params)</span><br><span class="line">y_pred = model.predict(xgb.DMatrix(X_test))</span><br></pre></td></tr></table></figure>
+<p>XGBoost逻辑回归API的调用方式和线性回归类似，唯一不同的是目标函数<code>objective</code>改为<code>reg:logistic</code>，<code>booster</code>仍然选择线性模型。</p>
+<p>注意，XGBoost在预测结果上和scikit-learn有些差别，XGBoost的预测结果是概率，而scikit-learn的预测结果是0或1的分类（scikit-learn也可通过<code>predict_proba</code>输出概率）。在XGBoost中，如果需要输出0或1的分类，需要用户自己对其进行转化，例如：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ypred_bst = np.array(y_pred)</span><br><span class="line">y_pred_bst = ypred_bst &gt; <span class="number">0.5</span></span><br><span class="line">y_pred_bst = y_pred_bst.astype(int)</span><br><span class="line">print(classification_report(y_test, y_pred_bst, target_names=[<span class="string">"Benign"</span>, <span class="string">"Malignant"</span>]))</span><br></pre></td></tr></table></figure>
+<pre><code>              precision    recall  f1-score   support
+
+      Benign       0.90      0.67      0.77        42
+   Malignant       0.83      0.96      0.89        72
+
+    accuracy                           0.85       114
+   macro avg       0.87      0.81      0.83       114
+weighted avg       0.86      0.85      0.84       114
+</code></pre><h2 id="4-决策树解决肿瘤分类问题"><a href="#4-决策树解决肿瘤分类问题" class="headerlink" title="4. 决策树解决肿瘤分类问题"></a>4. 决策树解决肿瘤分类问题</h2><p>scikit-learn实现了决策树算法，它采用的是一种优化的CART版本，既可以解决分类问题，也可以解决回归问题。分类问题使用DecisionTreeClassifier类，回归问题使用DecisionTreeRegressor类。两个类的参数相似，只有部分有所区别，以下是对主要参数的说明。</p>
+<ol>
+<li><code>criterion</code>：特征选择采用的标准。DecisionTreeClassifier分类树默认采用<code>gini</code>（基尼系数）进行特征选择，也可以使用<code>entropy</code>（信息增益）。DecisionTreeRegressor默认采用MSE（均方误差），也可以使用MAE（平均绝对误差）。</li>
+<li><code>splitter</code>：节点划分的策略。支持<code>best</code>和<code>random</code>两种方式，默认为<code>best</code>，即选取所有特征中最优的切分点作为节点的分裂点，<code>random</code>则随机选取部分切分点，从中选取局部最优的切分点作为节点的分裂点。</li>
+<li><code>max_depth</code>：树的最大深度，默认为None，表示没有最大深度限制。节点停止分裂的条件是：样本均属于相同类别或所有叶子节点包含的样本数量小于$min_samples_split$。若将该参数设置为None以外的其他值，则决策树生成过程中达到该阈值深度时，节点停止分裂。</li>
+<li><code>min_samples_split</code>：节点划分的最小样本数，默认为2。若节点包含的样本数小于该值，则该节点不再分裂。若该字段设置为浮点数，则表示最小样本百分比，划分的最小样本数为$ceil（min_samples_split*n_samples）$。</li>
+<li><code>min_samples_leaf</code>：叶子节点包含的最小样本数，默认为1。此字段和<code>min_samples_split</code>类似，取值可以是整型，也可以是浮点型。整型表示一个叶子节点包含的最小样本数，浮点型则表示百分比。叶子节点包含的最小样本数为$ceil（min_samples_leaf*n_samples）$。</li>
+<li><code>max_features</code> ：划分节点时备选的最大特征数，默认为None，表示选用所有特征。若该字段为整数，表示选用的最大特征数；若为浮点数，则表示选用特征的最大百分比。最大特征数为$int（max_features*n_features）$。</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.datasets <span class="keyword">import</span> load_breast_cancer</span><br><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split</span><br><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> cross_val_score</span><br><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> classification_report</span><br><span class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> tree</span><br><span class="line"></span><br><span class="line">cancer = load_breast_cancer()</span><br><span class="line">X = cancer.data</span><br><span class="line">y = cancer.target</span><br><span class="line">X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=<span class="number">0.2</span>, random_state=<span class="number">8</span>)</span><br><span class="line"></span><br><span class="line">clf = tree.DecisionTreeClassifier(max_depth=<span class="number">4</span>)</span><br><span class="line">clf.fit(X_train, y_train)</span><br><span class="line">y_pred = clf.predict(X_test)</span><br><span class="line">print(classification_report(y_test, y_pred, target_names=[<span class="string">"Benign"</span>, <span class="string">"Malignant"</span>]))</span><br></pre></td></tr></table></figure>
+<pre><code>              precision    recall  f1-score   support
+
+      Benign       0.95      0.87      0.91        46
+   Malignant       0.92      0.97      0.94        68
+
+    accuracy                           0.93       114
+   macro avg       0.93      0.92      0.93       114
+weighted avg       0.93      0.93      0.93       114
+</code></pre><p>为便于读者直观地理解树模型，可以使用Graphviz工具包将模型可视化。Graphviz是一个开源的图形可视化软件，可以将结构数据转化为形象的图形或网络，在软件工程、数据库、机器学习等领域的可视化界面中有应用。函数<code>export_graphviz</code>可以将<code>scikit-learn</code>中的决策树导出为Graphviz的格式，导出完成后即可对Graphviz格式的决策树进行图形渲染，如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> graphviz</span><br><span class="line">dot_data = tree.export_graphviz(clf, out_file=<span class="literal">None</span>,</span><br><span class="line">                               feature_names=cancer.feature_names,</span><br><span class="line">                               class_names=cancer.target_names,</span><br><span class="line">                               filled=<span class="literal">True</span>, rounded=<span class="literal">True</span>,</span><br><span class="line">                               special_characters=<span class="literal">True</span>)</span><br><span class="line">graph = graphviz.Source(dot_data)</span><br><span class="line"><span class="comment"># graph</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 将dot_data写入到txt文件中</span></span><br><span class="line">f = open(<span class="string">'output/img/dot_data.txt'</span>, <span class="string">'w'</span>) </span><br><span class="line">f.write(dot_data) </span><br><span class="line">f.close()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 解决中文乱码问题</span></span><br><span class="line"><span class="comment"># import re </span></span><br><span class="line"><span class="comment"># f_old = open('dot_data.txt', 'r') </span></span><br><span class="line"><span class="comment"># f_new = open('dot_data_new.txt', 'w', encoding='utf-8') </span></span><br><span class="line"><span class="comment"># for line in f_old: </span></span><br><span class="line"><span class="comment">#     if 'fontname' in line:</span></span><br><span class="line"><span class="comment">#         font_re = 'fontname=(.*?)]'</span></span><br><span class="line"><span class="comment">#     old_font = re.findall(font_re, line)[0]</span></span><br><span class="line"><span class="comment">#     line = line.replace(old_font, 'SimHei')</span></span><br><span class="line"><span class="comment">#     f_new.write(line)</span></span><br><span class="line"><span class="comment">#     f_old.close()</span></span><br><span class="line"><span class="comment">#     f_new.close()</span></span><br></pre></td></tr></table></figure>
+<h2 id="5-神经网络识别手写体数字"><a href="#5-神经网络识别手写体数字" class="headerlink" title="5. 神经网络识别手写体数字"></a>5. 神经网络识别手写体数字</h2><p>手写体数字数据集（MNIST）是一个经典的多分类数据集，由不同的手写体数字图片以及0～9的数字标签样本构成。scikit-learn中的手写体数字数据集共有1797个样本，每个样本包含一个8×8像素的图像和0～9的数字标签。scikit-learn通过<code>MLPClassifier</code>类实现的多层感知器完成分类任务，通过<code>MLPRegressor</code>类完成回归任务。对于手写体数字数据集这样的多分类问题，显然要采用<code>MLPClassifier</code>。<code>MLPClassifier</code>的常用参数如下:</p>
+<ul>
+<li><code>hidden_layer_sizes</code>：用来指定隐藏层包含的节点数量，其类型为tuple，长度是<code>n_layers-2</code>，其中n_layers为网络总层数；</li>
+<li><code>activation</code>：指定隐藏层的激活函数，默认为relu；</li>
+<li><code>solver</code>：指定权重的更新方法，默认为sgd，即随机梯度下降法；</li>
+<li><code>alpha</code>：指定L2正则的惩罚系数；</li>
+<li><code>learning_rate</code>：指定训练过程中学习率更新方法，有constant、invscaling和adaptive这3种方法。其中，constant表示学习率在训练过程中为固定值；invscaling表示随着训练的进行，学习率指数降低；adaptive表示动态调整，当训练误差不断减少时（减少量超过一定阈值），学习率保持不变，若连续两次迭代训练损失未达到上述条件，则学习率缩小为原值的1/5。</li>
+<li><code>max_iter</code>表示迭代的最大轮数，对于solver为sgd和adam的情况，<code>max_iter</code>相当于epoch的数量。</li>
+</ul>
+<p>了解了<code>MLPClassifier</code>类的常用参数后，下面介绍如何使用<code>MLPClassifier</code>来解决识别手写体数字的问题。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.datasets <span class="keyword">import</span> load_digits</span><br><span class="line">digits = load_digits()</span><br><span class="line">X = digits.data</span><br><span class="line">y = digits.target</span><br><span class="line">X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=<span class="number">0.2</span>, random_state=<span class="number">8</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.neural_network <span class="keyword">import</span> MLPClassifier</span><br><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> accuracy_score</span><br><span class="line"></span><br><span class="line">mlp = MLPClassifier(hidden_layer_sizes=(<span class="number">128</span>, <span class="number">64</span>), max_iter=<span class="number">50</span>, alpha=<span class="number">1e-4</span>, solver=<span class="string">'sgd'</span>)</span><br><span class="line">mlp.fit(X_train, y_train)</span><br><span class="line">y_pred = mlp.predict(X_test)</span><br><span class="line">print(<span class="string">"Accuracy: "</span>, accuracy_score(y_test, y_pred))</span><br></pre></td></tr></table></figure>
+<pre><code>Accuracy:  0.9555555555555556
+</code></pre><h2 id="6-支持向量机识别手写体数字"><a href="#6-支持向量机识别手写体数字" class="headerlink" title="6. 支持向量机识别手写体数字"></a>6. 支持向量机识别手写体数字</h2><p>下面仍以手写体数字数据集（MNIST）为例，介绍如何使用SVM解决分类问题。SVM既可以解决二分类问题，也能解决多分类问题。SVM解决多分类问题的方法主要有两种：one-vs-one和one-vs-the-rest。</p>
+<ul>
+<li><code>one-vs-one</code>为每两类样本建立一个二分类器，则$k$个类别的样本需要建立$\frac{k(k-1)}{2}$个二分类器。</li>
+<li><code>one-vs-the-rest</code>是为每个类别和其他剩余类别建立一个二分类器，从中选择预测概率最大的分类作为最终分类，k个类别的样本需建立k个二分类器。</li>
+</ul>
+<p>scikit-learn通过SVC类来解决分类问题，通过SVR类来解决回归问题（SVM也可以解决回归问题），下面采用SVC类解决手写体数字识别的多分类问题。</p>
+<p>SVC可以通过参数kernel指定采用的核函数，支持的核函数有：<code>linear</code>（线性核函数）、<code>poly</code>（多项式）、<code>rbf</code>（高斯）、<code>sigmoid</code>、<code>precomputed</code>以及自定义形式<code>callable</code>。若不指定kernel，其默认采用<code>rbf</code>。SVC还有几个比较常用的参数：</p>
+<ul>
+<li>惩罚参数$C$，即前面松弛变量中介绍的不满足约束条件样本的惩罚系数；</li>
+<li>参数<code>degree</code>是多项式核函数（kernel设置为<code>poly</code>）的阶数；</li>
+<li>参数gamma表示高斯核和sigmoid核中的内核系数，在高斯核中对应的是高斯核函数公式中的$\frac{1}{2\sigma^2}$。</li>
+</ul>
+<p>数据集的加载和划分同神经网络中的示例，不再赘述。此处主要介绍模型拟合与评估。</p>
+<p>先定义一个SVC模型，这里采用高斯核函数，惩罚系数C为1.0，gamma为0.001，当然也可以通过参数调优来确定参数。定义模型之后即可训练模型，然后对测试集进行预测，最后以准确率为指标评估预测结果。具体代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> svm</span><br><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> accuracy_score</span><br><span class="line"></span><br><span class="line">svc = svm.SVC(C=<span class="number">1.0</span>, kernel=<span class="string">"rbf"</span>, gamma=<span class="number">0.001</span>)</span><br><span class="line">svc.fit(X_train, y_train)</span><br><span class="line">y_pred = svc.predict(X_test)</span><br><span class="line">print(<span class="string">"Accuracy"</span>, accuracy_score(y_test, y_pred))</span><br></pre></td></tr></table></figure>
+<pre><code>Accuracy 0.9861111111111112
+</code></pre><p>也可以采用其他核函数，如多项式核函数，代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">svc = svm.SVC(C=<span class="number">1.0</span>, kernel=<span class="string">"poly"</span>, degree=<span class="number">3</span>)</span><br><span class="line">svc.fit(X_train, y_train)</span><br><span class="line">y_pred = svc.predict(X_test)</span><br><span class="line">print(<span class="string">"Accuracy"</span>, accuracy_score(y_test, y_pred))</span><br></pre></td></tr></table></figure>
+<pre><code>Accuracy 0.9861111111111112
+</code></pre><p>可以看到，在本例中采用多项式核函数和高斯核函数的预测准确率是相同的。读者也可自行尝试其他参数，观察不同参数对模型预测的影响。</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://chenkai66.github.io/posts/298496a6.html" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/posts/8c5e1ebd.html" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            XGBoost（二）解决二分类和多分类问题
+          
+        </div>
+      </a>
+    
+    
+      <a href="/posts/ca70db86.html" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">MySQL入门（三）条件查询</div>
+      </a>
+    
+  </nav>
+
+   
+<!-- valine评论 -->
+<div id="vcomments-box">
+  <div id="vcomments"></div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+<script>
+  new Valine({
+    el: "#vcomments",
+    app_id: "TQy5bHTePagP10u5BBsesx61-gzGzoHsz",
+    app_key: "O6UyJYxBFgMKQMjktBh4KGad",
+    path: window.location.pathname,
+    avatar: "monsterid",
+    placeholder: "给我的文章加点评论吧~",
+    recordIP: true,
+  });
+  const infoEle = document.querySelector("#vcomments .info");
+  if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+    infoEle.childNodes.forEach(function (item) {
+      item.parentNode.removeChild(item);
+    });
+  }
+</script>
+<style>
+  #vcomments-box {
+    padding: 5px 30px;
+  }
+
+  @media screen and (max-width: 800px) {
+    #vcomments-box {
+      padding: 5px 0px;
+    }
+  }
+
+  #vcomments-box #vcomments {
+    background-color: #fff;
+  }
+
+  .v .vlist .vcard .vh {
+    padding-right: 20px;
+  }
+
+  .v .vlist .vcard {
+    padding-left: 10px;
+  }
+</style>
+
+ 
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2020-2021
+        <i class="ri-heart-fill heart_icon"></i> chenk
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        由 帅气的CK本尊 强力驱动
+        
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></s>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="言念君子"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+
+<script src="/js/clickBoom2.js"></script>
+
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+<script src="/js/dz.js"></script>
+
+
+
+    
+  </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"live2d-widget-model-haruto"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

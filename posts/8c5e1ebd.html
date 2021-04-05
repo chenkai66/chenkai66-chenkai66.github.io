@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    XGBoost（二）解决二分类和多分类问题 |  言念君子
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      
+      <canvas width="1777" height="841"
+        style="position: fixed; left: 0px; top: 0px; z-index: 99999; pointer-events: none;"></canvas>
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-XGBoost（二）解决二分类和多分类问题"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  XGBoost（二）解决二分类和多分类问题
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/posts/8c5e1ebd.html" class="article-date">
+  <time datetime="2021-04-05T15:04:54.395Z" itemprop="datePublished">2021-04-05</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/XGBoost/">XGBoost</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">5.2k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">21 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>XGBoost由多棵决策树（CART）组成，每棵决策树预测真实值与之前所有决策树预测值之和的残差（残差=真实值-预测值），将所有决策树的预测值累加起来即为最终结果。</p>
+<h1 id="一、二分类问题"><a href="#一、二分类问题" class="headerlink" title="一、二分类问题"></a>一、二分类问题</h1><p>XGBoost树模型由多棵回归树组成，并将多棵决策树的预测值累计相加作为最终结果。回归树产生的是连续的回归值，如何用它解决二分类问题呢？通过前面的学习知道，逻辑回归是在线性回归的基础上通过<code>sigmoid</code>函数将预测值映射到0～1的区间来代表二分类结果的概率。和逻辑回归一样，XGBoost也是采用<code>sigmoid</code>函数来解决二分类问题，即先通过回归树对样本进行预测，得到每棵树的预测结果，然后将其进行累加求和，最后通过<code>sigmoid</code>函数将其映射到0～1的区间代表二分类结果的概率。另外，对于二分类问题，XGBoost的目标函数采用的是类似逻辑回归的<code>logloss</code>，而非最小二乘。</p>
+<p>XGBoost中关于二分类的常用参数有如下几个：</p>
+<ul>
+<li><code>Objective</code>: 该参数用来指定目标函数，XGBoost可以根据该参数判断进行何种学习任务，<code>binary:logistic</code>和<code>binary:logitraw</code>都表示学习任务类型为二分类。<code>binary:logistic</code>输出为概率，<code>binary:logitraw</code>输出为逻辑转换前的输出分数。</li>
+<li><code>eval_metric</code>: 该参数用来指定模型的评估函数，和二分类相关的评估函数有：error、logloss和auc。error也称错误率，即预测错误的样本数占总样本数的比例，准确来说是预测错误样本的权重和占总样本权重和的比例，也可通过error@k的形式手工指定二分类的阈值。logloss通过惩罚分类来量化模型的准确性，最大限度减少logloss，等同于最大化模型的准确率。另外，AUC也是二分类中最常用的评估指标之一，计算方法可另外查询。</li>
+</ul>
+<p>下面仍然以该案例数据集进行说明。蘑菇数据集是一个非常著名的二分类数据集。该数据集一共包含23个特征，包括大小、表面、颜色等，每一种蘑菇都会被定义为可食用的或者有毒的，需要通过样本数据分析这些特征与蘑菇毒性的关系。以下是各个特征的详细说明：</p>
+<ul>
+<li>帽形（cap-shape）：钟形=b，圆锥形=c，凸形=x，平面=f，把手形=k，凹陷=S</li>
+<li>帽面（cap-surface）：纤维状=f，凹槽状=g，鳞片状=y，光滑=s</li>
+<li>帽颜色（cap-color）：棕色=n，浅黄色=b，肉桂色=c，灰色=g，绿色=r，粉红色=p，紫色=u，红色=e，白色=w，黄色=y</li>
+<li>创伤（bruises）：创伤=t，no=f</li>
+<li>气味（odor）：杏仁=a，茴香=l，石灰=c，腥味=y，臭味=f，霉味=m，无=n，刺鼻=p，辣=s</li>
+<li>菌褶附属物（gill-attachment:）：附着=a，下降=d，自由=f，缺口=n</li>
+<li>菌褶间距（gill-spacing）：紧密=c，拥挤=w，远隔=d</li>
+<li>菌褶大小（gill-size）：宽=b，窄=n。</li>
+<li>菌褶颜色（gill-color）：黑色=k，棕色=n，浅黄色=b，巧克力色=h，灰色=g，绿色=r，橙色=o，粉红色=p，紫色=u，红色=e，白色=w，黄色=y</li>
+<li>茎形（stalk-shape）：扩大=e，锥形=t</li>
+<li>茎根（stalk-root）：球根=b，棒状=c，杯状=u，均等的=e，根状菌索=z，扎根=r，缺省=？</li>
+<li>环上茎面（stalk-surface-above-ring）：纤维状=f，鳞片状=y，丝状=k，光滑=s</li>
+<li>环下茎面（stalk-surface-below-ring）：纤维状=f，鳞片状=y，丝状=k，光滑=s</li>
+<li>环上茎颜色（stalk-color-above-ring）：棕色=n，浅黄色=b，黄棕色=c，灰色=g，橙色=o，粉红色=p，红色=e，白色=w，黄色=y</li>
+<li>环下茎颜色（stalk-color-below-ring）：棕色=n，浅黄色=b，黄棕色=c，灰色=g，橙色=o，粉红色=p，红色=e，白色=w，黄色=y</li>
+<li>菌幕类型（veil-type）：部分=p，普遍=u</li>
+<li>菌幕颜色（veil-color）：棕色=n，橙色=o，白色=w，黄色=y</li>
+<li>环数量（ring-number）：没有=n，一个=o，两个=t</li>
+<li>环类型（ring-type）：蛛网状=c，消散状=e，喇叭形=f，大规模的=l，无=n，悬垂的=p，覆盖=s，环带=z</li>
+<li>孢子显现颜色（spore-print-color）：黑色=k，棕色=n，蓝色=b，巧克力色=h，绿色=r，橙色=o，紫色=u，白色=w，黄色=y</li>
+<li>种群（population）：丰富=a，聚集=c，众多=n，分散=s，个别=v，单独=y</li>
+<li>栖息地（habitat）：草地=g，树叶=l，草甸=m，路上=p，城市=u，荒地=w，树林=d</li>
+<li>class：label字段，有可食用（edible）和有毒性（poisonous）两个取值</li>
+</ul>
+<p>该数据集总共有8124个样本，其中类别为可食用的样本有4208个，类别为有毒性的样本有3916个。对于该二分类问题，XGBoost工程文件中提供了示例代码。示例以命令行的方式调用XGBoost，完成模型训练、预测等过程。示例位于<code>demo/CLI/binary_classification</code>文件夹下，其中包括下面几个文件：</p>
+<ul>
+<li><code>agaricus-lepiota.data</code>——蘑菇数据文件</li>
+<li><code>agaricus-lepiota.fmap</code>——字段名称映射文件</li>
+<li><code>agaricus-lepiota.names</code>——蘑菇数据集描述文件</li>
+<li><code>mapfeat.py</code>——数据集特征值预处理</li>
+<li><code>mknfold.py</code>——划分数据集</li>
+<li><code>mushroom.conf</code>——模型配置文件</li>
+<li><code>runexp.sh</code>——运行脚本</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">data_dir = <span class="string">"xgboost_source_code/demo/CLI/binary_classification/"</span></span><br></pre></td></tr></table></figure>
+<p>读者可自行尝试执行<code>runexp.sh</code>脚本，学习命令行形式的调用过程。本节重点介绍如何通过Python调用XGBoost进行模型训练和预测，并对处理流程中的各个阶段进行详细解析。</p>
+<p>首先需要对特征进行预处理。因为原始文件<code>agaricus-lepiota.data</code>中的数据并不能直接作为XGBoost的输入进行加载，需要进行预处理。这里将其中的字符数据转为数值型，并以LibSVM的格式输出。LibSVM是机器学习中经常采用的一种数据格式，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;label&gt; &lt;index1&gt;:&lt;value1&gt;&lt;index2&gt;:&lt;value2&gt;...</span><br></pre></td></tr></table></figure>
+<p><code>label</code>为训练数据集的目标值；<code>index</code>为特征索引，是一个以1为起始的整数；<code>value</code>是该特征的取值，如果某一特征的值缺省，则该特征可以空着不填，因此对于一个样本来讲，输出后的数据文件<code>index</code>可能并不连续，上述样本处理后的格式如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1 3:1 10:1 11:1 21:1 30:1 34:1 36:1 40:1 41:1 53:1 58:1 65:1 69:1 77:1 86:1 88:1 92:1 95:1 102:1 105:1 117:1 124:1</span><br><span class="line">0 3:1 10:1 20:1 21:1 23:1 34:1 36:1 39:1 41:1 53:1 56:1 65:1 69:1 77:1 86:1 88:1 92:1 95:1 102:1 106:1 116:1 120:1</span><br></pre></td></tr></table></figure>
+<p>第一个样本中最开始的“1”便是该样本的label，在二分类问题中，一般1代表正样本，0代表负样本。之后的每个特征为一项，冒号前为该特征的索引，如3、10等，冒号后为该特征取值，如3、10两个特征的取值都是1。另外，观察处理后的数据可以发现，特征索引已经远远超过了22，如第一行样本中特征索引最大已经达到了124。</p>
+<p>观察该数据集可以发现，其中大部分特征是离散型特征，连续型特征较少。在机器学习算法中，特征之间距离的计算是十分重要的，因此，直接把离散变量的取值转化为数值，并不能很好地代表特征间的距离，如菌幕颜色特征，其总共有棕色、橙色、白色、黄色4种颜色，假如将其映射为1、2、3、4，则棕色和橙色之间的距离是2-1=1，而棕色和白色之间的距离是3-1=2。这显然是不符合实际情况的，因为任意两个颜色之间的距离应该是相等的。因此，需要对特征进行独热编码（one-hot encoding）。</p>
+<p>简单来讲，独热编码就是离散特征有多少取值，就用多少维来表示该特征。仍然以菌幕颜色特征为例，经过独热编码后，其将会转为4个特征，分别是菌幕颜色是否为棕色、菌幕颜色是否为橙色、菌幕颜色是否为白色和菌幕颜色是否为黄色，并且这4个特征取值只有0和1。经过独热编码之后，每两个颜色之间的距离都是一样的，比之前的处理更合理。离散特征经过独热编码之后，数据集的总特征数会变多，这就是上述示例中出现较大特征索引的原因。下面来看一下特征处理的代码实现：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">loadmap</span><span class="params">(fname)</span>:</span></span><br><span class="line">    fmap = &#123;&#125;</span><br><span class="line">    nmap = &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> l <span class="keyword">in</span> open(fname):</span><br><span class="line">        arr = l.split()</span><br><span class="line">        <span class="keyword">if</span> arr[<span class="number">0</span>].find(<span class="string">'.'</span>) != <span class="number">-1</span>:</span><br><span class="line">            idx = int(arr[<span class="number">0</span>].strip(<span class="string">'.'</span>))</span><br><span class="line">            <span class="keyword">assert</span> idx <span class="keyword">not</span> <span class="keyword">in</span> fmap</span><br><span class="line">            fmap[idx] = &#123;&#125;</span><br><span class="line">            ftype = arr[<span class="number">1</span>].strip(<span class="string">":"</span>)</span><br><span class="line">            content = arr[<span class="number">2</span>]</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            content = arr[<span class="number">0</span>]</span><br><span class="line">        <span class="keyword">for</span> it <span class="keyword">in</span> content.split(<span class="string">','</span>):</span><br><span class="line">            <span class="keyword">if</span> it.strip() == <span class="string">''</span>:</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            k, v = it.split(<span class="string">'='</span>)</span><br><span class="line">            fmap[idx][v] = len(nmap) + <span class="number">1</span></span><br><span class="line">            nmap[len(nmap)] = ftype + <span class="string">'='</span> + k</span><br><span class="line">    <span class="keyword">return</span> fmap, nmap</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">write_nmap</span><span class="params">(fo, nmap)</span>:</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(len(nmap)):</span><br><span class="line">        fo.write(<span class="string">'%d\t%s\ti\n'</span>%(i, nmap[i]))</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">fmap, nmap = loadmap(data_dir+<span class="string">'agaricus-lepiota.fmap'</span>)</span><br><span class="line">fo = open(<span class="string">'output/data/featmap.txt'</span>, <span class="string">'w'</span>)</span><br><span class="line">write_nmap(fo, nmap)</span><br><span class="line">fo.close()</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">fo = open(<span class="string">'output/data/agaricus.txt'</span>, <span class="string">'w'</span>)</span><br><span class="line"><span class="keyword">for</span> l <span class="keyword">in</span> open(data_dir+<span class="string">'agaricus-lepiota.data'</span>):</span><br><span class="line">    arr = l.split(<span class="string">','</span>)</span><br><span class="line">    <span class="keyword">if</span> arr[<span class="number">0</span>] == <span class="string">'p'</span>:</span><br><span class="line">        fo.write(<span class="string">'1'</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">assert</span> arr[<span class="number">0</span>] == <span class="string">'e'</span></span><br><span class="line">        fo.write(<span class="string">'0'</span>)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>, len(arr)):</span><br><span class="line">        fo.write(<span class="string">' %d:1'</span> %fmap[i][arr[i].strip()])</span><br><span class="line">    fo.write(<span class="string">'\n'</span>)</span><br><span class="line">fo.close()</span><br></pre></td></tr></table></figure>
+<p>首先程序会加载特征描述文件<code>agaricus-lepiota.fmap</code>，为每个特征的每个取值均分配一个唯一的索引标识，并为其重新命名，并将处理后的新特征索引和名称的映射保存为<code>featmap.txt</code>文件（该映射文件会在XGBoost中用到）。然后加载蘑菇数据集，通过新特征索引处理该数据集，生成转化后的新数据文件<code>featmap.txt</code>。特征处理完后即可通过mknfold.py划分数据集。在本示例中，划分数据集是通过代码实现的，当然读者也可以采用第3章介绍的scikit-learn中的<code>train_test_split</code>来划分数据集。下面看一下<code>mknfold.py</code>的代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> len(sys.argv) &lt; <span class="number">2</span>:</span><br><span class="line">    <span class="keyword">print</span> (<span class="string">'Usage:&lt;filename&gt; &lt;k&gt; [nfold = 5]'</span>)</span><br><span class="line">    exit(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">random.seed( <span class="number">10</span> )</span><br><span class="line"></span><br><span class="line">k = int( sys.argv[<span class="number">2</span>] )</span><br><span class="line"><span class="keyword">if</span> len(sys.argv) &gt; <span class="number">3</span>:</span><br><span class="line">    nfold = int( sys.argv[<span class="number">3</span>] )</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    nfold = <span class="number">5</span></span><br><span class="line"></span><br><span class="line">fi = open( sys.argv[<span class="number">1</span>], <span class="string">'r'</span> )</span><br><span class="line">ftr = open( sys.argv[<span class="number">1</span>]+<span class="string">'.train'</span>, <span class="string">'w'</span> )</span><br><span class="line">fte = open( sys.argv[<span class="number">1</span>]+<span class="string">'.test'</span>, <span class="string">'w'</span> )</span><br><span class="line"><span class="keyword">for</span> l <span class="keyword">in</span> fi:</span><br><span class="line">    <span class="keyword">if</span> random.randint( <span class="number">1</span> , nfold ) == k:</span><br><span class="line">        fte.write( l )</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        ftr.write( l )</span><br><span class="line"></span><br><span class="line">fi.close()</span><br><span class="line">ftr.close()</span><br><span class="line">fte.close()</span><br></pre></td></tr></table></figure>
+<p>生成训练集和测试集后，便可通过XGBoost加载数据进行训练，下面通过Python实现XGBoost的调用。先加载训练集和测试集：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> xgboost <span class="keyword">as</span> xgb</span><br><span class="line">xgb_train = xgb.DMatrix(<span class="string">"xgboost_source_code/demo/data/agaricus.txt.train"</span>)</span><br><span class="line">xgb_test = xgb.DMatrix(<span class="string">"xgboost_source_code/demo/data/agaricus.txt.test"</span>)</span><br></pre></td></tr></table></figure>
+<p>设定模型训练参数，开始模型训练：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">params = &#123;</span><br><span class="line">    <span class="string">"objective"</span> : <span class="string">"binary:logistic"</span>,</span><br><span class="line">    <span class="string">"booster"</span> : <span class="string">"gbtree"</span>, </span><br><span class="line">    <span class="string">"eta"</span> : <span class="number">1.0</span>,</span><br><span class="line">    <span class="string">"gamma"</span> : <span class="number">1.0</span>,</span><br><span class="line">    <span class="string">"min_child_weight"</span> : <span class="number">1</span>,</span><br><span class="line">    <span class="string">"max_depth"</span> : <span class="number">3</span></span><br><span class="line">&#125;</span><br><span class="line">num_round = <span class="number">2</span></span><br><span class="line">watchlist = [(xgb_train, <span class="string">"train"</span>), (xgb_test, <span class="string">"test"</span>)]</span><br><span class="line">model = xgb.train(params, xgb_train, num_round, watchlist)</span><br></pre></td></tr></table></figure>
+<pre><code>[0]    train-error:0.01443    test-error:0.01614
+[1]    train-error:0.00123    test-error:0.00000
+</code></pre><p><code>params</code>中的<code>objective</code>和<code>booster</code>参数已经介绍过了，分别用于指定任务的学习目标和<code>booster</code>类型，其他参数说明如下：</p>
+<ul>
+<li><code>objective</code>设为<code>binary:logistic</code>，表示任务为二分类问题，最终输出为<code>sigmoid</code>变换后的概率。</li>
+<li><code>booster</code>为<code>gbtree</code>表示采用XGBoost中的树模型。参数<code>eta</code>表示学习率，类似于梯度下降中法的$\alpha$，每次迭代完更新权重的步长。</li>
+<li><code>gamma</code>表示节点分裂时损失函数减小的最小值，此处为1.0，表示损失函数至少下降1.0该节点才会进行分裂。</li>
+<li><code>min_child_weight</code>表示叶子节点最小样本权重和，若节点分裂导致叶子节点的样本权重和小于该值，则节点不进行分裂。</li>
+<li><code>max_depth</code>表示决策树分裂的最大深度。</li>
+</ul>
+<p>另外，该示例中指定了<code>num_round</code>为2，即模型会进行两轮<code>booster</code>训练，最终会生成两棵决策树。通过定义参数<code>watchlist</code>，模型在训练过程中会实时输出训练集和验证集的评估指标。</p>
+<p>模型训练完成之后，可通过<code>save_model</code>方法将模型保存成模型文件，以供后续预测使用，如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">model.save_model(<span class="string">"output/model/02_agaricus.model"</span>)</span><br></pre></td></tr></table></figure>
+<p>预测时，先加载保存的模型文件，然后再对数据集进行预测，如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">bst = xgb.Booster()</span><br><span class="line">bst.load_model(<span class="string">"output/model/02_agaricus.model"</span>)</span><br><span class="line">pred = bst.predict(xgb_test)</span><br><span class="line">print(pred)</span><br></pre></td></tr></table></figure>
+<pre><code>[0.10828121 0.85500014 0.10828121 ... 0.95467216 0.04156424 0.95467216]
+</code></pre><p>可以看到，输出结果是一个浮点数组成的数组，其中每个值代表对应样本的预测概率。预测完成后，输出文本格式的模型，这里仍然采用两种方式，如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 未作特征名转换</span></span><br><span class="line">dump_model_raw = bst.dump_model(<span class="string">"output/data/dump.raw.txt"</span>)</span><br><span class="line"><span class="comment"># 完成特征名转换</span></span><br><span class="line">dump_model_nice = bst.dump_model(<span class="string">"output/data/dump.nice.txt"</span>, <span class="string">"output/data/featmap.txt"</span>)</span><br></pre></td></tr></table></figure>
+<p>下面主要以完成特征名称转换后的模型文件为例进行介绍。先来看一下索引和特征名称映射文件<code>featmap.txt</code>，格式如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;featureid&gt; &lt;featurename&gt; &lt;q or i or int&gt;\n</span><br></pre></td></tr></table></figure>
+<p>其中：</p>
+<ul>
+<li><code>featureid</code>为特征索引</li>
+<li><code>featurename</code>为特征名称</li>
+<li><code>q or i or int</code>为特征的数据类型，其中<code>q</code>代表特征是一个连续值，如距离、价格等；<code>i</code>代表特征是一个二值特征（即特征只有两个取值），一般为0或1；<code>int</code>代表特征是整型值。可以看到，<code>featmap.txt</code>中的很多特征都是二值特征。这个也不难理解，因为该数据集中大部分是离散型的类别特征，因此经过独热编码处理后，新生成的特征基本都是二值特征。</li>
+</ul>
+<p>了解了特征映射文件后，下面来看一下文本格式的XGBoost树模型文件，以下截取了<code>dump.nice.txt</code>的前几行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">booster[0]:</span><br><span class="line">0:[odor&#x3D;pungent] yes&#x3D;2,no&#x3D;1</span><br><span class="line">1:[stalk-root&#x3D;cup] yes&#x3D;4,no&#x3D;3</span><br><span class="line">3:[stalk-root&#x3D;missing] yes&#x3D;8,no&#x3D;7</span><br><span class="line">			7:leaf&#x3D;1.90174532</span><br><span class="line">			8:leaf&#x3D;-1.95061731</span><br><span class="line">4:[bruises?&#x3D;no] yes&#x3D;10,no&#x3D;9</span><br><span class="line">			9:leaf&#x3D;1.77777779</span><br><span class="line">			10:leaf&#x3D;-1.98104262</span><br><span class="line">2:[spore-print-color&#x3D;orange] yes&#x3D;6,no&#x3D;5</span><br><span class="line">5:[stalk-surface-below-ring&#x3D;silky] yes&#x3D;12,no&#x3D;11</span><br></pre></td></tr></table></figure>
+<p>上面的一个booster代表一棵决策树，该模型一共有两棵决策树。在每棵决策树中，每一行代表一个节点，位于行首的数字代表该节点的索引，数字0表示该节点为根节点。若该行节点是非叶子节点，则索引后面是该节点的分裂条件，如第2行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0:[odor&#x3D;pungent] yes&#x3D;2,no&#x3D;1</span><br></pre></td></tr></table></figure>
+<p>该节点的索引为0，表示该节点是根节点，其分裂条件是odor=pungent，满足该条件的样本会被划分到节点2，不满足的则被划分到节点1。若该行节点是叶子节点，则索引后面是该叶子节点最终得到的权重。如第5行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">7:leaf&#x3D;1.90174532</span><br></pre></td></tr></table></figure>
+<p><code>leaf</code>表示该节点为叶子节点，最终得到的权重为1.90174532。由此，通过文本格式的模型文件，可以使用户了解样本在模型中是如何被划分的，使模型更具有可解释性，并且在实际的机器学习任务中，也有利于用户更好地分析和优化模型。</p>
+<h1 id="二、多分类问题"><a href="#二、多分类问题" class="headerlink" title="二、多分类问题"></a>二、多分类问题</h1><p>与处理二分类问题类似，XGBoost在处理多分类问题时也是在树模型的基础上进行转换，不过不再是<code>sigmoid</code>函数，而是<code>softmax</code>函数。相信大家对<code>softmax</code>变换并不陌生，它可以将多分类的预测值映射到0到1之间，代表样本属于该类别的概率。XGBoost中解决多分类问题的主要参数如下：</p>
+<ul>
+<li><code>num_class</code>：说明在该分类任务的类别数量</li>
+<li><code>objective</code>：该参数中的<code>multi:softmax</code>和<code>multi:softprob</code>均是指定学习任务为多分类。<code>multi:softmax</code>通过<code>softmax</code>函数解决多分类问题。<code>multi:softprob</code>和<code>multi:softmax</code>一样，主要区别在于其输出的是一个$ndata*nclass$向量，表示样本属于每个分类的预测概率</li>
+<li><code>eval_metric</code>：与多分类相关的评估函数有<code>merror</code>和<code>mlogloss</code>。<code>merror</code>也称多分类错误率，通过判断样本所有分类预测值中预测值最大的分类和样本label是否一致来确定预测是否正确，其计算方式和<code>error</code>相似。<code>mlogloss</code>也是多分类问题中常用的评估指标。有关<code>merror</code>和<code>mlogloss</code>会在后面详细介绍。</li>
+</ul>
+<p>下面以识别小麦种子的类别作为示例，介绍如何通过XGBoost解决多分类问题。已知小麦种子数据集包含7个特征，分别为面积、周长、紧凑度、籽粒长度、籽粒宽度、不对称系数、籽粒腹沟长度，且均为连续型特征，以及小麦类别字段，共有3个类别，分别用1、2、3表示。加载该数据并进行特征处理，代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> xgboost <span class="keyword">as</span> xgb</span><br><span class="line"></span><br><span class="line">data = pd.read_csv(<span class="string">"input/seeds_dataset.txt"</span>, header=<span class="literal">None</span>, sep=<span class="string">'\s+'</span>, converters=&#123;<span class="number">7</span>: <span class="keyword">lambda</span> x:int(x)<span class="number">-1</span>&#125;)</span><br><span class="line">data.rename(columns=&#123;<span class="number">7</span>:<span class="string">'label'</span>&#125;, inplace=<span class="literal">True</span>)</span><br><span class="line">data.head()</span><br></pre></td></tr></table></figure>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+      <th>5</th>
+      <th>6</th>
+      <th>label</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>15.26</td>
+      <td>14.84</td>
+      <td>0.8710</td>
+      <td>5.763</td>
+      <td>3.312</td>
+      <td>2.221</td>
+      <td>5.220</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>14.88</td>
+      <td>14.57</td>
+      <td>0.8811</td>
+      <td>5.554</td>
+      <td>3.333</td>
+      <td>1.018</td>
+      <td>4.956</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>14.29</td>
+      <td>14.09</td>
+      <td>0.9050</td>
+      <td>5.291</td>
+      <td>3.337</td>
+      <td>2.699</td>
+      <td>4.825</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>13.84</td>
+      <td>13.94</td>
+      <td>0.8955</td>
+      <td>5.324</td>
+      <td>3.379</td>
+      <td>2.259</td>
+      <td>4.805</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>16.14</td>
+      <td>14.99</td>
+      <td>0.9034</td>
+      <td>5.658</td>
+      <td>3.562</td>
+      <td>1.355</td>
+      <td>5.175</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>为便于后续处理，将最后一个类别字段作为<code>label</code>字段，因为<code>label</code>的取值需在0到<code>num_class-1</code>范围内，因此需对类别字段进行处理（数据集中的3个类别取值分别为1～3），这里直接减1即可。</p>
+<p>可以看到，数据集共包含8列，其中前7列为特征列，最后1列为<code>label</code>列，和数据集描述相符。除<code>label</code>列外，剩余特征没有指定列名，所以pandas自动以数字索引作为列名。下面对数据集进行划分（训练集和测试集的划分比例为4:1），并指定<code>label</code>字段生成XGBoost中的<code>DMatrix</code>数据结构，代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mask = np.random.rand(len(data)) &lt; <span class="number">0.8</span></span><br><span class="line">train = data[mask]</span><br><span class="line">test = data[~mask]</span><br><span class="line">xgb_train = xgb.DMatrix(train.iloc[:,:<span class="number">6</span>], label=train.label)</span><br><span class="line">xgb_test = xgb.DMatrix(test.iloc[:,:<span class="number">6</span>], label=test.label)</span><br></pre></td></tr></table></figure>
+<p>设置模型训练参数。设置参数<code>objective</code>为<code>multi:softmax</code>，表示采用<code>softmax</code>进行多分类，学习率参数<code>eta</code>和最大树深度<code>max_depth</code>在之前的示例中已有所介绍，不再赘述。参数<code>num_class</code>指定类别数量为3。相关代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">params = &#123;</span><br><span class="line">    <span class="string">'objective'</span>:<span class="string">'multi:softmax'</span>,</span><br><span class="line">    <span class="string">'eta'</span>:<span class="number">0.1</span>,</span><br><span class="line">    <span class="string">'max_depth'</span>:<span class="number">5</span>,</span><br><span class="line">    <span class="string">'num_class'</span>:<span class="number">3</span></span><br><span class="line">&#125;</span><br><span class="line">watchlist = [(xgb_train, <span class="string">"train"</span>), (xgb_test, <span class="string">"test"</span>)]</span><br><span class="line">num_round = <span class="number">10</span></span><br><span class="line">bst = xgb.train(params, xgb_train, num_round, watchlist)</span><br></pre></td></tr></table></figure>
+<pre><code>[0]    train-merror:0.01219    test-merror:0.10870
+[1]    train-merror:0.01219    test-merror:0.10870
+[2]    train-merror:0.01219    test-merror:0.10870
+[3]    train-merror:0.01219    test-merror:0.10870
+[4]    train-merror:0.01219    test-merror:0.13043
+[5]    train-merror:0.00610    test-merror:0.13043
+[6]    train-merror:0.00610    test-merror:0.13043
+[7]    train-merror:0.00610    test-merror:0.13043
+[8]    train-merror:0.00610    test-merror:0.15217
+[9]    train-merror:0.00610    test-merror:0.15217
+</code></pre><p>在未指定评估函数的情况下，XGBoost默认采用<code>merror</code>作为多分类问题的评估指标。下面通过训练好的模型对测试集进行预测，并计算错误率，代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pred = bst.predict(xgb_test)</span><br><span class="line">error_rate = np.sum(pred != test.label) / test.shape[<span class="number">0</span>]</span><br><span class="line">print(error_rate)</span><br></pre></td></tr></table></figure>
+<pre><code>0.15217391304347827
+</code></pre><p>为了方便对比学习，下面采用<code>multi:softprob</code>方法重新训练模型，代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">params[<span class="string">"objective"</span>] = <span class="string">"multi:softprob"</span></span><br><span class="line">bst = xgb.train(params, xgb_train, num_round, watchlist)</span><br></pre></td></tr></table></figure>
+<pre><code>[0]    train-merror:0.01219    test-merror:0.10870
+[1]    train-merror:0.01219    test-merror:0.10870
+[2]    train-merror:0.01219    test-merror:0.10870
+[3]    train-merror:0.01219    test-merror:0.10870
+[4]    train-merror:0.01219    test-merror:0.13043
+[5]    train-merror:0.00610    test-merror:0.13043
+[6]    train-merror:0.00610    test-merror:0.13043
+[7]    train-merror:0.00610    test-merror:0.13043
+[8]    train-merror:0.00610    test-merror:0.15217
+[9]    train-merror:0.00610    test-merror:0.15217
+</code></pre><p>对比两种函数变换方法的训练输出结果可以看出，不论采用<code>multi:softmax</code>还是<code>multi:softprob</code>作为<code>objective</code>训练模型，并不会影响到模型精度。</p>
+<p>下面对测试集进行预测并计算错误率，代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">pred_prop = bst.predict(xgb_test)</span><br><span class="line">pred_label = np.argmax(pred_prop, axis=<span class="number">1</span>)</span><br><span class="line">error_rate = np.sum(pred_label != test.label) / test.shape[<span class="number">0</span>]</span><br><span class="line">print(<span class="string">'测试集错误率(softprob):&#123;&#125;'</span>.format(error_rate))</span><br></pre></td></tr></table></figure>
+<pre><code>测试集错误率(softprob):0.15217391304347827
+</code></pre><p>之后的处理则和采用<code>multi:softmax</code>时一样，统计预测错误的样本数，最终计算出分类错误率。采用<code>multi:softprob</code>得到的错误率和<code>multi:softmax</code>也是一样的</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://chenkai66.github.io/posts/8c5e1ebd.html" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+    
+      <a href="/posts/298496a6.html" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">XGBoost（一）简单机器学习示例</div>
+      </a>
+    
+  </nav>
+
+   
+<!-- valine评论 -->
+<div id="vcomments-box">
+  <div id="vcomments"></div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+<script>
+  new Valine({
+    el: "#vcomments",
+    app_id: "TQy5bHTePagP10u5BBsesx61-gzGzoHsz",
+    app_key: "O6UyJYxBFgMKQMjktBh4KGad",
+    path: window.location.pathname,
+    avatar: "monsterid",
+    placeholder: "给我的文章加点评论吧~",
+    recordIP: true,
+  });
+  const infoEle = document.querySelector("#vcomments .info");
+  if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+    infoEle.childNodes.forEach(function (item) {
+      item.parentNode.removeChild(item);
+    });
+  }
+</script>
+<style>
+  #vcomments-box {
+    padding: 5px 30px;
+  }
+
+  @media screen and (max-width: 800px) {
+    #vcomments-box {
+      padding: 5px 0px;
+    }
+  }
+
+  #vcomments-box #vcomments {
+    background-color: #fff;
+  }
+
+  .v .vlist .vcard .vh {
+    padding-right: 20px;
+  }
+
+  .v .vlist .vcard {
+    padding-left: 10px;
+  }
+</style>
+
+ 
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2020-2021
+        <i class="ri-heart-fill heart_icon"></i> chenk
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        由 帅气的CK本尊 强力驱动
+        
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></s>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="言念君子"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+
+<script src="/js/clickBoom2.js"></script>
+
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+<script src="/js/dz.js"></script>
+
+
+
+    
+  </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"live2d-widget-model-haruto"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>
