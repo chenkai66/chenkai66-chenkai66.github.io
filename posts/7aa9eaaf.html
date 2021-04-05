@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    matlab/Matlab概率统计与曲线拟合 |  言念君子
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      
+      <canvas width="1777" height="841"
+        style="position: fixed; left: 0px; top: 0px; z-index: 99999; pointer-events: none;"></canvas>
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-matlab/Matlab概率统计与曲线拟合"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  matlab/Matlab概率统计与曲线拟合
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/posts/7aa9eaaf.html" class="article-date">
+  <time datetime="2020-11-24T02:06:25.112Z" itemprop="datePublished">2020-11-24</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.3k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">10 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="一、二项分布"><a href="#一、二项分布" class="headerlink" title="一、二项分布"></a>一、二项分布</h1><ul>
+<li>二项分布来源于伯努利试验 (事件发生概率 $\boldsymbol{p}$ ) :</li>
+</ul>
+<script type="math/tex; mode=display">
+P\{x=k\}=\left(\begin{array}{c}
+N \\
+k
+\end{array}\right) p^{k} q^{(N-k)}, k=0,1, \ldots, N</script><p>​    含义为独立重复N次试验后, 事件总共发生k次的概率</p>
+<ul>
+<li>分布函数 $F(X=k)=P\{X \leq k\},$ 二项分布记为 $B(n, p)$</li>
+<li>$\mathrm{p_k}=$ <code>binopdf</code> $(\mathrm{k}, \mathrm{N}, \mathrm{p}) \quad$ 获得事件共发生$k$次的概率 $\boldsymbol{P}\{\boldsymbol{x}=\boldsymbol{k}\}$</li>
+<li>$\mathrm{p_k}=$ <code>binocdf</code> $(\mathrm{k}, \mathrm{N}, \mathrm{p}) \quad$ 为事件最多发生$k$次的概率 $\boldsymbol{P}\{\boldsymbol{x} \leq \boldsymbol{k}\}$</li>
+<li>$\mathrm{R}=$ <code>binornd</code> $(\mathrm{N}, \mathrm{p}, \mathrm{m}, \mathrm{n}) \quad$ 将生成一个服从二项分布 $B(N, \boldsymbol{p}),$<br>规模为 $m \times n$ 的随机矩阵</li>
+<li>二项分布的数字特征 $E(k)=N p, D(k)=N p(1-p)$</li>
+</ul>
+<p><strong>例：画出$N=100,p=0.5$情况下的二项分布概率特性曲线</strong></p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">N = <span class="number">100</span>; p = <span class="number">0.5</span>;					<span class="comment">% 总试验次数和单次试验发生概率</span></span><br><span class="line">k = <span class="number">0</span>:N;							<span class="comment">% 所有可能的事件发生次数</span></span><br><span class="line">pdf = binopdf(k, N, p);				<span class="comment">% 绘制概率曲线</span></span><br><span class="line">cdf = binocdf(k, N, p);				<span class="comment">% 绘制分布曲线</span></span><br><span class="line">h = plotyy(k, pdf, k, cdf);			<span class="comment">% 左右两侧不同的纵轴刻度代表两个函数</span></span><br></pre></td></tr></table></figure>
+<p>绘制结果为：</p>
+<p><img src="/posts/Pic/Untitled/image-20201124102008010.png" alt="image-20201124102008010" style="zoom:67%;"></p>
+<blockquote>
+<p><strong>进阶绘图技巧：<code>set</code>函数的使用</strong></p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">set(get(h(<span class="number">1</span>),<span class="string">'Children'</span>),<span class="string">'Color'</span>,<span class="string">'b'</span>,<span class="string">'Marker'</span>, <span class="string">'.'</span>, <span class="string">'MarkerSize'</span>, <span class="number">13</span>)</span><br><span class="line"><span class="comment">% 句中 get(h(1),'children') 表示获取刚才第一条曲线绘制的所有子对象</span></span><br><span class="line"><span class="comment">% 然后将第一条曲线改为蓝色 并且在采样点加注实心点 不是只画点</span></span><br><span class="line"></span><br><span class="line">set(get(h(<span class="number">1</span>),<span class="string">'Ylabel'</span>), <span class="string">'String'</span>,<span class="string">'pdf'</span>)</span><br><span class="line"><span class="comment">% 句柄包含多个绘图时 需要 get 出来再操作 此行改变了左侧 Y 轴的标记名</span></span><br><span class="line"></span><br><span class="line">set(h(<span class="number">2</span>),<span class="string">'Ycolor'</span>,[<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>])</span><br><span class="line"><span class="comment">% 第二条曲线纵坐标轴颜色改为纯红色</span></span><br><span class="line"></span><br><span class="line">set(get(h(<span class="number">2</span>),<span class="string">'Children'</span>),<span class="string">'Color'</span>,<span class="string">'r'</span>,<span class="string">'Marker'</span>,<span class="string">'+'</span>,<span class="string">'MarkerSize'</span>,<span class="number">4</span>)</span><br><span class="line"><span class="comment">% 第二条曲线改为红色并用来标注采样点</span></span><br><span class="line"></span><br><span class="line">set(get(h(<span class="number">2</span>), <span class="string">'Ylabel'</span>),<span class="string">'String'</span>, <span class="string">'cdf'</span>)</span><br><span class="line"><span class="comment">% 右侧Y轴的标记名</span></span><br><span class="line">xlabel(<span class="string">'k'</span>)</span><br><span class="line">grid on</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p><strong>绘图结果为：</strong></p>
+<p><img src="/posts/Pic/Untitled/image-20201124103134184.png" alt="image-20201124103134184" style="zoom:67%;"></p>
+<h1 id="二、正态分布"><a href="#二、正态分布" class="headerlink" title="二、正态分布"></a>二、正态分布</h1><ul>
+<li>正态分布 $N\left(\mu, \sigma^{2}\right)$ 为连续型随机分布，期望 $\mu,$ 标准差 $\sigma$ :</li>
+</ul>
+<script type="math/tex; mode=display">
+f(x)=\frac{1}{\sigma \sqrt{2 \pi}} \mathrm{e}^{-\frac{(x-\mu)^{2}}{2 \sigma^{2}}}, \quad x \in(-\infty,+\infty)</script><p>对应分布函数 $\Phi(x)=\int_{-\infty}^{x} f(t) \mathrm{d} t$</p>
+<ul>
+<li>$\mathrm{px}=$ <code>normpdf</code> $(\mathrm{x}, \mu,$ $\sigma$) $\quad$ 获得服从正态分布 $N(\mu, \sigma^2)$ 的随机变量概率密度函数在$x$的取值。 </li>
+<li><p>$\mathrm{px}=$ <code>normcdf</code> $(\mathrm{x}, \mu,$ $\sigma$) $\quad$ 获得上述正态分布随机变量不超过$x$的总概率</p>
+</li>
+<li><p>$\mathrm{R}=$ <code>normrnd</code> $(\mu, $ $\sigma$ $, \mathrm{m}, \mathrm{n})$ 将生成一个服从上述正态分 布，规模为 $m \times n$ 的随机样本构成的矩阵</p>
+</li>
+<li><p>$\mathrm{R}=$ <code>randn</code> $(\mathrm{m}, \mathrm{n})$ 将生成一个服从标准正态分布 $N(\mathbf{0}, \mathbf{1}),$ 规模为 $m \times n$ 的随机样本构成的矩阵，事实上，我们可以利用这个矩阵可以构造任何正态分布随机矩阵。</p>
+</li>
+</ul>
+<p><strong>例：正态分布几何表示</strong></p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">mu = <span class="number">3</span>; sigma = <span class="number">0.5</span>;</span><br><span class="line">x = mu + sigma*[<span class="number">-3</span>:<span class="number">-1</span>,<span class="number">1</span>:<span class="number">3</span>];         <span class="comment">% 设置六个不同的采样点</span></span><br><span class="line">yf = normcdf(x, mu, sigma);         <span class="comment">% 获得六个点的cdf值</span></span><br><span class="line">P = [yf(<span class="number">4</span>)-yf(<span class="number">3</span>), yf(<span class="number">5</span>)-yf(<span class="number">2</span>), yf(<span class="number">6</span>)-yf(<span class="number">1</span>)];    <span class="comment">% 计算cdf的差值（内部区域面积）</span></span><br><span class="line">xd = <span class="number">1</span>:<span class="number">0.1</span>:<span class="number">5</span>; yd = normpdf(xd, mu, sigma); clf</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> k=<span class="number">1</span>:<span class="number">3</span></span><br><span class="line">   xx = x(<span class="number">4</span>-k):sigma/<span class="number">10</span>:x(<span class="number">3</span>+k);</span><br><span class="line">   yy = normpdf(xx, mu, sigma);</span><br><span class="line">   <span class="comment">% 对于三个不同的面积区间进行不同范围的采样,并获得 pdf 函数的值</span></span><br><span class="line">   subplot(<span class="number">3</span>, <span class="number">1</span>, k), <span class="built_in">plot</span>(xd, yd, <span class="string">'b'</span>);     <span class="comment">% 绘图位于3行1列第k个位置</span></span><br><span class="line">   <span class="built_in">hold</span> on, fill([x(<span class="number">4</span>-k), xx, x(<span class="number">3</span>+k)], [<span class="number">0</span>, yy, <span class="number">0</span>], <span class="string">'g'</span>); <span class="built_in">hold</span> off</span><br><span class="line">   <span class="keyword">if</span> k&lt;<span class="number">2</span></span><br><span class="line">       text(<span class="number">3.8</span>, <span class="number">0.6</span>, <span class="string">'[&#123;\mu&#125;-&#123;\sigma&#125;, &#123;\mu&#125;+&#123;\sigma&#125;]'</span>)</span><br><span class="line">   <span class="keyword">else</span></span><br><span class="line">       kk = int2str(k);</span><br><span class="line">       text(<span class="number">3.8</span>, <span class="number">0.6</span>, [<span class="string">'[&#123;\mu&#125;-'</span>, kk, <span class="string">'&#123;\sigma&#125;, &#123;\mu&#125;+'</span>, kk, <span class="string">'&#123;\sigma&#125;]'</span>])</span><br><span class="line">   <span class="keyword">end</span></span><br><span class="line">   text(<span class="number">2.8</span>, <span class="number">0.3</span>, num2str(P(k))); shg   <span class="comment">% 填充区域内显示面积</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line">xlabel(<span class="string">'x'</span>); shg</span><br></pre></td></tr></table></figure>
+<p>绘图结果为：</p>
+<p><img src="/posts/Pic/Untitled/image-20201124105059445.png" alt="image-20201124105059445" style="zoom:67%;"></p>
+<h1 id="三、统计分析命令"><a href="#三、统计分析命令" class="headerlink" title="三、统计分析命令"></a>三、统计分析命令</h1><ul>
+<li>$\min (\mathrm{x}), \max (\mathrm{x})$ 分别计算矩阵各列的最大值或最小值,</li>
+<li>若计算整个矩阵最大元素, 可用$\max (\max (\mathrm{x}))$ 或$\max (\mathrm{X}(:))$ </li>
+<li>$\mathrm{mean} (\mathrm{x}),$ $\mathrm{median} (\mathrm{x})$ 分别计算矩阵各列的均值与中位值</li>
+<li>$\mathrm{std}(\mathrm{x})$,$ \mathrm{var} $$(\mathrm{x})$ 分别计算矩阵各列的样本标准差与样本方差</li>
+<li>$\mathrm{cov}$ $(\mathrm{x})$ 计算矩阵$x$各列所组成列向量计算出的协方差矩阵, 注意到对应的分丹仍然是$m-1$</li>
+<li>$\mathrm{corrcoef} (\mathrm{x}) $计算矩阵x各列所组成列向量对应的相关系数</li>
+</ul>
+<p><strong>例：产生1000个服从$N(2, 0.5^2)$的随机数</strong></p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mu = <span class="number">2</span>; s = <span class="number">0.5</span>;</span><br><span class="line">rng(<span class="number">22</span>, <span class="string">'v5normal'</span>)</span><br><span class="line">x = <span class="built_in">randn</span>(<span class="number">1000</span>, <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">y = s*x+mu;</span><br><span class="line"></span><br><span class="line">subplot(<span class="number">2</span>, <span class="number">1</span>, <span class="number">1</span>), histfit(x), axis([<span class="number">-5</span>, <span class="number">5</span>, <span class="number">0</span>, <span class="number">100</span>]), ylabel(<span class="string">'x'</span>)</span><br><span class="line">subplot(<span class="number">2</span>, <span class="number">1</span>, <span class="number">2</span>), histfit(y), axis([<span class="number">-5</span>, <span class="number">5</span>, <span class="number">0</span>, <span class="number">100</span>]), ylabel(<span class="string">'y'</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="/posts/Pic/Untitled/4.jpg" alt="4" style="zoom:67%;"></p>
+<h1 id="四、多项式拟合"><a href="#四、多项式拟合" class="headerlink" title="四、多项式拟合"></a>四、多项式拟合</h1><p>假设 $y=a_{1} x^{n}+a_{2} x^{n-1}+\cdots+a_{n} x+a_{n+1},$ 我们获取其函数曲线上的一组采样点 $\left\{x_{i}, y_{i} \mid i=1,2, \ldots, m\right\},$ 利用数学方法确定或估计系数 $a_{1}, a_{2}, \ldots, a_{n+1}$ 的问题称之为<strong>多项式拟合问题</strong></p>
+<p>一般来讲，多项式拟合往往会与<strong>逼近或插值</strong>这两种知识相结合。在<strong>采样点准确，函数光滑</strong>的情况下，高阶的拟合（即假设更大的 $n$ ) 往往效果更佳，但如果采样信息有噪声误差, 过大的$n$可能会让结果失去拟合意义（一般设定 $n&lt;m$）</p>
+<ul>
+<li><code>p = ployfit(x, y, n)</code>将通过数组$x$和$y$的数据进行拟合，拟合的阶数或次数设定为自然数$n$,返回多项式系数$p$</li>
+<li><code>yy=polyval (p, x)</code>可以将多项式系数回代，观察拟合值</li>
+</ul>
+<p>利用MATLAB函数计算采样$y$值向量与拟合值向量误差的$2-$范数, $1-$范数与$\infty-$范数，可以分析其<strong>平方残差</strong>、<strong>绝对值残差</strong>或<strong>一致逼近残差</strong>的情况。</p>
+<p><strong>例：多项式拟合实例</strong></p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">x0 = <span class="number">0</span>:<span class="number">0.1</span>:<span class="number">1</span>;</span><br><span class="line">y0 = [<span class="number">-.447</span>, <span class="number">1.978</span>, <span class="number">3.11</span>, <span class="number">5.25</span>, <span class="number">5.02</span>, <span class="number">4.66</span>, <span class="number">4.01</span>, <span class="number">4.58</span>, <span class="number">3.45</span>, <span class="number">5.35</span>, <span class="number">9.22</span>];	<span class="comment">% 构造原始数据</span></span><br><span class="line">n = <span class="number">3</span>;P = polyfit(x0, y0, n)												<span class="comment">% 多项式拟合</span></span><br><span class="line">xx = <span class="number">0</span>:<span class="number">0.01</span>:<span class="number">1</span>; yy = polyval(P, xx);				<span class="comment">% 利用得到的多项式代回得到预测值</span></span><br><span class="line"><span class="built_in">plot</span>(xx, yy, <span class="string">'-b'</span>, x0, y0, <span class="string">'.r'</span>, <span class="string">'MarkerSize'</span>, <span class="number">20</span>);							<span class="comment">% 绘图</span></span><br><span class="line"><span class="built_in">legend</span>(<span class="string">'拟合曲线'</span>, <span class="string">'原始数据'</span>, <span class="string">'Location'</span>, <span class="string">'SouthEast'</span>)</span><br><span class="line">xlabel(<span class="string">'x'</span>)</span><br></pre></td></tr></table></figure>
+<p>绘制结果为：</p>
+<p><img src="/posts/Pic/Untitled/5.jpg" alt="5" style="zoom:67%;"></p>
+<blockquote>
+<p><strong>进阶制表</strong>：</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">y1 = polyval(P, x0);</span><br><span class="line">T = <span class="built_in">table</span>(x0', y0', y1', y1'-y0', <span class="string">'VariableNames'</span>, &#123;<span class="string">'X'</span>, <span class="string">'Y'</span>, <span class="string">'Fit'</span>, <span class="string">'FitError'</span>&#125;)</span><br></pre></td></tr></table></figure>
+</blockquote>
+<p>表打印结果为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">T &#x3D;</span><br><span class="line"></span><br><span class="line">  11×4 table</span><br><span class="line"></span><br><span class="line">     X       Y         Fit       FitError </span><br><span class="line">    ___    ______    ________    _________</span><br><span class="line"></span><br><span class="line">      0    -0.447    -0.90431     -0.45731</span><br><span class="line">    0.1     1.978      2.2819       0.3039</span><br><span class="line">    0.2      3.11      4.0659      0.95592</span><br><span class="line">    0.3      5.25      4.7879     -0.46211</span><br><span class="line">    0.4      5.02       4.788     -0.23204</span><br><span class="line">    0.5      4.66      4.4063     -0.25372</span><br><span class="line">    0.6      4.01       3.983    -0.027002</span><br><span class="line">    0.7      4.58      3.8583     -0.72174</span><br><span class="line">    0.8      3.45      4.3722      0.92223</span><br><span class="line">    0.9      5.35       5.865      0.51503</span><br><span class="line">      1      9.22      8.6768     -0.54316</span><br></pre></td></tr></table></figure>
+<h3 id="1-多项式拟合的最小二乘理解"><a href="#1-多项式拟合的最小二乘理解" class="headerlink" title="1. 多项式拟合的最小二乘理解"></a>1. 多项式拟合的最小二乘理解</h3><p><code>polyfit</code>函数的方法即解最小二乘问题 :</p>
+<script type="math/tex; mode=display">
+\min _{a_{1}, a_{2}, \ldots, a_{n+1}}\left\|y-\left(a_{1} x^{n}+\cdots+a_{n} x+a_{n+1}\right)\right\|_{2}</script><p>方法是构造 $y=\left[y_{1}, y_{2}, \ldots, y_{m}\right]^{\top}, a=\left[a_{1}, a_{2}, \ldots, a_{n+1}\right]^{\top}$$，X=\left[\begin{array}{cccc}x_{1}^{n} &amp; \cdots &amp; x_{1} &amp; 1 \\ x_{2}^{n} &amp; \cdots &amp; x_{2} &amp; 1 \\ \vdots &amp; \vdots &amp; \vdots &amp; \vdots \\ x_{m}^{n} &amp; \cdots &amp; x_{m} &amp; 1\end{array}\right],$</p>
+<p>易得 $y=X a,$ 在 $m&gt;n+1$ 时, 方程超定 (可能无解) , 此时最小二乘解可以通过 $a=x\backslash y$ 获得</p>
+<p><strong>例：用最小二乘法获得拟合结果</strong></p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">x0 = (<span class="number">0</span>:<span class="number">0.1</span>:<span class="number">1</span>)';</span><br><span class="line">y0 = [<span class="number">-.447</span>,<span class="number">1.978</span>,<span class="number">3.11</span>,<span class="number">5.25</span>,<span class="number">5.02</span>,<span class="number">4.66</span>,<span class="number">4.01</span>,<span class="number">4.58</span>,<span class="number">3.45</span>,<span class="number">5.35</span>,<span class="number">9.22</span>]';</span><br><span class="line"></span><br><span class="line">m = <span class="built_in">length</span>(x0);</span><br><span class="line">n = <span class="number">3</span>;</span><br><span class="line">X = <span class="built_in">zeros</span>(m,n+<span class="number">1</span>);                     <span class="comment">%m个采样点，n+1个未知系数</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> k=<span class="number">1</span>:n</span><br><span class="line">    X(:, n-k+<span class="number">1</span>) = (x0.^k);</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">X(:, n+<span class="number">1</span>) = <span class="built_in">ones</span>(m, <span class="number">1</span>);</span><br><span class="line">aT = (X\y0)'</span><br></pre></td></tr></table></figure>
+<p>输出结果应与调用多项式拟合函数得到的<code>P</code>相同</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">aT =</span><br><span class="line"></span><br><span class="line">   <span class="number">56.6915</span>  <span class="number">-87.1174</span>   <span class="number">40.0070</span>   <span class="number">-0.9043</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-适用于特定问题的拟合或回归方法"><a href="#2-适用于特定问题的拟合或回归方法" class="headerlink" title="2. 适用于特定问题的拟合或回归方法"></a>2. 适用于特定问题的拟合或回归方法</h3><ul>
+<li><strong>岭回归模型</strong>：本质上仍可化归为最小二乘问题</li>
+</ul>
+<script type="math/tex; mode=display">
+\min _{a_{1}, a_{2}, \ldots, a_{n+1}}\left\|y-\left(a_{1} x^{n}+\cdots+a_{n} x+a_{n+1}\right)\right\|_{2}^{2}+\lambda\|a\|_{2}^{2}</script><p>其中, $\boldsymbol{a}=\left[\begin{array}{llll}a_{1} &amp; a_{2} &amp; \cdots &amp; a_{n}\end{array}\right]^{\top}$ 表示拟合系数。</p>
+<ul>
+<li><strong>Lasso模型</strong>：对拟合系数具有稀疏正则的模型：</li>
+</ul>
+<script type="math/tex; mode=display">
+\min _{a_{1}, a_{2}, \ldots, a_{n+1}} \frac{1}{2}\left\|y-\left(a_{1} x^{n}+\cdots+a_{n} x+a_{n+1}\right)\right\|_{2}^{2}+\lambda\|a\|_{1}</script><ul>
+<li><strong>最小绝对残差 (LAR)模型</strong>：对离群值的处理有更好效果 :</li>
+</ul>
+<script type="math/tex; mode=display">
+\min _{a_{1}, a_{2}, \ldots, a_{n+1}}\left\|y-\left(a_{1} x^{n}+\cdots+a_{n} x+a_{n+1}\right)\right\|_{1}</script><p>实际问题中，线性拟合所使用的基函数也未必一定是多项式, 根据实际问题可以设置为三角函数、指数函数、正态分布的概率密度函数，以及混合定义的基底函数。</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://chenkai66.github.io/posts/7aa9eaaf.html" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/posts/53add54c.html" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            matlab/Matlab数字信号与声音处理
+          
+        </div>
+      </a>
+    
+    
+      <a href="/posts/49938fa3.html" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">matlab/Matlab问题求解</div>
+      </a>
+    
+  </nav>
+
+   
+<!-- valine评论 -->
+<div id="vcomments-box">
+  <div id="vcomments"></div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+<script>
+  new Valine({
+    el: "#vcomments",
+    app_id: "TQy5bHTePagP10u5BBsesx61-gzGzoHsz",
+    app_key: "O6UyJYxBFgMKQMjktBh4KGad",
+    path: window.location.pathname,
+    avatar: "monsterid",
+    placeholder: "给我的文章加点评论吧~",
+    recordIP: true,
+  });
+  const infoEle = document.querySelector("#vcomments .info");
+  if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+    infoEle.childNodes.forEach(function (item) {
+      item.parentNode.removeChild(item);
+    });
+  }
+</script>
+<style>
+  #vcomments-box {
+    padding: 5px 30px;
+  }
+
+  @media screen and (max-width: 800px) {
+    #vcomments-box {
+      padding: 5px 0px;
+    }
+  }
+
+  #vcomments-box #vcomments {
+    background-color: #fff;
+  }
+
+  .v .vlist .vcard .vh {
+    padding-right: 20px;
+  }
+
+  .v .vlist .vcard {
+    padding-left: 10px;
+  }
+</style>
+
+ 
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2020-2021
+        <i class="ri-heart-fill heart_icon"></i> chenk
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        由 帅气的CK本尊 强力驱动
+        
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></s>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="言念君子"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+
+<script src="/js/clickBoom2.js"></script>
+
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+<script src="/js/dz.js"></script>
+
+
+
+    
+  </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"live2d-widget-model-haruto"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

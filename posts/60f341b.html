@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    matlab/Matlab数值线性代数 |  言念君子
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      
+      <canvas width="1777" height="841"
+        style="position: fixed; left: 0px; top: 0px; z-index: 99999; pointer-events: none;"></canvas>
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-matlab/Matlab数值线性代数"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  matlab/Matlab数值线性代数
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/posts/60f341b.html" class="article-date">
+  <time datetime="2020-11-10T02:11:40.150Z" itemprop="datePublished">2020-11-10</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/matlab/">matlab</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">2.2k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">9 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="矩阵分析"><a href="#矩阵分析" class="headerlink" title="矩阵分析"></a>矩阵分析</h1><h3 id="函数概览"><a href="#函数概览" class="headerlink" title="函数概览"></a>函数概览</h3><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>函数调用方式</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>det(A)</code></td>
+<td>计算A的行列式</td>
+</tr>
+<tr>
+<td><code>diag(A)</code></td>
+<td>取A对角元构成向量或利用向量A生成对角阵</td>
+</tr>
+<tr>
+<td><code>expm(A)</code></td>
+<td>计算A的矩阵指数运算</td>
+</tr>
+<tr>
+<td><code>inv(A)</code></td>
+<td>计算A的逆矩阵</td>
+</tr>
+<tr>
+<td><code>rank(A)</code></td>
+<td>计算A的秩</td>
+</tr>
+<tr>
+<td><code>tril(A)</code></td>
+<td>将A化为下三角矩阵（其余元素变为0）</td>
+</tr>
+<tr>
+<td><code>[V D]=eig(A)</code></td>
+<td>计算A的特征值保存到D，特征向量保存到V</td>
+</tr>
+<tr>
+<td><code>[V J]=jordan(A)</code></td>
+<td>计算A的jordan分解，$AV=VJ$</td>
+</tr>
+<tr>
+<td><code>[U S V]=svd(A)</code></td>
+<td>计算A的奇异值分解,$A=USV’$</td>
+</tr>
+<tr>
+<td><code>[L U]=lu(A)</code></td>
+<td>计算A的LU分解，$A=LU$</td>
+</tr>
+<tr>
+<td><code>[Q R]=qr(A)</code></td>
+<td>计算A的QR分解,$A=QR$</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="矩阵的范数"><a href="#矩阵的范数" class="headerlink" title="矩阵的范数"></a>矩阵的范数</h3><ol>
+<li><p><code>norm(A)</code>：用于计算矩阵的$2-$范数（也称为谱范数），定义为：</p>
+<script type="math/tex; mode=display">||A||_2 = \text{max}_{||x||_2=1}||Ax||_2 = \sqrt{\lambda_{max}(A^TA)}</script></li>
+<li><p><code>norm(A, &#39;fro&#39;)</code>：用于计算矩阵的Frobenius范数，即把矩阵拉成一个长向量，再计算其2-向量范数，常用于矩阵的误差分析，定义为：</p>
+<script type="math/tex; mode=display">||A||_F=\sqrt{\sum_i(A^TA)_{i,i}} = \sqrt{\text{trace}(A^TA)}</script></li>
+<li><p><code>norm(A, 1)</code>：用于计算矩阵的$1-$范数，也称列范数</p>
+<script type="math/tex; mode=display">||A||_1 = \text{max}_{||x||_1=1}||Ax||_1 = \text{max}_{1\le j\le n}\sum_{i=1}^m|a_{ij}|</script><p>其中向量$x$的1-范数为向量$x$所有元素绝对值的和</p>
+</li>
+<li><p><code>norm(A, inf)</code>：用于计算矩阵的$\infty-$范数，也称行范数</p>
+<script type="math/tex; mode=display">||A||_{\infty} = \text{max}_{||x||\infty=1}||Ax||_\infty=\text{max}_{1\le  i\le m}\sum_{j=1}^n|a_{ij}|</script><p>其中向量$x$的$\infty$范数即$x$所有元素的最大绝对值</p>
+</li>
+<li><p><code>sum(sum(A~=0.0))</code>：计算矩阵的$0-$范数（注意这并不是真正的范数），含义为矩阵A的非零元素的个数，记为</p>
+<script type="math/tex; mode=display">||A||_0 = \#(A_{ij}\ne0)</script><p>$0-$范数是对矩阵稀疏性的一种最直接、最准确的度量</p>
+</li>
+<li><p><code>[U S V] = svd(A); norm(diag(S), 1)</code>：计算矩阵的核范数（矩阵A的所有奇异值之和），对核范数的约束是低<br>秩逼近与低秩求解最常用的方法，定义为：</p>
+<script type="math/tex; mode=display">||A||_* = \sum_{i=1}^n\sqrt{\lambda_i(A^TA)}</script></li>
+</ol>
+<h3 id="低秩约束实例"><a href="#低秩约束实例" class="headerlink" title="低秩约束实例"></a>低秩约束实例</h3><ol>
+<li><p><strong>强制降秩去噪模型</strong>：通过获取截取主成分来降秩，例如</p>
+<script type="math/tex; mode=display">\text{min}_{A^*}||A^*-B||_F</script><script type="math/tex; mode=display">s.t. \text{ rank}(A^*)\le3</script></li>
+<li><p><strong>低秩惩罚项模型</strong>：通过对参数$λ&gt;0$的大小调整，以及矩阵本身奇异值与0的逼近程度来自动控制降秩的幅度</p>
+<script type="math/tex; mode=display">\text{min}_{A^*}||A^*-B||_F^2+\lambda \text{ rank}(A^*)</script><p>设$A^*$的奇异值为$\bold{\sigma}=[\sigma_1, \sigma_2, … ,\sigma_n]^T$，该模型还可以表示为：</p>
+<script type="math/tex; mode=display">\text{min}_{A^*}||A^*-B||_F^2+\lambda ||\sigma||_0</script></li>
+<li><p><strong>松弛化低秩惩罚项模型</strong>：为了使模型具有更好的收敛性，可以将奇异值的$ℓ_0$范数更改为$ℓ_1$范数，对应以下模型</p>
+<script type="math/tex; mode=display">\text{min}_{A^*}||A^*-B||_F^2+\lambda ||A||_*</script></li>
+<li><p>半正定核范数正则化问题，在 $𝑨∗$半正定时，其核范数等于迹：</p>
+<script type="math/tex; mode=display">\text{min}_{A^*}||A^*-B||_F^2+\lambda \text{ trace}(A)</script></li>
+</ol>
+<h3 id="矩阵标量特征的验证"><a href="#矩阵标量特征的验证" class="headerlink" title="矩阵标量特征的验证"></a>矩阵标量特征的验证</h3><h5 id="同阶方阵或“内维”相等的矩阵相乘，交换次序迹不变"><a href="#同阶方阵或“内维”相等的矩阵相乘，交换次序迹不变" class="headerlink" title="同阶方阵或“内维”相等的矩阵相乘，交换次序迹不变"></a>同阶方阵或“内维”相等的矩阵相乘，交换次序迹不变</h5><figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">A = <span class="built_in">rand</span>(<span class="number">3</span>, <span class="number">3</span>); B = <span class="built_in">rand</span>(<span class="number">3</span>, <span class="number">3</span>); C = <span class="built_in">rand</span>(<span class="number">3</span>, <span class="number">4</span>); D = <span class="built_in">rand</span>(<span class="number">4</span>, <span class="number">3</span>);</span><br><span class="line">tAB = trace(A*B); tBA = trace(B*A);</span><br><span class="line">tCD = trace(C*D); tDC = trace(D*C);</span><br><span class="line"><span class="built_in">disp</span>([tAB, tBA, tCD, tDC])</span><br></pre></td></tr></table></figure>
+<h5 id="经典代数结论-AB-BA-A-·-B"><a href="#经典代数结论-AB-BA-A-·-B" class="headerlink" title="经典代数结论$|AB| = |BA| = |A|·|B|$"></a>经典代数结论$|AB| = |BA| = |A|·|B|$</h5><figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">d_A_B = det(A)*det(B);</span><br><span class="line">d_AB = det(A*B); d_BA = det(B*A);</span><br><span class="line">d_CD = det(C*D); d_DC = det(D*C);</span><br><span class="line"><span class="built_in">disp</span>([d_A_B, d_AB, d_BA, d_CD, d_DC])</span><br></pre></td></tr></table></figure>
+<p>需要注意到：内维相等的矩阵相乘交换次序行列式可能会改变</p>
+<h3 id="矩阵变换与特征值分解"><a href="#矩阵变换与特征值分解" class="headerlink" title="矩阵变换与特征值分解"></a>矩阵变换与特征值分解</h3><ul>
+<li><p><code>[R,ci] = rref(A)</code>实现初等变换将$A$化为行阶梯型矩阵,其中$R$储存了行阶梯型的矩阵，$ci$表示阶梯元素(线性独立)的列指标</p>
+</li>
+<li><p><code>null(A)</code> 得到 A 的零空间（核）的一组标准正交基</p>
+</li>
+<li><code>orth(A)</code>得到 A 的值空间（像）的一组标准正交基</li>
+</ul>
+<p><strong><code>rref</code> 化矩阵为行阶梯型矩阵</strong></p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">A = <span class="built_in">magic</span>(<span class="number">4</span>);</span><br><span class="line">[R, ci] = rref(A)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">R &#x3D;</span><br><span class="line"></span><br><span class="line">     1     0     0     1</span><br><span class="line">     0     1     0     3</span><br><span class="line">     0     0     1    -3</span><br><span class="line">     0     0     0     0</span><br><span class="line"></span><br><span class="line">ci &#x3D;</span><br><span class="line"></span><br><span class="line">     1     2     3</span><br></pre></td></tr></table></figure>
+<p>上述结果意为A的秩等于3，行阶梯型共有3层，阶梯元素在前三列</p>
+<h5 id="矩阵零空间及其含义"><a href="#矩阵零空间及其含义" class="headerlink" title="矩阵零空间及其含义"></a>矩阵零空间及其含义</h5><figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">A = <span class="built_in">reshape</span>(<span class="number">1</span>:<span class="number">15</span>,<span class="number">5</span>,<span class="number">3</span>);</span><br><span class="line">X = null(A);            <span class="comment">% 零空间向量</span></span><br><span class="line">S = A * X;              <span class="comment">% 代入后应该得到零向量</span></span><br><span class="line">n=<span class="built_in">size</span>(A,<span class="number">2</span>);			<span class="comment">% A的列数</span></span><br><span class="line">l=<span class="built_in">size</span>(X,<span class="number">2</span>);			<span class="comment">% X的列数（即零空间维数）		</span></span><br><span class="line">n-l==rank(A)			<span class="comment">% 判断矩阵秩是否等于（列数-零空间维数）</span></span><br></pre></td></tr></table></figure>
+<p>返回结果为<code>logical 1</code></p>
+<h5 id="实矩阵的特征值分解"><a href="#实矩阵的特征值分解" class="headerlink" title="实矩阵的特征值分解"></a>实矩阵的特征值分解</h5><figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">A=[<span class="number">1</span>, <span class="number">-3</span> ;<span class="number">2</span>, <span class="number">2</span>/<span class="number">3</span>];</span><br><span class="line">[V,D]=eig(A);            <span class="comment">% 该矩阵有两个复特征根(D对角元)，V为列特征向量构成的矩阵</span></span><br><span class="line">[VR,DR]=cdf2rdf(V,D);    <span class="comment">% 将复数对角型转换为实数块对角型(VR*DR/VR=A)</span></span><br><span class="line">A1 = <span class="built_in">real</span>(V*D/V);</span><br><span class="line">A2 = VR*DR/VR;</span><br><span class="line"><span class="built_in">disp</span>([A1, A2]);</span><br><span class="line">err1 = norm(A-A1, <span class="string">'fro'</span>);</span><br><span class="line">err2 = norm(A-A2, <span class="string">'fro'</span>);</span><br><span class="line"><span class="built_in">disp</span>([err1, err2]);</span><br></pre></td></tr></table></figure>
+<h1 id="Matlab解线性方程组"><a href="#Matlab解线性方程组" class="headerlink" title="Matlab解线性方程组"></a>Matlab解线性方程组</h1><p><code>A\b</code>是Matlab最高效的解线性方程组的內建函数，<code>A\B</code>可解矩阵方程。</p>
+<p>Matlab对于矩阵A列满秩且有解的情况将提供唯一解，对A列不满秩且有解的情况将随机提供一个解。无解问题将提供最小二乘解。</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">A = <span class="built_in">reshape</span>(<span class="number">1</span>:<span class="number">12</span>, <span class="number">4</span>, <span class="number">3</span>);</span><br><span class="line">b = (<span class="number">13</span>:<span class="number">16</span>)';</span><br><span class="line">ra = rank(A); rab = rank([A, b]);</span><br><span class="line"><span class="built_in">disp</span>([ra, rab]);</span><br><span class="line">xs = A\b;										<span class="comment">%求出方程组一个特解记为xs</span></span><br><span class="line">xg = null(A);									<span class="comment">%求对应齐次方程零空间（基础解系）</span></span><br><span class="line">c = <span class="built_in">rand</span>(<span class="number">1</span>);</span><br><span class="line">ba = A*(xs+c*xg);								<span class="comment">%检验任意特解+对应齐次特解是否符合方程组</span></span><br><span class="line">norm(ba-b)										<span class="comment">%向量2-范数的误差分析,新版本误差变小</span></span><br></pre></td></tr></table></figure>
+<h5 id="函数Inv与左右除"><a href="#函数Inv与左右除" class="headerlink" title="函数Inv与左右除"></a>函数Inv与左右除</h5><figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">rng default</span><br><span class="line">format</span><br><span class="line">A = <span class="built_in">gallery</span>(<span class="string">'randsvd'</span>, <span class="number">300</span>, <span class="number">2e13</span>, <span class="number">2</span>);</span><br><span class="line">x = <span class="built_in">ones</span>(<span class="number">300</span>, <span class="number">1</span>);</span><br><span class="line">b = A * x;</span><br><span class="line">cond(A);</span><br><span class="line"></span><br><span class="line">tic							</span><br><span class="line">xi = inv(A)*b;				<span class="comment">% 先求逆，再相乘浪费时间</span></span><br><span class="line">ti = toc;					<span class="comment">% 将当前计时存储在变量ti中</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">eri = norm(x-xi);			<span class="comment">% 计算解的绝对误差</span></span><br><span class="line">rei = norm(A*xi-b)/norm(b);	<span class="comment">% 计算回代相对误差</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">disp</span>([cond(A)]);            <span class="comment">% 2.0040e+13</span></span><br><span class="line"><span class="built_in">disp</span>([ti, eri, rei])        <span class="comment">% 0.0016    0.1032    0.0048</span></span><br></pre></td></tr></table></figure>
+<h3 id="线性方程组的数值迭代法"><a href="#线性方程组的数值迭代法" class="headerlink" title="线性方程组的数值迭代法"></a>线性方程组的数值迭代法</h3><p>从最初的线性方程组<code>Ax=b</code>出发，首先令$A=M-N$，然后有$Mx=Nx+b$，即$x=M^{-1}Nx+M^{-1}b = Bx+f$</p>
+<p>数值迭代法会将上述等式右边的<code>x</code>代入上一步的解向量，从而得出下一步的解向量，如：</p>
+<script type="math/tex; mode=display">x^{k+1} = Bx^{k}+f</script><p>这种算法在$||B||&lt;1$的情况可保持收敛性，根据$M,N$的不同选取，可以衍生出不同的基本迭代算法。</p>
+<h3 id="雅可比迭代法"><a href="#雅可比迭代法" class="headerlink" title="雅可比迭代法"></a>雅可比迭代法</h3><p>采用矩阵分裂记号：$A = D-L-U$，并有$M=D, N = L+U$，其中$D$为对角阵，$L$为下三角阵，$U$为上三角阵。雅可比迭代法的矩阵表现形式为</p>
+<script type="math/tex; mode=display">x^{(k+1)} = D^{-1}(L+U)x^{(k)} + D^{-1}b = B_Jx^{(k)} + f</script><p>雅可比迭代法数值实现：</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">rng default</span><br><span class="line">A=<span class="built_in">rand</span>(<span class="number">400</span>,<span class="number">400</span>)+<span class="number">5e2</span>*<span class="built_in">eye</span>(<span class="number">400</span>); </span><br><span class="line"><span class="comment">%雅可比迭代法需要对角元明显大于其他元素，否则一旦||B||&gt;=1就会使算法不收敛</span></span><br><span class="line">x=<span class="built_in">rand</span>(<span class="number">400</span>,<span class="number">1</span>);      </span><br><span class="line">b=A*x;  </span><br><span class="line">D=<span class="built_in">diag</span>(<span class="built_in">diag</span>(A));	<span class="comment">%取出A的对角元</span></span><br><span class="line">N = D-A;		<span class="comment">%N=L+U=D-A</span></span><br><span class="line">B = D\N; f = D\b;	<span class="comment">%x=Bx+f雏形已确定</span></span><br><span class="line"></span><br><span class="line">x_old = <span class="built_in">zeros</span>(<span class="number">400</span>,<span class="number">1</span>);<span class="comment">%迭代初值设为0向量</span></span><br><span class="line">err = <span class="number">1e12</span>;		 <span class="comment">%初始误差假设很大	</span></span><br><span class="line">iter = <span class="number">0</span>;		 <span class="comment">%记录总迭代次数</span></span><br><span class="line"><span class="keyword">while</span>(err&gt;<span class="number">1e-6</span>)	 <span class="comment">%当相邻两步绝对误差不超过1e-6迭代即结束</span></span><br><span class="line">    iter = iter + <span class="number">1</span>;</span><br><span class="line">    x_new = B*x_old + f;</span><br><span class="line">    err = norm(x_new-x_old);<span class="comment">%记录该步结果与上一步结果的最新绝对误差</span></span><br><span class="line">    x_old = x_new;</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"><span class="built_in">disp</span>(iter);                             <span class="comment">%共迭代19次</span></span><br><span class="line">err = norm(x_new-x)				 <span class="comment">%最终绝对误差</span></span><br></pre></td></tr></table></figure>
+<h3 id="变分法解线性方程组"><a href="#变分法解线性方程组" class="headerlink" title="变分法解线性方程组"></a>变分法解线性方程组</h3><p>定义$\phi(x) = \frac12x^TAx-b^Tx$，则线性方程组$Ax=b$的解集等于 $\text{argmin}_{x\in \mathbb{R}^n}\phi(x)$的解集，<strong>将线性方程组求解问题转化为最优化问题的方法，称为变分法</strong></p>
+<p>由于矩阵A的正定性，最优化问题$\text{argmin}_{x\in \mathbb{R}^n}\phi(x)$为一个向量空间的凸问题，凸问题仅有一个全局最优解，可以通过梯度下降法求解。</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">rng default,A0 = <span class="built_in">rand</span>(<span class="number">300</span>,<span class="number">300</span>);</span><br><span class="line">A=A0+A0'+<span class="number">1e3</span>*<span class="built_in">eye</span>(<span class="number">300</span>);	<span class="comment">% A为一个随机的正定矩阵即可</span></span><br><span class="line"><span class="comment">% 在很多实际问题中，比雅可比，高斯-塞德尔方法更加可行</span></span><br><span class="line">x=<span class="built_in">rand</span>(<span class="number">300</span>,<span class="number">1</span>);			</span><br><span class="line">b=A*x;	</span><br><span class="line"></span><br><span class="line">x_old = <span class="built_in">zeros</span>(<span class="number">300</span>,<span class="number">1</span>);	<span class="comment">% 初始迭代值仍设为0向量</span></span><br><span class="line">err = <span class="number">1e12</span>;</span><br><span class="line">iter = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span>(err&gt;<span class="number">1e-6</span>)		<span class="comment">% 相邻两步误差不超过1e-6则终止迭代</span></span><br><span class="line">    iter = iter + <span class="number">1</span>;</span><br><span class="line">    p = b - A*x_old;		<span class="comment">% 迭代方向（目标函数负梯度）</span></span><br><span class="line">    lambda = (p'*p)/((A*p)'*p); <span class="comment">% 最速迭代步长</span></span><br><span class="line">    x_new = x_old + lambda*p;</span><br><span class="line">    err = norm(x_new-x_old);<span class="comment">% 统计迭代当前步的误差</span></span><br><span class="line">    x_old = x_new;</span><br><span class="line"><span class="keyword">end</span>					</span><br><span class="line">err = norm(x_new-x)      	<span class="comment">% 最终绝对误差    9.2710e-08</span></span><br><span class="line">iter                        <span class="comment">% 循环次数		 8</span></span><br></pre></td></tr></table></figure>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://chenkai66.github.io/posts/60f341b.html" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/posts/49938fa3.html" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            matlab/Matlab问题求解
+          
+        </div>
+      </a>
+    
+    
+      <a href="/posts/790172fa.html" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">天池金融风控入门赛</div>
+      </a>
+    
+  </nav>
+
+   
+<!-- valine评论 -->
+<div id="vcomments-box">
+  <div id="vcomments"></div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+<script>
+  new Valine({
+    el: "#vcomments",
+    app_id: "TQy5bHTePagP10u5BBsesx61-gzGzoHsz",
+    app_key: "O6UyJYxBFgMKQMjktBh4KGad",
+    path: window.location.pathname,
+    avatar: "monsterid",
+    placeholder: "给我的文章加点评论吧~",
+    recordIP: true,
+  });
+  const infoEle = document.querySelector("#vcomments .info");
+  if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+    infoEle.childNodes.forEach(function (item) {
+      item.parentNode.removeChild(item);
+    });
+  }
+</script>
+<style>
+  #vcomments-box {
+    padding: 5px 30px;
+  }
+
+  @media screen and (max-width: 800px) {
+    #vcomments-box {
+      padding: 5px 0px;
+    }
+  }
+
+  #vcomments-box #vcomments {
+    background-color: #fff;
+  }
+
+  .v .vlist .vcard .vh {
+    padding-right: 20px;
+  }
+
+  .v .vlist .vcard {
+    padding-left: 10px;
+  }
+</style>
+
+ 
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2020-2021
+        <i class="ri-heart-fill heart_icon"></i> chenk
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        由 帅气的CK本尊 强力驱动
+        
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></s>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="言念君子"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+
+<script src="/js/clickBoom2.js"></script>
+
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+<script src="/js/dz.js"></script>
+
+
+
+    
+  </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"live2d-widget-model-haruto"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>
