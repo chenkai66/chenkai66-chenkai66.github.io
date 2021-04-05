@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    区块链入门（一）Linux基础 |  言念君子
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      
+      <canvas width="1777" height="841"
+        style="position: fixed; left: 0px; top: 0px; z-index: 99999; pointer-events: none;"></canvas>
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-区块链入门（一）Linux基础"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  区块链入门（一）Linux基础
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/posts/cf0a3f0.html" class="article-date">
+  <time datetime="2021-04-05T13:35:24.036Z" itemprop="datePublished">2021-04-05</time>
+</a>   
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">4.9k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">17 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="新手建议"><a href="#新手建议" class="headerlink" title="新手建议"></a>新手建议</h1><h2 id="学习Linux的注意事项"><a href="#学习Linux的注意事项" class="headerlink" title="学习Linux的注意事项"></a>学习Linux的注意事项</h2><ul>
+<li><p>Linux严格区分大小写（命令全都是小写）—— 命令、文件名、选项等均区分大小写</p>
+</li>
+<li><p>Linux中<strong>所有内容</strong>以文件形式保存，包括硬件</p>
+<ul>
+<li>硬盘文件是/dev/sd[a-p]</li>
+<li>光盘文件是/dev/sr0等</li>
+</ul>
+</li>
+<li><p>Windows通过扩展名区分文件类型，还有图标可以区分；Linux不靠扩展名区分文件类型，靠文件权限区分，但也有一些约定俗成的扩展名：</p>
+<ul>
+<li>压缩包：”<em>.gz”, “</em>.bz2”, “<em>.tar.bz2”, “</em>.tgz”等</li>
+<li>二进制软件包：”.rpm”</li>
+<li>网页文件：”*.sh”</li>
+<li>配置文件：”*.conf”</li>
+</ul>
+<p>注意：这些扩展名不是必要的，即时不加扩展名也没有影响，只是便于管理而已</p>
+</li>
+<li><p>Linux所有存储设备都必须挂在之后用户才能使用，包括硬盘、U盘、光盘（将设备与挂载点连接的过程就是挂载）</p>
+</li>
+<li><p>Windows下的程序不能直接在Linux中安装和运行</p>
+</li>
+</ul>
+<h2 id="服务器管理和维护建议"><a href="#服务器管理和维护建议" class="headerlink" title="服务器管理和维护建议"></a>服务器管理和维护建议</h2><h3 id="服务器管理"><a href="#服务器管理" class="headerlink" title="服务器管理"></a>服务器管理</h3><div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">目录名</th>
+<th style="text-align:center">目录作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">/bin/</td>
+<td style="text-align:center">存放系统命令的目录，普通用户和超级用户都可以执行，不过放在/bin下的命令在单用户模式下也可以执行</td>
+</tr>
+<tr>
+<td style="text-align:center">/sbin/</td>
+<td style="text-align:center">保存和系统环境设置相关的命令，只有超级用户可以使用这些命令进行系统环境设置，但是有些命令可以允许普通用户查看</td>
+</tr>
+<tr>
+<td style="text-align:center">/usr/bin/</td>
+<td style="text-align:center">存放系统命令的目录，普通用户和超级用户都可以执行，这些命令和系统启动无关，在单用户模式下不能执行</td>
+</tr>
+<tr>
+<td style="text-align:center">/usr/sbin/</td>
+<td style="text-align:center">存放根文件系统不必要的系统管理命令，例如多数服务程序。只有超级用户可以使用</td>
+</tr>
+<tr>
+<td style="text-align:center">/boot/</td>
+<td style="text-align:center">系统启动目录，保存系统启动相关的文件，如内核文件和启动引导程序（grub）文件等</td>
+</tr>
+<tr>
+<td style="text-align:center">/dev/</td>
+<td style="text-align:center">设备文件保存位置，我们已经说过Linux中所有内容以文件形式保存，包括硬件，这个目录就是用来 保存所有硬件设备的</td>
+</tr>
+<tr>
+<td style="text-align:center">/etc/</td>
+<td style="text-align:center">配置文件保存位置，系统内所有采用默认安装方式（npm安装）的服务的配置文件全部保存在这个目录中，如用户账户和密码，服务的启动脚本，常用服务的配置文件等</td>
+</tr>
+<tr>
+<td style="text-align:center">/home/</td>
+<td style="text-align:center">每个用户的默认登陆位置，普通用户的home目录就是在/home下建立一个和用户名相同的目录</td>
+</tr>
+<tr>
+<td style="text-align:center">/lib/</td>
+<td style="text-align:center">系统调用的函数库保存位置</td>
+</tr>
+<tr>
+<td style="text-align:center">/lost+found/</td>
+<td style="text-align:center">当系统意外崩溃或机器意外关机时，产生的一些文件碎片放在这里，当系统启动的过程中fsck工具会对其进行检查，并修复已经损坏的文件系统。这个目录只在每个分区中出现，例如/lost+found就是根分区的备份恢复目录，/boot/lost+found就是/boot分区的备份恢复目录</td>
+</tr>
+<tr>
+<td style="text-align:center">/media/</td>
+<td style="text-align:center">挂载目录，系统建议是用来挂载媒体设备的，例如软盘和光盘</td>
+</tr>
+<tr>
+<td style="text-align:center">/mnt/</td>
+<td style="text-align:center">挂载目录，建议挂载额外设备，如U盘，移动硬盘和其他操作系统的分区</td>
+</tr>
+<tr>
+<td style="text-align:center">/misc/</td>
+<td style="text-align:center">挂载目录，系统建议用来挂载NFS服务的共享目录</td>
+</tr>
+<tr>
+<td style="text-align:center">/opt/</td>
+<td style="text-align:center">第三方安装的软件保存位置，但现在更多的是保存在/usr/local中</td>
+</tr>
+<tr>
+<td style="text-align:center">/proc/</td>
+<td style="text-align:center">虚拟文件系统，该目录的数据不保存到硬盘中，而是保存到内存中。主要保存系统的内核、进程、外部设备状态和网络状态灯，如/proc/cpuinfo是保存CPU信息的，/proc/devices是保存设备驱动的列表的，/proc/filesystems是保存 文件系统列表的，/proc/net/是保存网络协议信息的</td>
+</tr>
+<tr>
+<td style="text-align:center">/sys/</td>
+<td style="text-align:center">虚拟文件系统，主要保存内核相关信息</td>
+</tr>
+<tr>
+<td style="text-align:center">/root/</td>
+<td style="text-align:center">超级用户的家目录</td>
+</tr>
+<tr>
+<td style="text-align:center">/srv/</td>
+<td style="text-align:center">服务数据目录， 一些系统服务启动后可以在这个目录保存需要的数据</td>
+</tr>
+<tr>
+<td style="text-align:center">/tmp/</td>
+<td style="text-align:center">临时目录，系统存放临时文件的目录，该目录下所有用户都可以访问和写入，我们建议此目录不能保存重要数据，最好每次开机都把该目录清空</td>
+</tr>
+<tr>
+<td style="text-align:center">/usr/</td>
+<td style="text-align:center">系统软件资源目录，注意usr不是user的缩写，而是”Unix Software Resource”的缩写，所以不是存放用户数据，而是存放系统软件资源的目录。系统中安装的软件大多数都在这里</td>
+</tr>
+<tr>
+<td style="text-align:center">/var/</td>
+<td style="text-align:center">动态数据保存位置，主要保存缓存、日志以及软件运行所产生的文件</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="服务器注意事项"><a href="#服务器注意事项" class="headerlink" title="服务器注意事项"></a>服务器注意事项</h3><ol>
+<li>远程服务器不允许关机，只能重启</li>
+<li>重启时应该关闭服务</li>
+<li>不要在服务器的访问高峰运行高负载命令</li>
+<li>远程配置防火墙时不要把自己踢出服务器（可以设置每五分钟将防火墙规则重置一次，配置完之后再取消该设置）</li>
+<li>指定合理的密码规范并定期更新</li>
+<li>合理分配权限</li>
+<li>定期备份重要数据和日志</li>
+</ol>
+<p>磁盘分区是用分区编辑器在磁盘上划分几个逻辑部分，碟片一旦划分成数个分区，不同类的目录和文件 可以存储进不同的分区。</p>
+<h1 id="系统分区"><a href="#系统分区" class="headerlink" title="系统分区"></a>系统分区</h1><h2 id="分区类型"><a href="#分区类型" class="headerlink" title="分区类型"></a>分区类型</h2><ul>
+<li>主分区：最多只能有4个</li>
+<li>扩展分区：<ul>
+<li>最多只能有1个</li>
+<li>主分区加扩展分区最多有4个</li>
+<li>不能写入数据，只能包含逻辑分区（这种限制是硬盘的限制）</li>
+</ul>
+</li>
+<li>逻辑分区</li>
+</ul>
+<h2 id="格式化"><a href="#格式化" class="headerlink" title="格式化"></a>格式化</h2><p>硬盘经过正确分区后仍不能写入数据，我们的硬盘还必须经过格式化之后才能写入数据。格式化又称逻辑格式化，它是根据用户选定的文件系统（如FAT16、FAT32、NTFS、EXT 2、EXT3、EXT4等），在磁盘的特定区域写入特定数据，在分区中划分出一片用于存放文件分配表、目录表等用于文件管理的磁盘空间。格式化就是按照文件系统的规则将硬盘分成等大小的数据块，我们把数据块称为block。</p>
+<blockquote>
+<p>注：Windows可以识别的系统有FAT16、FAT32、NTFS；Linux可以识别的系统有EXT2、EXT3、EXT4</p>
+</blockquote>
+<h2 id="设备文件名"><a href="#设备文件名" class="headerlink" title="设备文件名"></a>设备文件名</h2><h4 id="硬盘设备文件名"><a href="#硬盘设备文件名" class="headerlink" title="硬盘设备文件名"></a>硬盘设备文件名</h4><p>Windows是直接分区——&gt;格式化——&gt;分配盘符即可使用，Linux需要分区——&gt;格式化——&gt;给分区建立设备文件名——&gt;分配盘符才能使用。</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>硬件</th>
+<th>设备文件名</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IDE硬盘</td>
+<td>/dev/hd[a-d]</td>
+</tr>
+<tr>
+<td>SCSI/SATA/USB硬盘</td>
+<td>/dev/sd[a-p]</td>
+</tr>
+<tr>
+<td>光驱</td>
+<td>/dev/cdrom或dev/sr0</td>
+</tr>
+<tr>
+<td>软盘</td>
+<td>/dev/fd[0-1]</td>
+</tr>
+<tr>
+<td>打印机（25针）</td>
+<td>/dev/lp[0-2]</td>
+</tr>
+<tr>
+<td>打印机（USB）</td>
+<td>/dev/usb/lp[0-15]</td>
+</tr>
+<tr>
+<td>鼠标</td>
+<td>/dev/mouse</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h4 id="分区设备文件名"><a href="#分区设备文件名" class="headerlink" title="分区设备文件名"></a>分区设备文件名</h4><p>分区设备文件名直接<strong>在硬盘设备文件名后面加分区号</strong>即可，如</p>
+<ul>
+<li>IDE硬盘接口第一个分区：/dev/hda1（如今几乎看不到）</li>
+<li>SCSI硬盘接口、SATA硬盘接口的第一个分区：/dev/sda1</li>
+</ul>
+<blockquote>
+<p>IDE硬盘是最古老的硬盘，理论最高传输速度是133M/s</p>
+<p>SCSI硬盘接口与IDE硬盘同时代，更加昂贵但速度更快，理论最高传输速度可达200M/s，但这种硬盘主要用在服务器上</p>
+<p>但上两种硬盘接口如今已经基本淘汰，如今使用更多的是小口的SATA串口硬盘，SATA已发展到3代，其理论传输速度最高可达500M/s，目前不管是服务器还是个人机基本使用的都是SATA硬盘接口。</p>
+</blockquote>
+<p>需要留意的是，逻辑分区永远都是从5开始的</p>
+<h2 id="挂载"><a href="#挂载" class="headerlink" title="挂载"></a>挂载</h2><p>挂载实际上就是Windows中分配盘符的过程，盘符则被相应地称为挂载点，必须分区的分区有以下两种：</p>
+<ol>
+<li>根分区：/</li>
+<li>swap分区（交换分区）：可以理解为虚拟内存，当真正内存不够用时，可以使用这部分交换分区的硬盘空间来当内存，理论上来说交换分区应该是内存的两倍，但最大不超过2GB</li>
+</ol>
+<p>若无这两个分区，Linux不能正常使用，但我们还推荐把/boot单独分区，这是为了防止Linux系统启动不起来，一般200MB即可。</p>
+<h1 id="远程登陆管理工具"><a href="#远程登陆管理工具" class="headerlink" title="远程登陆管理工具"></a>远程登陆管理工具</h1><h2 id="网络连接"><a href="#网络连接" class="headerlink" title="网络连接"></a>网络连接</h2><p>网络连接从虚拟机设置中可以看到，一共有三种：桥接、NAT和Host-only，下面讲解其区别：</p>
+<ul>
+<li>桥接：桥接意味着虚拟机如同一个单独的主机一样访问Wifi等，也可以和其他机器通信</li>
+<li>NAT：虚拟机仅能和主机通信，但若主机可以访问互联网，虚拟机也可以访问互联网</li>
+<li>Host-only：虚拟机仅能和主机本机通信，不能访问互联网</li>
+</ul>
+<h2 id="网络配置"><a href="#网络配置" class="headerlink" title="网络配置"></a>网络配置</h2><ol>
+<li>首先调成Host-only模式，使得虚拟机仅与主机连接</li>
+<li>在主机上找到VMware Network Adapter VMnet1的IP地址，我本地地址为192.168.19.1</li>
+<li>在虚拟机上使用<code>ishw -c netwowrk</code>命令找到logical name，此即为虚拟机的网卡名称，我的虚拟网卡名称为ens33</li>
+<li>使用命令ifconfig  [不等于IP地址]  logical name，例如我使用的是<code>ifconfig ens33 192.168.19.2</code></li>
+<li>此时再ifconfig即可看到我们设置的已生效</li>
+<li>我们可以在主机ping这个IP地址看到生效</li>
+<li>使用secureCRT连接即可</li>
+</ol>
+<p>需要注意的是，以上方法配置IP地址时不是永久生效的，也就是重新启动电脑时就失效了，若想永久生效需要改变配置文件</p>
+<p>若使用NAT模式，则步骤简单很多，只需要ifconfig获得IP地址之后直接用secureCRT连接即可</p>
+<h2 id="WinSCP"><a href="#WinSCP" class="headerlink" title="WinSCP"></a>WinSCP</h2><p>另外推荐一个Windows主机与Linux虚拟机进行文件传输的工具——WinSCP，操作方法与上面类似，只需输入对应的IP地址即可连接。</p>
+<h2 id="安装linux系统（以ubuntu为例）"><a href="#安装linux系统（以ubuntu为例）" class="headerlink" title="安装linux系统（以ubuntu为例）"></a>安装linux系统（以ubuntu为例）</h2><ul>
+<li><p>使用vmware虚拟机安装</p>
+<p><a href="https://zhuanlan.zhihu.com/p/38797088" target="_blank" rel="noopener">参考此博客：VMware安装Ubuntu18.04</a></p>
+</li>
+<li><p>使用win10子系统安装</p>
+<p><a href="https://zhuanlan.zhihu.com/p/76032647" target="_blank" rel="noopener">参考此博客：在 win10 下使用 ubuntu 子系统</a></p>
+</li>
+</ul>
+<h1 id="Linux常用命令"><a href="#Linux常用命令" class="headerlink" title="Linux常用命令"></a>Linux常用命令</h1><h2 id="一、最常用命令"><a href="#一、最常用命令" class="headerlink" title="一、最常用命令"></a>一、最常用命令</h2><p>这是我们<strong>使用得最多</strong>的命令了，<strong>Linux最基础的命令</strong>！</p>
+<ul>
+<li>可用 <code>pwd</code>命令查看用户的当前目录</li>
+<li>可用 <code>cd</code> 命令来切换目录</li>
+<li><code>.</code>表示当前目录</li>
+<li><code>..</code> 表示当前目录的上一级目录（父目录）</li>
+<li><code>-</code>表示用 cd 命令切换目录<strong>前</strong>所在的目录</li>
+<li><code>~</code> 表示<strong>用户主目录</strong>的绝对路径名</li>
+</ul>
+<p><strong>绝对路径：</strong></p>
+<ul>
+<li>以斜线（/）开头 ，描述到文件位置的<strong>完整说明</strong> ，任何时候你想指定文件名的时候都可以使用</li>
+</ul>
+<p><strong>相对路径 ：</strong></p>
+<ul>
+<li>不以斜线（/）开头 ，指定<strong>相对于你的当前工作目录而言的位置</strong> ，可以被用作指定文件名的简捷方式</li>
+</ul>
+<h2 id="二、文件处理命令"><a href="#二、文件处理命令" class="headerlink" title="二、文件处理命令"></a>二、文件处理命令</h2><h3 id="1-命令格式与目录处理命令ls"><a href="#1-命令格式与目录处理命令ls" class="headerlink" title="1. 命令格式与目录处理命令ls"></a>1. 命令格式与目录处理命令<code>ls</code></h3><p><strong>命令格式</strong>：<code>命令[-选项][-参数]</code>，例：<code>ls -la /etc</code></p>
+<p><strong>说明</strong>：</p>
+<ol>
+<li>个别命令使用不遵循此格式</li>
+<li>当有多个选项时，可以写在一起</li>
+<li>简化选项与完整选项：<code>-a</code> 等于 <code>--all</code></li>
+</ol>
+<p><code>ls</code>命令的语法：</p>
+<ol>
+<li><p><code>ls -a</code>可以显示所有文件，包括隐藏文件（以点.开头的文件是隐藏文件）</p>
+</li>
+<li><p>若希望查询的不是当前目录，可以使用<code>ls+其他目录</code>进行查询</p>
+</li>
+<li><p><code>ls -l</code>可以显示更多属性（long），属性阐述如下：</p>
+</li>
+<li><p>第一列分为三个部分，第一部分（如d告诉我们文件的类型是一个目录，-为二进制文件，1为软链接文件），drwx表示该文件支持读写和执行操作，r,w,x分别对应读、写、执行三个权限，三列分别对应所有者，所属组，其他人的权限</p>
+</li>
+<li><p>第二列的2、2、3等表示调用次数</p>
+<ol>
+<li>第三列表示所有者，也就是这个文件的总负责人（拥有文件的所有权，可转让）</li>
+</ol>
+</li>
+<li>第四列表示所属组，也就是可以操作这个文件的人<ol>
+<li>第五列表示文件大小，默认单位是字节（很反Windows）</li>
+</ol>
+</li>
+<li><p>最后一个是文件的最后一次修改时间（Linux没有创建时间这个概念）</p>
+</li>
+<li><p><code>ls -lh</code>比原先的更人性化（humanitarian），它将对应的单位也显示了出来，<code>-h</code>实际上是一个通用选项，很多命令都可以加</p>
+</li>
+<li><p><code>-d</code>显示当前目录本身而不显示目录下的数据，一般与<code>-l</code>结合使用，如<code>ls -ld /etc</code></p>
+</li>
+<li><p><code>ls -id</code>可以查看当前目录对应的文件ID</p>
+</li>
+</ol>
+<h3 id="2-目录处理命令"><a href="#2-目录处理命令" class="headerlink" title="2. 目录处理命令"></a>2. 目录处理命令</h3><h5 id="mkdir"><a href="#mkdir" class="headerlink" title="mkdir"></a><code>mkdir</code></h5><p><strong>语法</strong>：<code>mkdir -p [目录名]</code></p>
+<p><strong>功能描述</strong>：创建新目录，<code>-p</code>递归创建（若一个目录本身不存在，可以在创建这个目录的同时创建子目录），也可以同时创建多个目录</p>
+<h5 id="cd"><a href="#cd" class="headerlink" title="cd"></a><code>cd</code></h5><p><strong>语法</strong>：<code>cd directory</code></p>
+<p><strong>功能描述</strong>：改变当前目录</p>
+<h5 id="pwd"><a href="#pwd" class="headerlink" title="pwd"></a><code>pwd</code></h5><p><strong>语法</strong>：<code>pwd</code></p>
+<p><strong>功能描述</strong>：显示当前目录（print working directory）</p>
+<h5 id="rmdir"><a href="#rmdir" class="headerlink" title="rmdir"></a><code>rmdir</code></h5><p><strong>语法</strong>：<code>rmdir [目录名]</code></p>
+<p><strong>功能描述</strong>：删除空目录（若目录非空则不能删除）</p>
+<h5 id="cp"><a href="#cp" class="headerlink" title="cp"></a><code>cp</code></h5><p><strong>语法</strong>：<code>cp -rf [源文件或目录] [目标目录] -r 复制目录 -p 保留文件属性（文件创建时间等不发生变化）</code></p>
+<p><strong>功能描述</strong>：复制文件或目录</p>
+<h5 id="mv"><a href="#mv" class="headerlink" title="mv"></a><code>mv</code></h5><p><strong>语法</strong>：<code>mv [源文件或目录] [目标目录]</code></p>
+<p><strong>功能描述</strong>：剪切文件、改名</p>
+<h5 id="rm"><a href="#rm" class="headerlink" title="rm"></a><code>rm</code></h5><p><strong>语法</strong>：<code>rm -rf [文件或目录] -r 删除目录 -f 强制执行</code></p>
+<p><strong>功能描述</strong>：删除文件</p>
+<h3 id="3-文件处理命令"><a href="#3-文件处理命令" class="headerlink" title="3. 文件处理命令"></a>3. 文件处理命令</h3><h5 id="touch"><a href="#touch" class="headerlink" title="touch"></a><code>touch</code></h5><p><strong>语法</strong>：<code>touch [文件名]</code></p>
+<p><strong>功能描述</strong>：创建空文件</p>
+<h5 id="cat"><a href="#cat" class="headerlink" title="cat"></a><code>cat</code></h5><p><strong>语法</strong>：<code>cat [文件名]</code></p>
+<p><strong>功能描述</strong>：显示文件内容  <code>-n</code>可显示行号</p>
+<h5 id="tac"><a href="#tac" class="headerlink" title="tac"></a><code>tac</code></h5><p>与<code>cat</code>相反，可以倒着显示</p>
+<h5 id="more"><a href="#more" class="headerlink" title="more"></a><code>more</code></h5><p><code>cat</code>命令显示的往往过多，若希望分页显示可以使用<code>more</code>，用法与<code>cat</code>相同，使用时按空格可以一页页往后翻，使用q或Q退出</p>
+<h5 id="less"><a href="#less" class="headerlink" title="less"></a><code>less</code></h5><p>由于<code>more</code>无法向上翻，我们可以使用<code>less</code>命令，可以使用page up一页页往上翻，也可以使用上箭头一行行往上翻，其他操作与<code>more</code>相同。另外<code>less</code>还可以进行搜索，比如想要搜索关键词service，可以输入/service进行检索，页面会对这些关键词进行高亮，可以使用<code>n</code>找到其他关键词位置</p>
+<h5 id="head"><a href="#head" class="headerlink" title="head"></a><code>head</code></h5><p>若只想要看文件的前几行，可以使用<code>head -n</code>加指定行数，若不加则默认显示前10行</p>
+<h5 id="tail"><a href="#tail" class="headerlink" title="tail"></a><code>tail</code></h5><p>与<code>head</code>类似 ，但是显示后面几行。</p>
+<p>常用搭配为：<code>tail -f</code>，该命令会动态显示文件末尾内容</p>
+<h2 id="三、链接命令ln"><a href="#三、链接命令ln" class="headerlink" title="三、链接命令ln"></a>三、链接命令<code>ln</code></h2><p><strong>语法</strong>：<code>ln -s [原文件] [目标文件] -s 创建软链接</code></p>
+<p><strong>功能描述</strong>：生成链接文件</p>
+<p><strong>示例</strong>：</p>
+<ul>
+<li><code>ln -s /etc/issue issue.soft</code>：生成软链接</li>
+<li><code>ln /etc/issue issue.hard</code>：生成硬链接</li>
+</ul>
+<p><strong>软链接和硬链接的区别</strong></p>
+<p>我们使用<code>ls -l</code>查看这两个文件的信息：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-rw-r--r-- 2 root root 26 Jul 15  2020 issue.hard</span><br><span class="line">lrwxrwxrwx 1 root root 10 Jan 31 04:55 issue.soft -&gt; &#x2F;etc&#x2F;issue</span><br></pre></td></tr></table></figure>
+<p>我们会发现这两个文件的信息相差的非常多，软链接文件开头的文件类型是<code>l(link)</code>，三个权限都是<code>rwx</code>，即可读可写可执行，软链接文件就类似于Windows的快捷方式，用处是便于做管理，我们可以看到最后有一个箭头指向<code>/etc/issue</code>。另外我们看到这个文件只有31个字节，因为它只是一个符号链接。我们可以总结得出软链接的三个特点：</p>
+<ol>
+<li>权限是<code>rwx</code></li>
+<li>文件很小，只是符号链接</li>
+<li>箭头指向源文件</li>
+</ol>
+<p>下面我们看硬链接的特点，我们首先分别查看 这两个文件的信息：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ls -l issue.hard</span><br><span class="line">ls -l &#x2F;etc&#x2F;issue</span><br></pre></td></tr></table></figure>
+<p>我们可以看到这两个文件的所有信息一模一样，包括文件的大小，这类似于拷贝，似乎相当于<code>cp -p</code>，而硬链接和<code>cp -p</code>的最大不同就是硬链接可以实现同步更新，我们可以做一个简单的实验，我们先查看硬链接文件，然后往源文件中写入文件，可以发现硬链接文件也被同时修改了，当然软链接也会同步修改。</p>
+<p>但当我们将源文件复制到另一个位置并删除原位置文件之后，再试图打开软链接会提示“没有那个文件或目录”，而且再显示这个目录软链接会标红并一直闪，而硬链接可以正常访问，没有影响，这就是硬链接和软连接的不同之处。</p>
+<p>实际上我们可以通过命令<code>ls -i</code>来识别其<code>i</code>节点以辨别出是硬链接还是软链接，硬链接和源文件的<code>i</code>节点相同，软链接则不同。</p>
+<p>硬链接相当于一个同步文件，但可以做实时备份（一个文件删了不会影响另一个文件），硬链接有两个限制，这也是硬链接和软链接的区别：</p>
+<ol>
+<li>不能跨分区</li>
+<li>不能针对目录使用</li>
+</ol>
+<h2 id="四、权限管理命令"><a href="#四、权限管理命令" class="headerlink" title="四、权限管理命令"></a>四、权限管理命令</h2><p>Linux用户一共分成三类，分别是所有者（U），所属组（G）和其他人（O），权限也分成三类，分别是<code>r</code>，<code>w</code>，<code>x</code>，对应读、写、执行，我们首先学习如何更改权限。</p>
+<h4 id="chmod"><a href="#chmod" class="headerlink" title="chmod"></a><code>chmod</code></h4><p>更改文件的人只能是文件所有者或者管理员root用户，更改文件权限有两种方式，第一种方式如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chmod [&#123;ugoa&#125;&#123;+-&#x3D;&#125;&#123;rwx&#125;][文件或目录]</span><br></pre></td></tr></table></figure>
+<p>其中第一个花括号里<code>u</code>，<code>g</code>，<code>o</code>，<code>a</code>分别表示所有者，所属组，其他人和所有人，第二个花括号<code>+</code>和<code>-</code>分别表示增加和减少权限，<code>=</code>表示成为后面的权限。第二种方式如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chmod [mod&#x3D;421][文件或目录] -R 递归修改</span><br></pre></td></tr></table></figure>
+<p>数字的意思只是将三个权限位分别用数字来表示，比如<code>r</code>用4表示，<code>w</code>用2表示，<code>x</code>用1表示，则若要表示<code>rwxrw-r--</code>则记为<code>764</code></p>
+<h4 id="chown"><a href="#chown" class="headerlink" title="chown"></a><code>chown</code></h4><p>命令英文原意是<code>change file ownership</code>，作用是改变文件或目录的所有者，改变文件file的所有者为user的具体用法为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chown user file</span><br></pre></td></tr></table></figure>
+<p>要注意只有root和文件的所有者可以改变文件的权限</p>
+<h4 id="chgrp"><a href="#chgrp" class="headerlink" title="chgrp"></a><code>chgrp</code></h4><p>命令英文原意是<code>change file  group ownership</code>，作用是改变文件或目录的所属组，若具体用法和前面<code>chown</code>相同。我们可以使用<code>groupadd</code>命令添加组（使用<code>useradd</code>命令添加用户）</p>
+<h4 id="umask"><a href="#umask" class="headerlink" title="umask"></a><code>umask</code></h4><p>命令英文原意是<code>the user file-creation mask</code>，作用是显示、设置文件的缺省权限，语法是：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">umask [-S]</span><br></pre></td></tr></table></figure>
+<p>其中<code>-S</code>的作用是显示新建文件的缺省权限，但需要注意的是缺省创建文件时不可以有可执行权限的，所以当<code>touch</code>创建文件时会发现所有权限都少了<code>x</code>。</p>
+<p>当我们直接使用<code>umask</code>时，比如显示0022，第一个0是特殊权限，我们暂时不涉及，第二只第四位分别是所有者、所属组和其他人，我们的最终权限实际上是<code>777-022=755</code>，也就是<code>rwx r-x r-x</code>，当然这指的是目录，如果是文件由于没有可执行权限，文件权限应当是<code>rw- r-- r--</code>，当然缺省创建的权限可以更改，直接使用<code>umask 077</code>即可将文件缺省权限更改为<code>rwx --- ---</code>，但不推荐做这种更改</p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://chenkai66.github.io/posts/cf0a3f0.html" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/posts/fb46f828.html" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            区块链入门（二）基础知识介绍
+          
+        </div>
+      </a>
+    
+    
+  </nav>
+
+   
+<!-- valine评论 -->
+<div id="vcomments-box">
+  <div id="vcomments"></div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+<script>
+  new Valine({
+    el: "#vcomments",
+    app_id: "TQy5bHTePagP10u5BBsesx61-gzGzoHsz",
+    app_key: "O6UyJYxBFgMKQMjktBh4KGad",
+    path: window.location.pathname,
+    avatar: "monsterid",
+    placeholder: "给我的文章加点评论吧~",
+    recordIP: true,
+  });
+  const infoEle = document.querySelector("#vcomments .info");
+  if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+    infoEle.childNodes.forEach(function (item) {
+      item.parentNode.removeChild(item);
+    });
+  }
+</script>
+<style>
+  #vcomments-box {
+    padding: 5px 30px;
+  }
+
+  @media screen and (max-width: 800px) {
+    #vcomments-box {
+      padding: 5px 0px;
+    }
+  }
+
+  #vcomments-box #vcomments {
+    background-color: #fff;
+  }
+
+  .v .vlist .vcard .vh {
+    padding-right: 20px;
+  }
+
+  .v .vlist .vcard {
+    padding-left: 10px;
+  }
+</style>
+
+ 
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2020-2021
+        <i class="ri-heart-fill heart_icon"></i> chenk
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        由 帅气的CK本尊 强力驱动
+        
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></s>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="言念君子"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+
+<script src="/js/clickBoom2.js"></script>
+
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+<script src="/js/dz.js"></script>
+
+
+
+    
+  </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"live2d-widget-model-haruto"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>
