@@ -347,202 +347,9 @@
 <p>其中<code>-S</code>的作用是显示新建文件的缺省权限，但需要注意的是缺省创建文件时不可以有可执行权限的，所以当<code>touch</code>创建文件时会发现所有权限都少了<code>x</code>。</p>
 <p>当我们直接使用<code>umask</code>时，比如显示0022，第一个0是特殊权限，我们暂时不涉及，第二只第四位分别是所有者、所属组和其他人，我们的最终权限实际上是<code>777-022=755</code>，也就是<code>rwx r-x r-x</code>，当然这指的是目录，如果是文件由于没有可执行权限，文件权限应当是<code>rw- r-- r--</code>，当然缺省创建的权限可以更改，直接使用<code>umask 077</code>即可将文件缺省权限更改为<code>rwx --- ---</code>，但不推荐做这种更改</p>
 ]]></content>
-  </entry>
-  <entry>
-    <title>区块链入门（五）合约编写实例补充</title>
-    <url>/posts/a4c5a08d.html</url>
-    <content><![CDATA[<font color="red"> 注：本教程为技术教程，不谈论且不涉及炒作任何数字货币 </font>
-
-<h1 id="合约编写实战实例"><a href="#合约编写实战实例" class="headerlink" title="合约编写实战实例"></a>合约编写实战实例</h1><h2 id="一、简单代币合约"><a href="#一、简单代币合约" class="headerlink" title="一、简单代币合约"></a>一、简单代币合约</h2><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">pragma solidity &gt; <span class="number">0.4</span><span class="number">.22</span>;</span><br><span class="line"></span><br><span class="line">contract Coin&#123;</span><br><span class="line">    <span class="comment">//这里我们定义了一个address 作为key, uint做为value的hashTable balances; 我们还定义了一个address的变量minter;</span></span><br><span class="line">    address public minter;</span><br><span class="line">    mapping(<span class="function"><span class="params">address</span>=&gt;</span>uint) balances;</span><br><span class="line">    event Sent(address <span class="keyword">from</span>, address to, uint amount);</span><br><span class="line">    <span class="keyword">constructor</span>()&#123;</span><br><span class="line">        <span class="comment">//代表创建这个合约的账户地址，被赋值给变量minter.</span></span><br><span class="line">        minter = msg.sender;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//添加一个挖矿合约 </span></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">mint</span>(<span class="params">address receiver, uint amount</span>) <span class="title">public</span></span>&#123;</span><br><span class="line">        <span class="built_in">require</span>(msg.sender == minter);</span><br><span class="line">        balances[receiver] += amount;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">send</span>(<span class="params">address receiver, uint amount</span>) <span class="title">public</span></span>&#123;</span><br><span class="line">        <span class="built_in">require</span>(balances[msg.sender] &gt;= amount);</span><br><span class="line">        balances[msg.sender] -= amount;</span><br><span class="line">        balances[receiver] += amount;</span><br><span class="line">        emit Sent(msg.sender,receiver,amount);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>解析：<br>上面实现一个简单的加密货币，币在这里可以无中生有，但只有创建合约的人才能做到，且任何人都可以给他人转币，无需注册名和密码。</p>
-<p><code>address</code>类型是一个160位的值，不允许任何算数操作，这种类型适合存储合约地址或外部人员。</p>
-<p><code>mappings</code>可看作是一个哈希表，它会执行虚拟初始化，以使得所有可能存在的键都映射到一个字节表示为全零的值。</p>
-<p><code>event Sent(address from, address to, uint amount)</code>;声明了一个所谓的事件，它在send函数最后一行被发出。用户界面可以监听区块链上正在发送的事件，且不会花费太多成本，一旦它被发出，监听该事件的listener都将收到通知，而所有的事件都包含了<code>from</code>,<code>t</code>o和<code>amoun</code>t三个参数，可方便追踪事务。</p>
-<p><code>msg.sender</code>始终是当前函数或者外部函数调用的来源地址。</p>
-<p>最后真正被用户和其他合约所调用的，用于完成本合约功能的方法是<code>mint</code>和<code>send</code>。若<code>mint</code>被合约创建者外的其他调用则说明都不会发生。</p>
-<p><code>send</code>函数可被任何人用于向其他人发送代币，前提是发送者拥有这些代币，若使用合约发送代币给一个地址，当在区块链浏览器上查到该地址时时看不到任何相关信息的，因为，实际上发送币和更改余额的信息仅仅存在特定合约的数据存储器中。通过使用事件，可非常简单地为新币创建一个区块链浏览器来追踪交易和余额。</p>
-<center>
-    <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-15.png">
-    <br>
-    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
-    display: inline-block;
-    color: #999;
-    padding: 2px;"></div>
-</center>
-
-
-
-<h2 id="二、水龙头合约"><a href="#二、水龙头合约" class="headerlink" title="二、水龙头合约"></a>二、水龙头合约</h2><p>在前面我们通过 Ropsten 测试网络的水龙头（Faucet）获取了一些以太币，并提到可以向水龙头账户发送以太币来捐赠以太币。实际上，水龙头账户是一个合约账户，水龙头就是一份合约，而整个网站就是合约+前端组成的DApp。下面我们通过 Remix 来编写一个简单的水龙头合约，借此了解如何创建、部署合约以及一些 Solidity 的基本语法。</p>
-<p>首先打开 Remix，并新建一个名为 faucet.sol 的文件，该文件就是 Solidity 的源文件</p>
-<center>
-    <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-16.png">
-    <br>
-    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
-    display: inline-block;
-    color: #999;
-    padding: 2px;"></div>
-</center>
-
-<p>打开 faucet.sol，并写入如下代码</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">pragma solidity ^<span class="number">0.7</span><span class="number">.0</span>;</span><br><span class="line"></span><br><span class="line">contract faucet &#123;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">withdraw</span> (<span class="params">uint amount</span>) <span class="title">public</span> </span>&#123;</span><br><span class="line">        <span class="built_in">require</span> (amount &lt;= <span class="number">1e18</span>);</span><br><span class="line">        msg.sender.transfer (amount);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    receive () external payable &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>通过这几行代码我们就实现了一个非常简单的水龙头合约。首行代码 <code>pragma solidity ^0.7.0</code>是一个<strong>杂注</strong>，指定了我们的源文件使用的编译器版本不能低于 0.7.0，也不能高于 0.8.0。</p>
-<p><code>contract faucet{...}</code> 声明了一个合约对象，合约对象类似面向对象语言中的类，对象名必须跟文件名相同。</p>
-<p>接下来通过  <code>function withdraw (uint amount) public {...}</code> 创建了一个名为  withdraw 的函数，该函数接收一个无符号整数（uint）作为参数，并且被声明为 public 函数，意为可以被其他合约调用。</p>
-<p>withdraw 函数体中的 <code>require</code> 是 Solidity 的内置函数，用来检测括号中的条件是否满足。条件满足则继续执行合约，条件不满足则合约停止执行，回撤所有执行过的操作，并抛出异常。在这里我们通过 <code>require (amount &lt;= 1e18)</code> 来检测输入的以太币值是否小于等于1个以太。</p>
-<p>接下来的这一行 <code>msg.sender.transfer (amount)</code> 就是实际的提款操作了。<code>msg</code> 是 Solidity 中内置的对象，所有合约都可以访问，它代表触发此合约的交易。也就是说当我们调用 <code>withdraw</code> 函数的时候实际上触发了一笔交易，并用 <code>msg</code> 来表示它。<code>sender</code> 是交易 <code>msg</code> 的属性，表示了交易的发件人地址。函数 <code>transfer</code> 是一个内置函数，它接收一个参数作为以太币的数量，并将该数量的以太币从合约账户发送到调用合约的用户的地址中。</p>
-<p>最后一行是一个特殊的函数 <code>receive</code> ，这是所谓的 <code>fallback</code> 或 <code>default</code> 函数。当合约中的其他函数无法处理发送到合约中的交易信息时，就会执行该函数。在这里，我们将该函数声明为 <code>external</code> 和 <code>payable</code> ，<code>external</code> 意味着该函数可以接收来自外部账户的调用，<code>payable</code> 意味着该函数可以接收来自外部账户发送的以太币。</p>
-<p>这样，当我们调用合约中的 <code>withdraw</code> 并提供一个参数时，我们可以从这份合约中提出以太币；当我们向合约发送以太币时，就会调用 <code>receive</code> 函数往合约中捐赠以太币。</p>
-<p>代码编写完毕后，在 Remix 左侧的功能栏中选择第二项，并点击 <em>Compile faucet.sol</em> 来编译我们的 sol 文件。</p>
-<center>
-    <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-17.png">
-    <br>
-    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
-    display: inline-block;
-    color: #999;
-    padding: 2px;"></div>
-</center>
-
-
-<p>编译完成后会出现一个 Warning，提示我们添加 SPDX license，可以忽略。</p>
-<p>随后选择 Remix 左侧工具栏的第三项，进入合约部署界面</p>
-<center>
-    <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-18.png">
-    <br>
-    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
-    display: inline-block;
-    color: #999;
-    padding: 2px;"></div>
-</center>
-
-
-<p>首先将 ENVIRONMENT 选择为 Injected Web3，这样才能通过 MetaMask 钱包来发送交易。</p>
-<p>随后点击 Deploy 部署合约，MetaMask 会弹出部署合约的交易界面</p>
-<center>
-    <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-19.png">
-    <br>
-    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
-    display: inline-block;
-    color: #999;
-    padding: 2px;"></div>
-</center>
-
-
-<p>因为该笔交易是合约创建交易，因此我们支付的以太币为0，但仍需支付一定的 Gas 费用，可以自己设定 Gas 的价格。</p>
-<p>合约部署成功后会收到 Chrome 的消息提示，并在 Remix 的 Deployed Contracts 中也会有显示</p>
-<center>
-    <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-20.png">
-    <br>
-    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
-    display: inline-block;
-    color: #999;
-    padding: 2px;"></div>
-</center>
-
-
-<p>这样我们就完成了这个水龙头合约的部署。</p>
-<h4 id="水龙头测试"><a href="#水龙头测试" class="headerlink" title="水龙头测试"></a>水龙头测试</h4><p>我们刚刚创建的水龙头中还没有以太坊，因此我们可以通过 MetaMask 向水龙头合约的地址中发送一些以太坊。水龙头合约的地址会显示在 Remix 中的，见上图 FAUCET AT 0X7A4…34219，可以直接复制。</p>
-<center>
-    <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-21.png">
-    <br>
-    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
-    display: inline-block;
-    color: #999;
-    padding: 2px;"></div>
-</center>
-
-
-<p>交易被确认后，我们的水龙头中就有了0.999726个以太币，现在我们可以通过 Remix 中合约一栏的 withdraw 按钮来提取以太币了。需要注意，这里输入的以太币个数是以 wei 为单位的。</p>
-<center>
-    <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-22.png">
-    <br>
-    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
-    display: inline-block;
-    color: #999;
-    padding: 2px;"></div>
-</center>
-
-
-<p>点击 withdraw 后，会弹出警告框</p>
-<center>
-    <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-23.png">
-    <br>
-    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
-    display: inline-block;
-    color: #999;
-    padding: 2px;"></div>
-</center>
-
-
-<p>这是因为目前我们还没有设置这笔交易的 Gas，不用担心，点击 Send Transaction 后，在弹出的 MetaMask 中设置即可。</p>
-<p>交易被确认后，我们得到了刚刚提取的0.999726个以太币</p>
-<center>
-    <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-15.png">
-    <br>
-    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
-    display: inline-block;
-    color: #999;
-    padding: 2px;"></div>
-</center>
-
-
-<p>若大家没有执行成功可以重新做一次、查找其他资料或者<a href="https://www.bilibili.com/video/BV1sJ411D72u?p=465" target="_blank" rel="noopener">观看此视频</a></p>
-<h2 id="三、投票合约的实现"><a href="#三、投票合约的实现" class="headerlink" title="三、投票合约的实现"></a>三、投票合约的实现</h2><p><img src="/posts/rating.png" style="zoom:67%;"></p>
-<p>本次教程将以一个较复杂的投票合约作为结束，我们希望实现的功能是为每个（投票）建议建立一份合约,然后作为合约的创造者-主席，主席将赋予每个成员(地址)投票权，而成员的投票权可以选择委托给其他人也可以自己投票，结束时将返回投票最多的提案。听起来很简单一个功能实现起来却较为复杂，下面我们拆分开进行讲解</p>
-<p>注：</p>
-<ol>
-<li>代码可直接在Remix编辑器的已有solidity文件中找到,在contract/_Ballot.sol文件里</li>
-<li>若学习者前面部分掌握较牢固，不妨尝试直接自行阅读代码，无需阅读本节内容</li>
-</ol>
-<p>首先我们定义成员类型，我们为每个投票者定义权重、是否已投票、</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">struct Voter &#123;</span><br><span class="line">    uint weight; <span class="comment">// weight is accumulated by delegation</span></span><br><span class="line">    bool voted;  <span class="comment">// if true, that person already voted</span></span><br><span class="line">    address delegate; <span class="comment">// person delegated to</span></span><br><span class="line">    uint vote;   <span class="comment">// index of the voted proposal</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>然后我们定义提案类型，包含提案名和投票总数：</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">struct Proposal &#123;</span><br><span class="line">    bytes32 name;   <span class="comment">// short name (up to 32 bytes)</span></span><br><span class="line">    uint voteCount; <span class="comment">// number of accumulated votes</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>定义三个变量，主席是一个公开的地址，建立投票者与地址的映射，然后定义提案动态数组：</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">address public chairperson;</span><br><span class="line">mapping(<span class="function"><span class="params">address</span> =&gt;</span> Voter) public voters;</span><br><span class="line">Proposal[] public proposals;</span><br></pre></td></tr></table></figure>
-<ul>
-<li><code>address public chairperson</code>：投票发起人，类型为 address。</li>
-<li><code>mapping(address =&gt; Voter) public voters</code>：所有投票人，类型为 <code>address</code> 到 <code>Voter</code> 的映射。</li>
-<li><code>Proposal[] public proposals</code>：所有提案，类型为动态大小的 <code>Proposal</code> 数组。</li>
-</ul>
-<p>3 个状态变量都使用了 <code>public</code> 关键字，使得变量可以被外部访问（即通过消息调用）。事实上，编译器会自动为 <code>public</code>的变量创建同名的 <code>getter</code> 函数，供外部直接读取。</p>
-<p>我们还需要为每个投票赋予初始权值，并将主席的权重设置为1。我们一般使用<code>constructor</code>赋初值，这与C++等语言类似：</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">constructor</span>(bytes32[] memory proposalNames) &#123;</span><br><span class="line">    chairperson = msg.sender;</span><br><span class="line">    voters[chairperson].weight = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (uint i = <span class="number">0</span>; i &lt; proposalNames.length; i++) &#123;</span><br><span class="line">        proposals.push(Proposal(&#123;</span><br><span class="line">            name: proposalNames[i],</span><br><span class="line">            voteCount: <span class="number">0</span></span><br><span class="line">        &#125;));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>所有提案的名称通过参数 <code>bytes32[] proposalNames</code> 传入，逐个记录到状态变量 <code>proposals</code> 中。同时用 <code>msg.sender</code> 获取当前调用消息的发送者的地址，记录为投票发起人 <code>chairperson</code>，该发起人投票权重设为 1。</p>
-<p>接下来我们需要给每个投票者赋予权重：</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">giveRightToVote</span>(<span class="params">address voter</span>) <span class="title">public</span> </span>&#123;</span><br><span class="line">    <span class="built_in">require</span>(</span><br><span class="line">        msg.sender == chairperson,</span><br><span class="line">        <span class="string">"Only chairperson can give right to vote."</span></span><br><span class="line">    );</span><br><span class="line">    <span class="built_in">require</span>(</span><br><span class="line">        !voters[voter].voted,</span><br><span class="line">        <span class="string">"The voter already voted."</span></span><br><span class="line">    );</span><br><span class="line">    <span class="built_in">require</span>(voters[voter].weight == <span class="number">0</span>);</span><br><span class="line">    voters[voter].weight = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>该函数给 <code>address voter</code> 赋予投票权，即将 <code>voter</code> 的投票权重设为 1，存入 <code>voters</code> 状态变量。</p>
-<p>上面这个函数只有投票发起人 <code>chairperson</code> 可以调用。这里用到了 <code>require((msg.sender == chairperson) &amp;&amp; !voters[voter].voted)</code> 函数。如果<code>require</code> 中表达式结果为 <code>false</code>，这次调用会中止，且回滚所有状态和以太币余额的改变到调用前。但已消耗的 <code>Gas</code> 不会返还。</p>
-<p>下面一段是整段代码的重点，其作用是委托其他人代理投票，基本思路是：</p>
-<ol>
-<li>使用<code>require</code>判断委托人是否已投票（若投过票再委托则重复投票），并判断被委托对象是否是自己</li>
-<li>当判断被委托人不是0地址（主席）时，被委托人代理委托人的票，【绕口警告】由于被委托人也可能委托了别人，因此这里需要一直循环直到找到最后没有委托别人的被委托人为止！</li>
-<li>委托人找到对应的被委托人，委托人已投票（避免重复投票）</li>
-<li>判断被委托人是否已投票，若投了票则将被委托人投的提案票数加上委托人的权重，若未投票则令被委托人的权重加上委托人的权重（以后投票自然相当于投两票）</li>
-</ol>
-<p>注：该函数使用了 <code>while</code> 循环，这里合约编写者需要十分谨慎，防止调用者消耗过多 <code>Gas</code>，甚至出现死循环。</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">delegate</span>(<span class="params">address to</span>) <span class="title">public</span> </span>&#123;</span><br><span class="line">    Voter storage sender = voters[msg.sender];</span><br><span class="line">    <span class="built_in">require</span>(!sender.voted, <span class="string">"You already voted."</span>);</span><br><span class="line">    <span class="built_in">require</span>(to != msg.sender, <span class="string">"Self-delegation is disallowed."</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (voters[to].delegate != address(<span class="number">0</span>)) &#123;</span><br><span class="line">    	to = voters[to].delegate;</span><br><span class="line">    	<span class="built_in">require</span>(to != msg.sender, <span class="string">"Found loop in delegation."</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    sender.voted = <span class="literal">true</span>;</span><br><span class="line">    sender.delegate = to;</span><br><span class="line">    Voter storage delegate_ = voters[to];</span><br><span class="line">    <span class="keyword">if</span> (delegate_.voted) &#123;</span><br><span class="line">    	proposals[delegate_.vote].voteCount += sender.weight;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    	delegate_.weight += sender.weight;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>投票部分仅是几个简单的条件判断：</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">vote</span>(<span class="params">uint proposal</span>) <span class="title">public</span> </span>&#123;</span><br><span class="line">        Voter storage sender = voters[msg.sender];</span><br><span class="line">        <span class="built_in">require</span>(sender.weight != <span class="number">0</span>, <span class="string">"Has no right to vote"</span>);</span><br><span class="line">        <span class="built_in">require</span>(!sender.voted, <span class="string">"Already voted."</span>);</span><br><span class="line">        sender.voted = <span class="literal">true</span>;</span><br><span class="line">        sender.vote = proposal;</span><br><span class="line">        proposals[proposal].voteCount += sender.weight;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<p>用 <code>voters[msg.sender]</code> 获取投票人，即此次调用的发起人。接下来检查是否是重复投票，如果不是，进行投票后相关状态变量的更新。</p>
-<p>接下来是计算获胜提案:</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">winningProposal</span>(<span class="params"></span>) <span class="title">public</span> <span class="title">view</span></span></span><br><span class="line"><span class="function">        <span class="title">returns</span> (<span class="params">uint winningProposal_</span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    uint winningVoteCount = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (uint p = <span class="number">0</span>; p &lt; proposals.length; p++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (proposals[p].voteCount &gt; winningVoteCount) &#123;</span><br><span class="line">            winningVoteCount = proposals[p].voteCount;</span><br><span class="line">            winningProposal_ = p;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><code>returns (uint winningProposal)</code> 指定了函数的返回值类型，<code>constant</code> 表示该函数不会改变合约状态变量的值。</p>
-<p>最后是查询获胜者名称：</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">winnerName</span>(<span class="params"></span>) <span class="title">public</span> <span class="title">view</span></span></span><br><span class="line"><span class="function">        <span class="title">returns</span> (<span class="params">bytes32 winnerName_</span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    winnerName_ = proposals[winningProposal()].name;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里采用内部调用 <code>winningProposal()</code> 函数的方式获得获胜提案。如果需要采用外部调用，则需要写为 <code>this.winningProposal()</code>。</p>
-<p><strong>参考自：</strong></p>
-<p><a href="https://www.bilibili.com/video/BV1sJ411D72u" target="_blank" rel="noopener">尚硅谷区块链全套Go语言→GoWeb→以太坊→项目实战</a><br><a href="http://cw.hubwiz.com/card/c/web3.js-1.0/" target="_blank" rel="noopener">web3.js 1.0中文手册</a></p>
-]]></content>
+      <categories>
+        <category>Blockchain</category>
+      </categories>
   </entry>
   <entry>
     <title>区块链入门（三）Solidity基础</title>
@@ -590,7 +397,7 @@
 <p><strong>PS.可能需要科学上网</strong></p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-1.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-1.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -606,7 +413,7 @@
 <p>2、左侧可以看到我们所有的文件，下面是我们的remix控制台</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-2.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-2.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -626,7 +433,7 @@
 <p>控制台图片如下：</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-3.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-3.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -646,7 +453,7 @@
 <p>3、点击文件样式图标输入我们的文件名即可(以.sol为后缀)</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-4.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-4.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -659,7 +466,7 @@
 <p>点击插件管理器，页面中为这个图标</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-5.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-5.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -675,7 +482,7 @@
 <p>  搜索关键字compiler</p>
 <center>
   <img style="border-radius: 0.3125em;
-  box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-6.png">
+  box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-6.png">
   <br>
   <div style="color:orange; border-bottom: 1px solid #d9d9d9;
   display: inline-block;
@@ -695,7 +502,7 @@
 <p>该合约能完成的事情并不多（由于以太坊构建的基础架构的原因）：它能允许任何人在合约中存储一个单独的数字，并且这个数字可以被世界上任何人访问，且没有可行的办法阻止你发布这个数字。当然，任何人都可以再次调用 <code>set</code> ，传入不同的值，覆盖你的数字，但是这个数字仍会被存储在区块链的历史记录中。</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-7.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-7.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -723,7 +530,7 @@
 <p>我们点击<code>Compilation Details</code>就能看到编译之后的一些信息，如下图所示（部分）</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-8.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-8.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -746,7 +553,7 @@
 <p>点击下面的run图标，可以看到部署，以及账户信息，环境等等</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-9.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-9.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -759,7 +566,7 @@
 <p>点击deploy之后天可以看到自己的合约已经部署完成，打开之后可以看见我们写的函数<code>set</code>,<code>get</code>了，给<code>set</code>函数输入一个值，点击<code>get</code>会得到相应的值</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-10.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-10.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -811,7 +618,7 @@
 <p>例子：<br><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">pragma solidity ^<span class="number">0.4</span><span class="number">.0</span>;</span><br><span class="line"></span><br><span class="line">contract helloworld &#123;</span><br><span class="line">    bool boola=<span class="literal">true</span>; <span class="comment">//声明一个布尔类型的值，只用一个等号</span></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">booltesta</span>(<span class="params"></span>) <span class="title">public</span> <span class="title">view</span> <span class="title">returns</span>(<span class="params">bool</span>)</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> boola;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">booltestb</span>(<span class="params">int a,int b</span>) <span class="title">public</span> <span class="title">pure</span> <span class="title">returns</span>(<span class="params">bool</span>)</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> a==b;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-12.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-12.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -881,7 +688,7 @@
 <p>函数类型表示成如下的形式</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-11.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-11.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -1071,6 +878,9 @@
 <li><a href="https://www.bilibili.com/video/BV1sJ411D72u" target="_blank" rel="noopener">尚硅谷区块链全套Go语言→GoWeb→以太坊→项目实战</a></li>
 </ol>
 ]]></content>
+      <categories>
+        <category>Blockchain</category>
+      </categories>
   </entry>
   <entry>
     <title>区块链入门（二）基础知识介绍</title>
@@ -1093,133 +903,124 @@
 <p>为了实现这些特点、维护区块链应用的稳定运行，区块链技术中包含了分布式存储技术、密码学技术、共识机制以及区块链2.0提出的智能合约。</p>
 <h3 id="1-3-1、区块"><a href="#1-3-1、区块" class="headerlink" title="1.3.1、区块"></a>1.3.1、区块</h3><p>区块链由一个个区块（block）组成。区块很像数据库的记录，每次写入数据，就是创建一个区块。</p>
 <center class="half">
-    <img src="/posts/pic\bg2017122703.png" width="300">
+    <img src="\Pic\Blockchain_Pic\bg2017122703.png" width="300">
 </center>
 <center>中心化存储</center>
-每个区块包含两个部分。
 
-> - 区块头（Head）：记录当前区块的特征值
-> - 区块体（Body）：实际数据
-
-区块头包含了当前区块的多项特征值。
-
-> - 生成时间
-> - 实际数据（即区块体）的哈希
-> - 上一个区块的哈希
-> - ...
-
-### 1.3.2、分布式存储技术 ###
-
-与传统的数据存储技术不同，在区块链技术中，数据并不是集中存放在某个数据中心上，也不是由某个权威机构或是大多数节点来存储，而是分散存储在区块链网络中的每一个节点上。
-
+<p>每个区块包含两个部分。</p>
+<blockquote>
+<ul>
+<li>区块头（Head）：记录当前区块的特征值</li>
+<li>区块体（Body）：实际数据</li>
+</ul>
+</blockquote>
+<p>区块头包含了当前区块的多项特征值。</p>
+<blockquote>
+<ul>
+<li>生成时间</li>
+<li>实际数据（即区块体）的哈希</li>
+<li>上一个区块的哈希</li>
+<li>…</li>
+</ul>
+</blockquote>
+<h3 id="1-3-2、分布式存储技术"><a href="#1-3-2、分布式存储技术" class="headerlink" title="1.3.2、分布式存储技术"></a>1.3.2、分布式存储技术</h3><p>与传统的数据存储技术不同，在区块链技术中，数据并不是集中存放在某个数据中心上，也不是由某个权威机构或是大多数节点来存储，而是分散存储在区块链网络中的每一个节点上。</p>
 <center class="half">
-    <img src="/posts/pic\image2.png" width="300">
+    <img src="\Pic\Blockchain_Pic\image2.png" width="300">
 </center>
 <center>中心化存储</center>
 <center class="half">
-    <img src="/posts/pic\image3.png" width="300">
+    <img src="\Pic\Blockchain_Pic\image3.png" width="300">
 </center>
 <center>分布式存储</center>
-**节点和区块的关系是什么？**
 
-可以用共享文档来简单描述：所有可以访问共享文档的账号就叫做节点，当然全节点需要同步共享文档，也就是拥有全部的区块数据区块就是共享文档。每个人更新了，所有人都可以查看最新的文档
-
-### 1.3.3、密码学技术 ###
-
-为了实现数据的不可逆、不可篡改和可回溯，区块链技术采用了一系列密码学算法和技术，包括哈希算法、Merkle 树、非对称加密算法。
-
-##### 哈希算法 #####
-
-哈希算法是一个单向函数，可以将任意长度的输入数据转化为固定长度的输出数据（哈希值），哈希值就是这段输入数据唯一的数值表现。由于在计算上不可能找到哈希值相同而输入值不同的字符串，因此两段数据的哈希值相同，就可以认为这两段数据也是相同的，所以哈希算法常被用于对数据进行验证。
-
-在区块链中，数据存储在区块里。每个区块都有一个区块头，区块头中存储了一个将该区块所有数据经过哈希算法得到的哈希值，同时，每个区块中还存储了前一个区块的哈希值，这样就形成了区块链。如果想要篡改某一个区块A中的数据，就会导致A的哈希值发生变化，后一个区块B就无法通过哈希值正确地指向A，这样篡改者又必须篡改B中的数据......也就是说，篡改者需要篡改被篡改的区块以及后面的所有区块，才能让所有的节点都接受篡改。
-
-##### Merkle树 #####
-
-Merkle树是一种树形结构，在区块链中，Merkle树的叶子节点是区块中数据的哈希值，非叶子节点是其子结点组合后的哈希值，这样由叶子节点开始逐层往上计算，最终形成一个Merkle根，记录在区块的头部，这样就可以保证每一笔交易都无法篡改。
-
+<p><strong>节点和区块的关系是什么？</strong></p>
+<p>可以用共享文档来简单描述：所有可以访问共享文档的账号就叫做节点，当然全节点需要同步共享文档，也就是拥有全部的区块数据区块就是共享文档。每个人更新了，所有人都可以查看最新的文档</p>
+<h3 id="1-3-3、密码学技术"><a href="#1-3-3、密码学技术" class="headerlink" title="1.3.3、密码学技术"></a>1.3.3、密码学技术</h3><p>为了实现数据的不可逆、不可篡改和可回溯，区块链技术采用了一系列密码学算法和技术，包括哈希算法、Merkle 树、非对称加密算法。</p>
+<h5 id="哈希算法"><a href="#哈希算法" class="headerlink" title="哈希算法"></a>哈希算法</h5><p>哈希算法是一个单向函数，可以将任意长度的输入数据转化为固定长度的输出数据（哈希值），哈希值就是这段输入数据唯一的数值表现。由于在计算上不可能找到哈希值相同而输入值不同的字符串，因此两段数据的哈希值相同，就可以认为这两段数据也是相同的，所以哈希算法常被用于对数据进行验证。</p>
+<p>在区块链中，数据存储在区块里。每个区块都有一个区块头，区块头中存储了一个将该区块所有数据经过哈希算法得到的哈希值，同时，每个区块中还存储了前一个区块的哈希值，这样就形成了区块链。如果想要篡改某一个区块A中的数据，就会导致A的哈希值发生变化，后一个区块B就无法通过哈希值正确地指向A，这样篡改者又必须篡改B中的数据……也就是说，篡改者需要篡改被篡改的区块以及后面的所有区块，才能让所有的节点都接受篡改。</p>
+<h5 id="Merkle树"><a href="#Merkle树" class="headerlink" title="Merkle树"></a>Merkle树</h5><p>Merkle树是一种树形结构，在区块链中，Merkle树的叶子节点是区块中数据的哈希值，非叶子节点是其子结点组合后的哈希值，这样由叶子节点开始逐层往上计算，最终形成一个Merkle根，记录在区块的头部，这样就可以保证每一笔交易都无法篡改。</p>
 <center class="half">
-    <img src="/posts/pic\image4.png" width="500">
+    <img src="\Pic\Blockchain_Pic\image4.png" width="500">
 </center>
 <center>Merkle 树</center>
-##### 非对称加密技术 #####
 
-非对称加密技术使用两个非对称密钥：公钥和私钥。公钥和私钥具有两个特点：
-
-1. 通过其中一个密钥加密信息后，使用另一个密钥才能解开
-2. 公钥一般可以公开，私钥则保密
-
-在区块链中，非对称加密技术主要用于信息加密、数字签名和登录认证。在信息加密场景中，信息发送者A使用接收者B提供的公钥对信息进行加密，B收到加密的信息后再通过自己的私钥进行解密。再数字签名场景中，发送者A通过自己的私钥对信息进行加密，其他人通过A提供的公钥来对信息进行验证，证明信息确实是由A发出。在登录认证场景中，客户端使用私钥加密登录信息后进行发送，其他人通过客户端公钥来认证登录信息。
-
-- RSA 算法
-
-  ​        RSA加密算法是最常用的非对称加密算法，CFCA在证书服务中离不了它。但是有不少新来的同事对它不太了解，恰好看到一本书中作者用实例对它进行了简化而生动的描述，使得高深的数学理论能够被容易地理解。
-  ​       RSA是第一个比较完善的公开密钥算法，它既能用于加密，也能用于数字签名。RSA以它的三个发明者Ron Rivest, Adi Shamir, Leonard Adleman的名字首字母命名，这个算法经受住了多年深入的密码分析，虽然密码分析者既不能证明也不能否定RSA的安全性，但这恰恰说明该算法有一定的可信性，目前它已经成为最流行的公开密钥算法。
-  　　RSA的安全基于大数分解的难度。其公钥和私钥是一对大素数（100到200位十进制数或更大）的函数。从一个公钥和密文恢复出明文的难度，等价于分解两个大素数之积（这是公认的数学难题）。 
-
-- ECC 椭圆曲线算法
-
-  具体可以参见此文章：[ECC椭圆曲线加密算法：介绍](https://zhuanlan.zhihu.com/p/36326221)
-
-
-
-### 1.3.4、共识机制 ###
-
-区块链系统是一个分布式系统，分布式系统要解决都首要问题就是一致性问题，也就是如何使多个孤立的节点达成共识。在中心化系统中，由于有一个中心服务器这样的“领导”来统一各个节点，因此达成一致性几乎没有问题。但在去中心化场景下，由于各个节点是相互独立的，就可能会出现许多不一致的问题，例如由于网络状况等因素部分节点可能会有延迟、故障甚至宕机，造成节点之间通信的不可靠，因此一致性问题是分布式系统中一个很令人头疼的问题。
-
-由 Eirc Brewer 提出，Lynch 等人证明的 CAP 定理为解决分布式系统中的一致性问题提供了思路。CAP 定理的描述如下：在分布式系统中，**一致性**、**可用性**和**分区容错性**三者不可兼得。这三个术语的解释如下：
-
-* 一致性（**C**onsistency）：所有节点在同一时刻拥有同样的值（等同于所有节点访问同一份最新的数据副本
-* 可用性（**A**vailability）：每个请求都可以在有限时间内收到确定其是否成功的响应
-* 分区容错性（**P**artition tolerance）：分区是指部分节点因为网络原因无法与其他节点达成一致。分区容错性是指由网络原因导致的系统分区不影响系统的正常运行。例如，由于网络原因系统被分为 A, B, C, D 四个区，A, B 中的节点无法正常工作，但 C, D 组成的分区仍能提供正常服务。
-
-在某些场景下，对一致性、可用性和分区容错性中的某一个特性要求不高时，就可以考虑弱化该特性，来保证整个系统的容错能力。区块链中常见的共识机制的基本思路正是来自 CAP 定理，部分区块链应用中用到的共识机制如下表：
-
-| 共识机制 | 应用                               |
-| -------- | ---------------------------------- |
-| PoW      | 比特币、莱特币、以太坊的前三个阶段 |
-| PoS      | PeerCoin、NXT、以太坊的第四个阶段  |
-| PBFT     | Hyperledger Fabric                 |
-
-##### PoW（Proof of Work，工作量证明） #####
-
-PoW 机制的大致流程如下：
-
-1. 向所有节点广播新交易和一个数学问题
-2. 最先解决了数学问题的节点将交易打包成区块，对全网广播
-3. 其他节点验证广播区块的节点是否解决了数学问题（完成了一定的工作量），验证通过则接受该区块，并将该区块的哈希值放入下一个区块中，表示承认该区块
-
-由于在 PoW 机制中，区块的产生需要解决一个数学问题，也就是所谓的**挖矿**，这往往要消耗较大的算力和电力，因此节点们倾向于在**最长的链**的基础上添加区块，因为如果节点想在自己的链上添加新的区块，那么就需要重新计算 1 个或 $n$ 个这样的数学问题（每添加一个区块就需要计算一个）。因此在比特币中最长的链被认为是合法的链，这样节点间就形成了一套“共识”。
-
-PoW 机制的优点是完全去中心化，缺点是需要依赖数学运算，资源的消耗会比其他的共识机制高，可监管性弱，同时每次达成共识需要全网共同参与运算，性能较低。
-
-##### PoS（Proof of Stack，股权证明） #####
-
-PoS 针对 PoW 的缺点做出了改进。PoS 要求参与者预先放置一些货币在区块链上用于换取“股权”，从而成为**验证者（Validator）**，验证者具有产生区块的权利。PoS 机制会按照存放货币的量和时间给验证者分配相应的利息，同时还引入了奖惩机制，打包错误区块的验证者将失去他的股权——即投入的货币以及产生区块的权利。PoS 机制的大致流程如下：
-
-1. 加入 PoS 机制的都是持币人，称为验证者
-2. PoS 算法根据验证者持币的多少在验证者中挑选出一个给予产生区块的权利
-3. 如果一定时间内没有产生区块，PoS 就挑选下一个验证者，给予产生区块的权利
-4. 如果某个验证者打包了一份欺诈性交易，PoS 将剥夺他的股权
-
-PoS 的优点在于：
-
-1. 引入了利息，使得像比特币这样发币总数有限的通货紧缩系统在一定时间后不会“无币可发”
-2. 引入了奖惩机制使节点的运行更加可控，同时更好地防止攻击
-3. 与 PoW 相比，不需要为了生成新区块而消耗大量电力和算力
-4. 与 PoW 相比，缩短了达成共识所需的时间
-
-由于 PoS 机制需要用户已经持有一定数量的货币，没有提供在区块链应用创立初始阶段处理数字货币的方法，因此使用 PoS 机制的区块链应用会在发布时预先出售货币，或在初期采用 PoW，让矿工获得货币后再转换成 PoS，例如以太坊现阶段采用的是 PoW 机制，在第四阶段“宁静”（Serenity）中将过渡到 PoS。
-
-##### 拜占庭将军问题（Byzantine Generals Problem） #####
-
-拜占庭将军问题是分布式网络中的通信容错问题，可以描述为：
-
-> 一组拜占庭将军各领一支队伍共同围困一座城市。各支军队的行动策略限定为进攻或撤离两种。因为部分军队进攻而部分军队撤离可能会造成灾难性的后果，因此各将军决定通过投标来达成一致策略，即“共进退”。因为各将军位于城市不同方向，他们只能通过信使互相联系。在投票过程中每位将军都将自己的选择（进攻或撤退）通过信使分别通知其他所有将军，这样一来每位将军根据自己的投票和其他所有将军送来的信息就可以知道共同投票的结果，进而做出行动。
-
+<h5 id="非对称加密技术"><a href="#非对称加密技术" class="headerlink" title="非对称加密技术"></a>非对称加密技术</h5><p>非对称加密技术使用两个非对称密钥：公钥和私钥。公钥和私钥具有两个特点：</p>
+<ol>
+<li>通过其中一个密钥加密信息后，使用另一个密钥才能解开</li>
+<li>公钥一般可以公开，私钥则保密</li>
+</ol>
+<p>在区块链中，非对称加密技术主要用于信息加密、数字签名和登录认证。在信息加密场景中，信息发送者A使用接收者B提供的公钥对信息进行加密，B收到加密的信息后再通过自己的私钥进行解密。再数字签名场景中，发送者A通过自己的私钥对信息进行加密，其他人通过A提供的公钥来对信息进行验证，证明信息确实是由A发出。在登录认证场景中，客户端使用私钥加密登录信息后进行发送，其他人通过客户端公钥来认证登录信息。</p>
+<ul>
+<li><p>RSA 算法</p>
+<p>​        RSA加密算法是最常用的非对称加密算法，CFCA在证书服务中离不了它。但是有不少新来的同事对它不太了解，恰好看到一本书中作者用实例对它进行了简化而生动的描述，使得高深的数学理论能够被容易地理解。<br>​       RSA是第一个比较完善的公开密钥算法，它既能用于加密，也能用于数字签名。RSA以它的三个发明者Ron Rivest, Adi Shamir, Leonard Adleman的名字首字母命名，这个算法经受住了多年深入的密码分析，虽然密码分析者既不能证明也不能否定RSA的安全性，但这恰恰说明该算法有一定的可信性，目前它已经成为最流行的公开密钥算法。<br>　　RSA的安全基于大数分解的难度。其公钥和私钥是一对大素数（100到200位十进制数或更大）的函数。从一个公钥和密文恢复出明文的难度，等价于分解两个大素数之积（这是公认的数学难题）。 </p>
+</li>
+<li><p>ECC 椭圆曲线算法</p>
+<p>具体可以参见此文章：<a href="https://zhuanlan.zhihu.com/p/36326221" target="_blank" rel="noopener">ECC椭圆曲线加密算法：介绍</a></p>
+</li>
+</ul>
+<h3 id="1-3-4、共识机制"><a href="#1-3-4、共识机制" class="headerlink" title="1.3.4、共识机制"></a>1.3.4、共识机制</h3><p>区块链系统是一个分布式系统，分布式系统要解决都首要问题就是一致性问题，也就是如何使多个孤立的节点达成共识。在中心化系统中，由于有一个中心服务器这样的“领导”来统一各个节点，因此达成一致性几乎没有问题。但在去中心化场景下，由于各个节点是相互独立的，就可能会出现许多不一致的问题，例如由于网络状况等因素部分节点可能会有延迟、故障甚至宕机，造成节点之间通信的不可靠，因此一致性问题是分布式系统中一个很令人头疼的问题。</p>
+<p>由 Eirc Brewer 提出，Lynch 等人证明的 CAP 定理为解决分布式系统中的一致性问题提供了思路。CAP 定理的描述如下：在分布式系统中，<strong>一致性</strong>、<strong>可用性</strong>和<strong>分区容错性</strong>三者不可兼得。这三个术语的解释如下：</p>
+<ul>
+<li>一致性（<strong>C</strong>onsistency）：所有节点在同一时刻拥有同样的值（等同于所有节点访问同一份最新的数据副本</li>
+<li>可用性（<strong>A</strong>vailability）：每个请求都可以在有限时间内收到确定其是否成功的响应</li>
+<li>分区容错性（<strong>P</strong>artition tolerance）：分区是指部分节点因为网络原因无法与其他节点达成一致。分区容错性是指由网络原因导致的系统分区不影响系统的正常运行。例如，由于网络原因系统被分为 A, B, C, D 四个区，A, B 中的节点无法正常工作，但 C, D 组成的分区仍能提供正常服务。</li>
+</ul>
+<p>在某些场景下，对一致性、可用性和分区容错性中的某一个特性要求不高时，就可以考虑弱化该特性，来保证整个系统的容错能力。区块链中常见的共识机制的基本思路正是来自 CAP 定理，部分区块链应用中用到的共识机制如下表：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>共识机制</th>
+<th>应用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PoW</td>
+<td>比特币、莱特币、以太坊的前三个阶段</td>
+</tr>
+<tr>
+<td>PoS</td>
+<td>PeerCoin、NXT、以太坊的第四个阶段</td>
+</tr>
+<tr>
+<td>PBFT</td>
+<td>Hyperledger Fabric</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h5 id="PoW（Proof-of-Work，工作量证明）"><a href="#PoW（Proof-of-Work，工作量证明）" class="headerlink" title="PoW（Proof of Work，工作量证明）"></a>PoW（Proof of Work，工作量证明）</h5><p>PoW 机制的大致流程如下：</p>
+<ol>
+<li>向所有节点广播新交易和一个数学问题</li>
+<li>最先解决了数学问题的节点将交易打包成区块，对全网广播</li>
+<li>其他节点验证广播区块的节点是否解决了数学问题（完成了一定的工作量），验证通过则接受该区块，并将该区块的哈希值放入下一个区块中，表示承认该区块</li>
+</ol>
+<p>由于在 PoW 机制中，区块的产生需要解决一个数学问题，也就是所谓的<strong>挖矿</strong>，这往往要消耗较大的算力和电力，因此节点们倾向于在<strong>最长的链</strong>的基础上添加区块，因为如果节点想在自己的链上添加新的区块，那么就需要重新计算 1 个或 $n$ 个这样的数学问题（每添加一个区块就需要计算一个）。因此在比特币中最长的链被认为是合法的链，这样节点间就形成了一套“共识”。</p>
+<p>PoW 机制的优点是完全去中心化，缺点是需要依赖数学运算，资源的消耗会比其他的共识机制高，可监管性弱，同时每次达成共识需要全网共同参与运算，性能较低。</p>
+<h5 id="PoS（Proof-of-Stack，股权证明）"><a href="#PoS（Proof-of-Stack，股权证明）" class="headerlink" title="PoS（Proof of Stack，股权证明）"></a>PoS（Proof of Stack，股权证明）</h5><p>PoS 针对 PoW 的缺点做出了改进。PoS 要求参与者预先放置一些货币在区块链上用于换取“股权”，从而成为<strong>验证者（Validator）</strong>，验证者具有产生区块的权利。PoS 机制会按照存放货币的量和时间给验证者分配相应的利息，同时还引入了奖惩机制，打包错误区块的验证者将失去他的股权——即投入的货币以及产生区块的权利。PoS 机制的大致流程如下：</p>
+<ol>
+<li>加入 PoS 机制的都是持币人，称为验证者</li>
+<li>PoS 算法根据验证者持币的多少在验证者中挑选出一个给予产生区块的权利</li>
+<li>如果一定时间内没有产生区块，PoS 就挑选下一个验证者，给予产生区块的权利</li>
+<li>如果某个验证者打包了一份欺诈性交易，PoS 将剥夺他的股权</li>
+</ol>
+<p>PoS 的优点在于：</p>
+<ol>
+<li>引入了利息，使得像比特币这样发币总数有限的通货紧缩系统在一定时间后不会“无币可发”</li>
+<li>引入了奖惩机制使节点的运行更加可控，同时更好地防止攻击</li>
+<li>与 PoW 相比，不需要为了生成新区块而消耗大量电力和算力</li>
+<li>与 PoW 相比，缩短了达成共识所需的时间</li>
+</ol>
+<p>由于 PoS 机制需要用户已经持有一定数量的货币，没有提供在区块链应用创立初始阶段处理数字货币的方法，因此使用 PoS 机制的区块链应用会在发布时预先出售货币，或在初期采用 PoW，让矿工获得货币后再转换成 PoS，例如以太坊现阶段采用的是 PoW 机制，在第四阶段“宁静”（Serenity）中将过渡到 PoS。</p>
+<h5 id="拜占庭将军问题（Byzantine-Generals-Problem）"><a href="#拜占庭将军问题（Byzantine-Generals-Problem）" class="headerlink" title="拜占庭将军问题（Byzantine Generals Problem）"></a>拜占庭将军问题（Byzantine Generals Problem）</h5><p>拜占庭将军问题是分布式网络中的通信容错问题，可以描述为：</p>
+<blockquote>
+<p>一组拜占庭将军各领一支队伍共同围困一座城市。各支军队的行动策略限定为进攻或撤离两种。因为部分军队进攻而部分军队撤离可能会造成灾难性的后果，因此各将军决定通过投标来达成一致策略，即“共进退”。因为各将军位于城市不同方向，他们只能通过信使互相联系。在投票过程中每位将军都将自己的选择（进攻或撤退）通过信使分别通知其他所有将军，这样一来每位将军根据自己的投票和其他所有将军送来的信息就可以知道共同投票的结果，进而做出行动。</p>
+</blockquote>
 <center class="half">
-    <img src="/posts/pic\image1.png" width="500">
+    <img src="\Pic\Blockchain_Pic\image1.png" width="500">
 </center>
+
 
 
 <p>拜占庭将军的问题在于，将军中可能出现叛徒。假设3名将军中有1名叛徒，2名忠诚将军一人投进攻票，一人投撤退票，这时叛徒可能会故意给投进攻的将军投进攻票，而给投撤退的将军投撤退票。这就导致一名将军带队发起进攻，而另外一名将军带队撤退。</p>
@@ -1244,13 +1045,13 @@ PoS 的优点在于：
 <p>以太坊提供了对智能合约的全面支持，包括编写智能合约编程语言 <strong>Solidity</strong> 和运行智能合约的<strong>以太坊虚拟机（Ethereum Virtual Machine，EVM）</strong>。</p>
 <h3 id="2-1-4、幽灵协议"><a href="#2-1-4、幽灵协议" class="headerlink" title="2.1.4、幽灵协议"></a>2.1.4、幽灵协议</h3><p>幽灵合约的英文是“Greedy Heaviest Observed Subtree” (GHOST) protocol，在介绍幽灵协议之前，先介绍以太坊中的叔区块、叔块奖励和叔块引用奖励这三个概念。</p>
 <center class="half">
-    <img src="/posts/pic\image5.png" width="400">
+    <img src="\Pic\Blockchain_Pic\image5.png" width="400">
 </center>
 
 
 <p>假设目前以太坊区块链中的区块高度（区块链上的区块个数）为6，现在产生了一笔新的交易，矿工A先将该笔交易打包成了区块 Block 7，在矿工A将 Block 7 广播到其他节点的这段时间里，矿工B和矿工C又分别产生了 Block 8 和 Block 9。Block 7、Block 8、Block 9 都指向 Block 6，即 Block 6 是他们的父区块。由于 Block 7 是最先产生的，因此 Block 7 被认为是有效区块，Block 8 和 Block 9 就是<strong>叔区块</strong>（作废区块）。</p>
 <center class="half">
-    <img src="/posts/pic\image6.png" width="300">
+    <img src="\Pic\Blockchain_Pic\image6.png" width="300">
 </center>
 
 
@@ -1286,7 +1087,7 @@ PoS 的优点在于：
 </ul>
 <h2 id="2-2、以太坊基础"><a href="#2-2、以太坊基础" class="headerlink" title="2.2、以太坊基础"></a>2.2、以太坊基础</h2><h3 id="2-2-1、以太坊中的货币"><a href="#2-2-1、以太坊中的货币" class="headerlink" title="2.2.1、以太坊中的货币"></a>2.2.1、以太坊中的货币</h3><p>以太坊中的货币称为 <strong>以太币</strong>，单位为<strong>以太（Ether）</strong>，也称 ETH 或符号 Ξ。以太可以被分割为更小的单位，最小的单位是 wei，1 以太 =  $10^18$  wei。以太币各单位的名称及之间的关系如下表：</p>
 <center class="half">
-    <img src="/posts/pic\image-20210219000835894.png">
+    <img src="\Pic\Blockchain_Pic\image-20210219000835894.png">
 </center>
 
 
@@ -1302,27 +1103,27 @@ PoS 的优点在于：
 </ul>
 <h4 id="MetaMask-基础"><a href="#MetaMask-基础" class="headerlink" title="MetaMask 基础"></a>MetaMask 基础</h4><p>以 Chrome 为例，访问 <a href="https://chrome.google.com/webstore/category/extensions" target="_blank" rel="noopener">Google 网上应用商店</a>，搜索 MetaMask 并添加至 Chrome</p>
 <center class="half">
-    <img src="/posts/pic\image-20210219101124978.png">
+    <img src="\Pic\Blockchain_Pic\image-20210219101124978.png">
 </center>
 
 
 <p>添加完成后 Chrome 会自动打开初始化页面</p>
 <center class="half">
-    <img src="/posts/pic\image-20210219101226095.png">
+    <img src="\Pic\Blockchain_Pic\image-20210219101226095.png">
 </center>
 
 
 
 <p>初次使用创建钱包</p>
 <center class="half">
-    <img src="/posts/pic\image-20210219101300792.png">
+    <img src="\Pic\Blockchain_Pic\image-20210219101300792.png">
 </center>
 
 
 
 <p>为钱包设置密码</p>
 <center class="half">
-    <img src="/posts/pic\image-20210219101332089.png">
+    <img src="\Pic\Blockchain_Pic\image-20210219101332089.png">
 </center>
 
 
@@ -1330,23 +1131,23 @@ PoS 的优点在于：
 
 <p>创建密码后，MetaMask 会生成一串密语，密语是12个随机的英文单词，用于防止密码忘记。密语可以直接当成密码使用，因此需要妥善保管</p>
 <center class="half">
-    <img src="/posts/pic\image-20210219102028033.png">
+    <img src="\Pic\Blockchain_Pic\image-20210219102028033.png">
 </center>
 
 
 
 <p>注册完毕后就可以在 Chrome 地址栏右边的扩展程序栏点击 🦊 图标使用 MetaMask 了</p>
 <center class="half">
-    <img src="/posts/pic\image-20210219102255927.png">
+    <img src="\Pic\Blockchain_Pic\image-20210219102255927.png">
 </center>
 
 <center class="half">
-    <img src="/posts/pic\image-20210219102322360.png">
+    <img src="\Pic\Blockchain_Pic\image-20210219102322360.png">
 </center>
 
 <h4 id="获取测试以太"><a href="#获取测试以太" class="headerlink" title="获取测试以太"></a>获取测试以太</h4><p>除了以太坊主网以外，以太坊还提供了 Ropsten, Kovan, Rinkeby, Goerli 这几个公共测试网络，另外还支持局域网测试网络和自建测试网络。在这里我们切换到 Ropsten 测试网络</p>
 <center class="half">
-    <img src="/posts/pic\image-20210219105616335.png">
+    <img src="\Pic\Blockchain_Pic\image-20210219105616335.png">
 </center>
 
 
@@ -1354,7 +1155,7 @@ PoS 的优点在于：
 
 <p>随后点击 <strong>Buy</strong> 按钮，点击<strong>测试水管</strong>下方的获取以太</p>
 <center class="half">
-    <img src="/posts/pic\image-20210219105824087.png">
+    <img src="\Pic\Blockchain_Pic\image-20210219105824087.png">
 </center>
 
 
@@ -1362,12 +1163,12 @@ PoS 的优点在于：
 
 <p>在打开的页面中点击 request 1 ether from faucet 就可以得到1个测试以太，当然，可以多次点击。</p>
 <center class="half">
-    <img src="/posts/pic\image-20210219105911910.png">
+    <img src="\Pic\Blockchain_Pic\image-20210219105911910.png">
 </center>
 
 
 <center class="half">
-    <img src="/posts/pic\2021-02-19_110327.png">
+    <img src="\Pic\Blockchain_Pic\2021-02-19_110327.png">
 </center>
 
 
@@ -1382,7 +1183,7 @@ PoS 的优点在于：
 <p>以太坊交易的本质是由外部拥有的账户发起的签名消息，由以太坊网络传输，并被序列化后记录在以太坊区块链上，<strong>交易是唯一可以触发状态更改或导致合约在EVM中执行的事物</strong></p>
 <h3 id="2-3-1、交易的数据结构"><a href="#2-3-1、交易的数据结构" class="headerlink" title="2.3.1、交易的数据结构"></a>2.3.1、交易的数据结构</h3><p>以太坊的数据结构主要可以分为四部分：<code>nonce</code>、<code>gas</code>、交易目标和消息（主要部分）、交易签名</p>
 <center class="half">
-    <img src="/posts/pic\transaction-struct.png">
+    <img src="\Pic\Blockchain_Pic\transaction-struct.png">
 </center>
 
 
@@ -1417,7 +1218,7 @@ PoS 的优点在于：
 <p>注：可以在Etherscan上查询gas price与confirmation time的关系，如下图</p>
 </blockquote>
 <center class="half">
-    <img src="/posts/pic\gas.jpg">
+    <img src="\Pic\Blockchain_Pic\gas.jpg">
 </center>
 
 
@@ -1430,7 +1231,7 @@ PoS 的优点在于：
 </blockquote>
 <h2 id="2-4、以太坊账户"><a href="#2-4、以太坊账户" class="headerlink" title="2.4、以太坊账户"></a>2.4、以太坊账户</h2><p>对比比特币的UTXO余额模型，以太坊使用“账户”余额模型。 以太坊丰富了账户内容，除余额外还能自定义存放任意多数据。 并利用账户数据的可维护性，构建智能合约账户。下面我们首先将比特币的UTXO余额模型与以太坊账户进行比较，说明其各自的优缺点以及适用性。</p>
 <h3 id="2-4-1、比特币UTXO和以太坊账户结构比较"><a href="#2-4-1、比特币UTXO和以太坊账户结构比较" class="headerlink" title="2.4.1、比特币UTXO和以太坊账户结构比较"></a>2.4.1、比特币UTXO和以太坊账户结构比较</h3><p>在当前的区块链项目中，主要有两种记录保存方式，<strong>一种是账户/余额模型，一种是UTXO模型</strong>。比特币采用就是UTXO模型，以太坊、EOS等则采用的是账户/余额模型。</p>
-<p><img src="/posts/utxo_com.jpg" style="zoom:67%;"></p>
+<p><img src="\Pic/utxo_com.jpg" style="zoom:67%;"></p>
 <h3 id="2-4-2、比特币UTXO"><a href="#2-4-2、比特币UTXO" class="headerlink" title="2.4.2、比特币UTXO"></a>2.4.2、比特币UTXO</h3><p>UTXO是 Unspent Transaction Output的缩写，意思是<strong>未花费的输出，</strong>可以简单理解为还没有用掉的收款。比如韩梅梅收到一笔比特币，她没有用掉，这笔比特币对她来说就是一个UTXO。关于UTXO的具体介绍大家可以查看<a href="https://zhuanlan.zhihu.com/p/74050135" target="_blank" rel="noopener">这篇文章</a>。</p>
 <p><strong>UTXO 核心设计思路是：它记录交易事件，而不记录最终状态。</strong>要计算某个用户有多少比特币，就要对其钱包里所有的UTXO求和，得到结果就是他的持币数量。UTXO模型在转账交易时，是以UTXO为单位的，也就是说在支付时，调用的是整数倍UTXO，比如1个UTXO，3个UTXO，没有0.5个UTXO的说法。</p>
 <ul>
@@ -1485,7 +1286,7 @@ PoS 的优点在于：
 </div>
 <h2 id="2-5、以太坊账户类型"><a href="#2-5、以太坊账户类型" class="headerlink" title="2.5、以太坊账户类型"></a>2.5、以太坊账户类型</h2><p>以太坊作为智能合约操作平台，将账户划分为两类：外部账户（EOAs）和合约账户（contract account），下面分别做简要介绍：</p>
 <center class="half">
-    <img src="/posts/pic\EOA_CA.png">
+    <img src="\Pic\Blockchain_Pic\EOA_CA.png">
 </center>
 
 
@@ -1521,6 +1322,9 @@ PoS 的优点在于：
 <li><a href="https://www.chainnode.com/doc/399" target="_blank" rel="noopener">闪电网络白皮书</a></li>
 </ol>
 ]]></content>
+      <categories>
+        <category>Blockchain</category>
+      </categories>
   </entry>
   <entry>
     <title>区块链入门（四）web3js</title>
@@ -1625,7 +1429,7 @@ PoS 的优点在于：
 <p>若成功则如下图所示</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-1.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-1.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -1653,7 +1457,7 @@ PoS 的优点在于：
 <p> 查看 geth version，确保在真正运行之前安装正常：</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-2.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-2.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -1675,7 +1479,7 @@ PoS 的优点在于：
 <p>genesis.json介绍</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-3.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-3.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -1708,7 +1512,7 @@ PoS 的优点在于：
 <p>参数含义：</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-4.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-4.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -1721,7 +1525,7 @@ PoS 的优点在于：
 <p>我们可以看到节点正常启动：</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-5.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-5.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -1733,7 +1537,7 @@ PoS 的优点在于：
 <p>启动完之后，就可以通过<code>admin.nodeInfo.protocols.eth</code>来获取到刚启动的节点的一些信息（如下），比较上文初始化的配置，相关内容是一致的。</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-6.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-6.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -1779,7 +1583,7 @@ PoS 的优点在于：
 <figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&gt; eth.getBalance(eth.accounts[<span class="number">0</span>])</span><br><span class="line"><span class="number">0</span></span><br></pre></td></tr></table></figure>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-7.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-7.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -1828,7 +1632,7 @@ PoS 的优点在于：
 <p>该合约包含一个方法 multiply()，将输入的两个数相乘后输出：<br><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">pragma solidity ^<span class="number">0.4</span><span class="number">.0</span>;</span><br><span class="line">contract TestContract</span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">multiply</span>(<span class="params">uint a, uint b</span>) <span class="title">returns</span> (<span class="params">uint</span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> a * b;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>将上面的代码复制到Remix编辑器里，程序将自动完成编译。</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-8.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-8.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -1841,7 +1645,7 @@ PoS 的优点在于：
 <p>因为我们要将该智能合约部署到私有链上，需要得到智能合约编译后的EVM二进制码和JSON ABI（Application Binary Interface）。将生成的交易保存到scenario.json文件，点击箭头所指按钮</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-9.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-9.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -1854,7 +1658,7 @@ PoS 的优点在于：
 <p>其中38-65行为该智能合约的ABI（注意前面还有一个[符号），ABI指定了合约接口，包括可调用的合约方法、变量、事件等。</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-10.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-10.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -1870,7 +1674,7 @@ PoS 的优点在于：
 <p>接下来执行<br><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">$solc --bin testContract.sol</span><br><span class="line">$solc --abi testContract.sol</span><br></pre></td></tr></table></figure></p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-11.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-11.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -1887,7 +1691,7 @@ PoS 的优点在于：
 <figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">&gt; myContract = eth.contract(abi)   </span><br><span class="line">...</span><br><span class="line">&gt; contract = myContract.new(&#123;<span class="attr">from</span>:eth.accounts[<span class="number">0</span>],<span class="attr">data</span>:code,<span class="attr">gas</span>:<span class="number">1000000</span>&#125;)</span><br></pre></td></tr></table></figure>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-12.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-12.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -1908,7 +1712,7 @@ PoS 的优点在于：
 <h2 id="4、web3-js-简介"><a href="#4、web3-js-简介" class="headerlink" title="4、web3.js 简介"></a>4、web3.js 简介</h2><p>我们除了通过Geth的JavaScript Console进行交互以外，还有许多第三方库可以使用，方便开发基于以太坊区块链的应用：</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-13.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-13.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -2127,5 +1931,207 @@ PoS 的优点在于：
 <p><a href="https://www.jianshu.com/p/9fa31e4cdf4d" target="_blank" rel="noopener">以太坊私有链Geth控制台操作教程</a></p>
 <p><a href="https://www.bilibili.com/video/BV1sJ411D72u" target="_blank" rel="noopener">尚硅谷区块链全套Go语言→GoWeb→以太坊→项目实战</a><br><a href="http://cw.hubwiz.com/card/c/web3.js-1.0/" target="_blank" rel="noopener">web3.js 1.0中文手册</a></p>
 ]]></content>
+      <categories>
+        <category>Blockchain</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>区块链入门（五）合约编写实例补充</title>
+    <url>/posts/a4c5a08d.html</url>
+    <content><![CDATA[<font color="red"> 注：本教程为技术教程，不谈论且不涉及炒作任何数字货币 </font>
+
+<h1 id="合约编写实战实例"><a href="#合约编写实战实例" class="headerlink" title="合约编写实战实例"></a>合约编写实战实例</h1><h2 id="一、简单代币合约"><a href="#一、简单代币合约" class="headerlink" title="一、简单代币合约"></a>一、简单代币合约</h2><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">pragma solidity &gt; <span class="number">0.4</span><span class="number">.22</span>;</span><br><span class="line"></span><br><span class="line">contract Coin&#123;</span><br><span class="line">    <span class="comment">//这里我们定义了一个address 作为key, uint做为value的hashTable balances; 我们还定义了一个address的变量minter;</span></span><br><span class="line">    address public minter;</span><br><span class="line">    mapping(<span class="function"><span class="params">address</span>=&gt;</span>uint) balances;</span><br><span class="line">    event Sent(address <span class="keyword">from</span>, address to, uint amount);</span><br><span class="line">    <span class="keyword">constructor</span>()&#123;</span><br><span class="line">        <span class="comment">//代表创建这个合约的账户地址，被赋值给变量minter.</span></span><br><span class="line">        minter = msg.sender;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//添加一个挖矿合约 </span></span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">mint</span>(<span class="params">address receiver, uint amount</span>) <span class="title">public</span></span>&#123;</span><br><span class="line">        <span class="built_in">require</span>(msg.sender == minter);</span><br><span class="line">        balances[receiver] += amount;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">send</span>(<span class="params">address receiver, uint amount</span>) <span class="title">public</span></span>&#123;</span><br><span class="line">        <span class="built_in">require</span>(balances[msg.sender] &gt;= amount);</span><br><span class="line">        balances[msg.sender] -= amount;</span><br><span class="line">        balances[receiver] += amount;</span><br><span class="line">        emit Sent(msg.sender,receiver,amount);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>解析：<br>上面实现一个简单的加密货币，币在这里可以无中生有，但只有创建合约的人才能做到，且任何人都可以给他人转币，无需注册名和密码。</p>
+<p><code>address</code>类型是一个160位的值，不允许任何算数操作，这种类型适合存储合约地址或外部人员。</p>
+<p><code>mappings</code>可看作是一个哈希表，它会执行虚拟初始化，以使得所有可能存在的键都映射到一个字节表示为全零的值。</p>
+<p><code>event Sent(address from, address to, uint amount)</code>;声明了一个所谓的事件，它在send函数最后一行被发出。用户界面可以监听区块链上正在发送的事件，且不会花费太多成本，一旦它被发出，监听该事件的listener都将收到通知，而所有的事件都包含了<code>from</code>,<code>t</code>o和<code>amoun</code>t三个参数，可方便追踪事务。</p>
+<p><code>msg.sender</code>始终是当前函数或者外部函数调用的来源地址。</p>
+<p>最后真正被用户和其他合约所调用的，用于完成本合约功能的方法是<code>mint</code>和<code>send</code>。若<code>mint</code>被合约创建者外的其他调用则说明都不会发生。</p>
+<p><code>send</code>函数可被任何人用于向其他人发送代币，前提是发送者拥有这些代币，若使用合约发送代币给一个地址，当在区块链浏览器上查到该地址时时看不到任何相关信息的，因为，实际上发送币和更改余额的信息仅仅存在特定合约的数据存储器中。通过使用事件，可非常简单地为新币创建一个区块链浏览器来追踪交易和余额。</p>
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-15.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;"></div>
+</center>
+
+
+
+<h2 id="二、水龙头合约"><a href="#二、水龙头合约" class="headerlink" title="二、水龙头合约"></a>二、水龙头合约</h2><p>在前面我们通过 Ropsten 测试网络的水龙头（Faucet）获取了一些以太币，并提到可以向水龙头账户发送以太币来捐赠以太币。实际上，水龙头账户是一个合约账户，水龙头就是一份合约，而整个网站就是合约+前端组成的DApp。下面我们通过 Remix 来编写一个简单的水龙头合约，借此了解如何创建、部署合约以及一些 Solidity 的基本语法。</p>
+<p>首先打开 Remix，并新建一个名为 faucet.sol 的文件，该文件就是 Solidity 的源文件</p>
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-16.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;"></div>
+</center>
+
+<p>打开 faucet.sol，并写入如下代码</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">pragma solidity ^<span class="number">0.7</span><span class="number">.0</span>;</span><br><span class="line"></span><br><span class="line">contract faucet &#123;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">withdraw</span> (<span class="params">uint amount</span>) <span class="title">public</span> </span>&#123;</span><br><span class="line">        <span class="built_in">require</span> (amount &lt;= <span class="number">1e18</span>);</span><br><span class="line">        msg.sender.transfer (amount);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    receive () external payable &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过这几行代码我们就实现了一个非常简单的水龙头合约。首行代码 <code>pragma solidity ^0.7.0</code>是一个<strong>杂注</strong>，指定了我们的源文件使用的编译器版本不能低于 0.7.0，也不能高于 0.8.0。</p>
+<p><code>contract faucet{...}</code> 声明了一个合约对象，合约对象类似面向对象语言中的类，对象名必须跟文件名相同。</p>
+<p>接下来通过  <code>function withdraw (uint amount) public {...}</code> 创建了一个名为  withdraw 的函数，该函数接收一个无符号整数（uint）作为参数，并且被声明为 public 函数，意为可以被其他合约调用。</p>
+<p>withdraw 函数体中的 <code>require</code> 是 Solidity 的内置函数，用来检测括号中的条件是否满足。条件满足则继续执行合约，条件不满足则合约停止执行，回撤所有执行过的操作，并抛出异常。在这里我们通过 <code>require (amount &lt;= 1e18)</code> 来检测输入的以太币值是否小于等于1个以太。</p>
+<p>接下来的这一行 <code>msg.sender.transfer (amount)</code> 就是实际的提款操作了。<code>msg</code> 是 Solidity 中内置的对象，所有合约都可以访问，它代表触发此合约的交易。也就是说当我们调用 <code>withdraw</code> 函数的时候实际上触发了一笔交易，并用 <code>msg</code> 来表示它。<code>sender</code> 是交易 <code>msg</code> 的属性，表示了交易的发件人地址。函数 <code>transfer</code> 是一个内置函数，它接收一个参数作为以太币的数量，并将该数量的以太币从合约账户发送到调用合约的用户的地址中。</p>
+<p>最后一行是一个特殊的函数 <code>receive</code> ，这是所谓的 <code>fallback</code> 或 <code>default</code> 函数。当合约中的其他函数无法处理发送到合约中的交易信息时，就会执行该函数。在这里，我们将该函数声明为 <code>external</code> 和 <code>payable</code> ，<code>external</code> 意味着该函数可以接收来自外部账户的调用，<code>payable</code> 意味着该函数可以接收来自外部账户发送的以太币。</p>
+<p>这样，当我们调用合约中的 <code>withdraw</code> 并提供一个参数时，我们可以从这份合约中提出以太币；当我们向合约发送以太币时，就会调用 <code>receive</code> 函数往合约中捐赠以太币。</p>
+<p>代码编写完毕后，在 Remix 左侧的功能栏中选择第二项，并点击 <em>Compile faucet.sol</em> 来编译我们的 sol 文件。</p>
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-17.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;"></div>
+</center>
+
+
+<p>编译完成后会出现一个 Warning，提示我们添加 SPDX license，可以忽略。</p>
+<p>随后选择 Remix 左侧工具栏的第三项，进入合约部署界面</p>
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-18.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;"></div>
+</center>
+
+
+<p>首先将 ENVIRONMENT 选择为 Injected Web3，这样才能通过 MetaMask 钱包来发送交易。</p>
+<p>随后点击 Deploy 部署合约，MetaMask 会弹出部署合约的交易界面</p>
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-19.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;"></div>
+</center>
+
+
+<p>因为该笔交易是合约创建交易，因此我们支付的以太币为0，但仍需支付一定的 Gas 费用，可以自己设定 Gas 的价格。</p>
+<p>合约部署成功后会收到 Chrome 的消息提示，并在 Remix 的 Deployed Contracts 中也会有显示</p>
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-20.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;"></div>
+</center>
+
+
+<p>这样我们就完成了这个水龙头合约的部署。</p>
+<h4 id="水龙头测试"><a href="#水龙头测试" class="headerlink" title="水龙头测试"></a>水龙头测试</h4><p>我们刚刚创建的水龙头中还没有以太坊，因此我们可以通过 MetaMask 向水龙头合约的地址中发送一些以太坊。水龙头合约的地址会显示在 Remix 中的，见上图 FAUCET AT 0X7A4…34219，可以直接复制。</p>
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-21.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;"></div>
+</center>
+
+
+<p>交易被确认后，我们的水龙头中就有了0.999726个以太币，现在我们可以通过 Remix 中合约一栏的 withdraw 按钮来提取以太币了。需要注意，这里输入的以太币个数是以 wei 为单位的。</p>
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-22.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;"></div>
+</center>
+
+
+<p>点击 withdraw 后，会弹出警告框</p>
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-23.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;"></div>
+</center>
+
+
+<p>这是因为目前我们还没有设置这笔交易的 Gas，不用担心，点击 Send Transaction 后，在弹出的 MetaMask 中设置即可。</p>
+<p>交易被确认后，我们得到了刚刚提取的0.999726个以太币</p>
+<center>
+    <img style="border-radius: 0.3125em;
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-15.png">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;"></div>
+</center>
+
+
+<p>若大家没有执行成功可以重新做一次、查找其他资料或者<a href="https://www.bilibili.com/video/BV1sJ411D72u?p=465" target="_blank" rel="noopener">观看此视频</a></p>
+<h2 id="三、投票合约的实现"><a href="#三、投票合约的实现" class="headerlink" title="三、投票合约的实现"></a>三、投票合约的实现</h2><p><img src="\Pic\Blockchain_Pic\rating.png" style="zoom:67%;"></p>
+<p>本次教程将以一个较复杂的投票合约作为结束，我们希望实现的功能是为每个（投票）建议建立一份合约,然后作为合约的创造者-主席，主席将赋予每个成员(地址)投票权，而成员的投票权可以选择委托给其他人也可以自己投票，结束时将返回投票最多的提案。听起来很简单一个功能实现起来却较为复杂，下面我们拆分开进行讲解</p>
+<p>注：</p>
+<ol>
+<li>代码可直接在Remix编辑器的已有solidity文件中找到,在contract/_Ballot.sol文件里</li>
+<li>若学习者前面部分掌握较牢固，不妨尝试直接自行阅读代码，无需阅读本节内容</li>
+</ol>
+<p>首先我们定义成员类型，我们为每个投票者定义权重、是否已投票、</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">struct Voter &#123;</span><br><span class="line">    uint weight; <span class="comment">// weight is accumulated by delegation</span></span><br><span class="line">    bool voted;  <span class="comment">// if true, that person already voted</span></span><br><span class="line">    address delegate; <span class="comment">// person delegated to</span></span><br><span class="line">    uint vote;   <span class="comment">// index of the voted proposal</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后我们定义提案类型，包含提案名和投票总数：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">struct Proposal &#123;</span><br><span class="line">    bytes32 name;   <span class="comment">// short name (up to 32 bytes)</span></span><br><span class="line">    uint voteCount; <span class="comment">// number of accumulated votes</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>定义三个变量，主席是一个公开的地址，建立投票者与地址的映射，然后定义提案动态数组：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line">address public chairperson;</span><br><span class="line">mapping(<span class="function"><span class="params">address</span> =&gt;</span> Voter) public voters;</span><br><span class="line">Proposal[] public proposals;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>address public chairperson</code>：投票发起人，类型为 address。</li>
+<li><code>mapping(address =&gt; Voter) public voters</code>：所有投票人，类型为 <code>address</code> 到 <code>Voter</code> 的映射。</li>
+<li><code>Proposal[] public proposals</code>：所有提案，类型为动态大小的 <code>Proposal</code> 数组。</li>
+</ul>
+<p>3 个状态变量都使用了 <code>public</code> 关键字，使得变量可以被外部访问（即通过消息调用）。事实上，编译器会自动为 <code>public</code>的变量创建同名的 <code>getter</code> 函数，供外部直接读取。</p>
+<p>我们还需要为每个投票赋予初始权值，并将主席的权重设置为1。我们一般使用<code>constructor</code>赋初值，这与C++等语言类似：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">constructor</span>(bytes32[] memory proposalNames) &#123;</span><br><span class="line">    chairperson = msg.sender;</span><br><span class="line">    voters[chairperson].weight = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (uint i = <span class="number">0</span>; i &lt; proposalNames.length; i++) &#123;</span><br><span class="line">        proposals.push(Proposal(&#123;</span><br><span class="line">            name: proposalNames[i],</span><br><span class="line">            voteCount: <span class="number">0</span></span><br><span class="line">        &#125;));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>所有提案的名称通过参数 <code>bytes32[] proposalNames</code> 传入，逐个记录到状态变量 <code>proposals</code> 中。同时用 <code>msg.sender</code> 获取当前调用消息的发送者的地址，记录为投票发起人 <code>chairperson</code>，该发起人投票权重设为 1。</p>
+<p>接下来我们需要给每个投票者赋予权重：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">giveRightToVote</span>(<span class="params">address voter</span>) <span class="title">public</span> </span>&#123;</span><br><span class="line">    <span class="built_in">require</span>(</span><br><span class="line">        msg.sender == chairperson,</span><br><span class="line">        <span class="string">"Only chairperson can give right to vote."</span></span><br><span class="line">    );</span><br><span class="line">    <span class="built_in">require</span>(</span><br><span class="line">        !voters[voter].voted,</span><br><span class="line">        <span class="string">"The voter already voted."</span></span><br><span class="line">    );</span><br><span class="line">    <span class="built_in">require</span>(voters[voter].weight == <span class="number">0</span>);</span><br><span class="line">    voters[voter].weight = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该函数给 <code>address voter</code> 赋予投票权，即将 <code>voter</code> 的投票权重设为 1，存入 <code>voters</code> 状态变量。</p>
+<p>上面这个函数只有投票发起人 <code>chairperson</code> 可以调用。这里用到了 <code>require((msg.sender == chairperson) &amp;&amp; !voters[voter].voted)</code> 函数。如果<code>require</code> 中表达式结果为 <code>false</code>，这次调用会中止，且回滚所有状态和以太币余额的改变到调用前。但已消耗的 <code>Gas</code> 不会返还。</p>
+<p>下面一段是整段代码的重点，其作用是委托其他人代理投票，基本思路是：</p>
+<ol>
+<li>使用<code>require</code>判断委托人是否已投票（若投过票再委托则重复投票），并判断被委托对象是否是自己</li>
+<li>当判断被委托人不是0地址（主席）时，被委托人代理委托人的票，【绕口警告】由于被委托人也可能委托了别人，因此这里需要一直循环直到找到最后没有委托别人的被委托人为止！</li>
+<li>委托人找到对应的被委托人，委托人已投票（避免重复投票）</li>
+<li>判断被委托人是否已投票，若投了票则将被委托人投的提案票数加上委托人的权重，若未投票则令被委托人的权重加上委托人的权重（以后投票自然相当于投两票）</li>
+</ol>
+<p>注：该函数使用了 <code>while</code> 循环，这里合约编写者需要十分谨慎，防止调用者消耗过多 <code>Gas</code>，甚至出现死循环。</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">delegate</span>(<span class="params">address to</span>) <span class="title">public</span> </span>&#123;</span><br><span class="line">    Voter storage sender = voters[msg.sender];</span><br><span class="line">    <span class="built_in">require</span>(!sender.voted, <span class="string">"You already voted."</span>);</span><br><span class="line">    <span class="built_in">require</span>(to != msg.sender, <span class="string">"Self-delegation is disallowed."</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (voters[to].delegate != address(<span class="number">0</span>)) &#123;</span><br><span class="line">    	to = voters[to].delegate;</span><br><span class="line">    	<span class="built_in">require</span>(to != msg.sender, <span class="string">"Found loop in delegation."</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    sender.voted = <span class="literal">true</span>;</span><br><span class="line">    sender.delegate = to;</span><br><span class="line">    Voter storage delegate_ = voters[to];</span><br><span class="line">    <span class="keyword">if</span> (delegate_.voted) &#123;</span><br><span class="line">    	proposals[delegate_.vote].voteCount += sender.weight;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    	delegate_.weight += sender.weight;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>投票部分仅是几个简单的条件判断：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">vote</span>(<span class="params">uint proposal</span>) <span class="title">public</span> </span>&#123;</span><br><span class="line">        Voter storage sender = voters[msg.sender];</span><br><span class="line">        <span class="built_in">require</span>(sender.weight != <span class="number">0</span>, <span class="string">"Has no right to vote"</span>);</span><br><span class="line">        <span class="built_in">require</span>(!sender.voted, <span class="string">"Already voted."</span>);</span><br><span class="line">        sender.voted = <span class="literal">true</span>;</span><br><span class="line">        sender.vote = proposal;</span><br><span class="line">        proposals[proposal].voteCount += sender.weight;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>用 <code>voters[msg.sender]</code> 获取投票人，即此次调用的发起人。接下来检查是否是重复投票，如果不是，进行投票后相关状态变量的更新。</p>
+<p>接下来是计算获胜提案:</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">winningProposal</span>(<span class="params"></span>) <span class="title">public</span> <span class="title">view</span></span></span><br><span class="line"><span class="function">        <span class="title">returns</span> (<span class="params">uint winningProposal_</span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    uint winningVoteCount = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (uint p = <span class="number">0</span>; p &lt; proposals.length; p++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (proposals[p].voteCount &gt; winningVoteCount) &#123;</span><br><span class="line">            winningVoteCount = proposals[p].voteCount;</span><br><span class="line">            winningProposal_ = p;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>returns (uint winningProposal)</code> 指定了函数的返回值类型，<code>constant</code> 表示该函数不会改变合约状态变量的值。</p>
+<p>最后是查询获胜者名称：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">winnerName</span>(<span class="params"></span>) <span class="title">public</span> <span class="title">view</span></span></span><br><span class="line"><span class="function">        <span class="title">returns</span> (<span class="params">bytes32 winnerName_</span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    winnerName_ = proposals[winningProposal()].name;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里采用内部调用 <code>winningProposal()</code> 函数的方式获得获胜提案。如果需要采用外部调用，则需要写为 <code>this.winningProposal()</code>。</p>
+<p><strong>参考自：</strong></p>
+<p><a href="https://www.bilibili.com/video/BV1sJ411D72u" target="_blank" rel="noopener">尚硅谷区块链全套Go语言→GoWeb→以太坊→项目实战</a><br><a href="http://cw.hubwiz.com/card/c/web3.js-1.0/" target="_blank" rel="noopener">web3.js 1.0中文手册</a></p>
+]]></content>
+      <categories>
+        <category>Blockchain</category>
+      </categories>
   </entry>
 </search>

@@ -67,7 +67,11 @@
     <div class="article-meta">
       <a href="/posts/5521455b.html" class="article-date">
   <time datetime="2021-04-05T13:35:24.073Z" itemprop="datePublished">2021-04-05</time>
-</a>   
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Blockchain/">Blockchain</a>
+  </div>
+  
 <div class="word_count">
     <span class="post-time">
         <span class="post-meta-item-icon">
@@ -197,7 +201,7 @@
 <p>若成功则如下图所示</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-1.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-1.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -225,7 +229,7 @@
 <p> 查看 geth version，确保在真正运行之前安装正常：</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-2.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-2.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -247,7 +251,7 @@
 <p>genesis.json介绍</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-3.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-3.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -280,7 +284,7 @@
 <p>参数含义：</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-4.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-4.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -293,7 +297,7 @@
 <p>我们可以看到节点正常启动：</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-5.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-5.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -305,7 +309,7 @@
 <p>启动完之后，就可以通过<code>admin.nodeInfo.protocols.eth</code>来获取到刚启动的节点的一些信息（如下），比较上文初始化的配置，相关内容是一致的。</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-6.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-6.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -351,7 +355,7 @@
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; eth.getBalance(eth.accounts[<span class="number">0</span>])</span><br><span class="line"><span class="number">0</span></span><br></pre></td></tr></table></figure>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-7.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-7.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -400,7 +404,7 @@
 <p>该合约包含一个方法 multiply()，将输入的两个数相乘后输出：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">pragma solidity ^<span class="number">0.4</span><span class="number">.0</span>;</span><br><span class="line">contract TestContract</span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">multiply</span>(<span class="params">uint a, uint b</span>) <span class="title">returns</span> (<span class="params">uint</span>)</span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> a * b;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><br>将上面的代码复制到Remix编辑器里，程序将自动完成编译。</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-8.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-8.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -413,7 +417,7 @@
 <p>因为我们要将该智能合约部署到私有链上，需要得到智能合约编译后的EVM二进制码和JSON ABI（Application Binary Interface）。将生成的交易保存到scenario.json文件，点击箭头所指按钮</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-9.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-9.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -426,7 +430,7 @@
 <p>其中38-65行为该智能合约的ABI（注意前面还有一个[符号），ABI指定了合约接口，包括可调用的合约方法、变量、事件等。</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-10.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-10.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -442,7 +446,7 @@
 <p>接下来执行<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$solc --bin testContract.sol</span><br><span class="line">$solc --abi testContract.sol</span><br></pre></td></tr></table></figure></p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-11.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-11.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -459,7 +463,7 @@
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; myContract = eth.contract(abi)   </span><br><span class="line">...</span><br><span class="line">&gt; contract = myContract.new(&#123;<span class="attr">from</span>:eth.accounts[<span class="number">0</span>],<span class="attr">data</span>:code,<span class="attr">gas</span>:<span class="number">1000000</span>&#125;)</span><br></pre></td></tr></table></figure>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-12.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-12.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -480,7 +484,7 @@
 <h2 id="4、web3-js-简介"><a href="#4、web3-js-简介" class="headerlink" title="4、web3.js 简介"></a>4、web3.js 简介</h2><p>我们除了通过Geth的JavaScript Console进行交互以外，还有许多第三方库可以使用，方便开发基于以太坊区块链的应用：</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part3-13.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part3-13.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;

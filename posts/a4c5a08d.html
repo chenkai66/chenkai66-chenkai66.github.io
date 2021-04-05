@@ -67,7 +67,11 @@
     <div class="article-meta">
       <a href="/posts/a4c5a08d.html" class="article-date">
   <time datetime="2021-04-05T13:35:24.075Z" itemprop="datePublished">2021-04-05</time>
-</a>   
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Blockchain/">Blockchain</a>
+  </div>
+  
 <div class="word_count">
     <span class="post-time">
         <span class="post-meta-item-icon">
@@ -109,7 +113,7 @@
 <p><code>send</code>函数可被任何人用于向其他人发送代币，前提是发送者拥有这些代币，若使用合约发送代币给一个地址，当在区块链浏览器上查到该地址时时看不到任何相关信息的，因为，实际上发送币和更改余额的信息仅仅存在特定合约的数据存储器中。通过使用事件，可非常简单地为新币创建一个区块链浏览器来追踪交易和余额。</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-15.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-15.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -123,7 +127,7 @@
 <p>首先打开 Remix，并新建一个名为 faucet.sol 的文件，该文件就是 Solidity 的源文件</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-16.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-16.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -143,7 +147,7 @@
 <p>代码编写完毕后，在 Remix 左侧的功能栏中选择第二项，并点击 <em>Compile faucet.sol</em> 来编译我们的 sol 文件。</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-17.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-17.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -156,7 +160,7 @@
 <p>随后选择 Remix 左侧工具栏的第三项，进入合约部署界面</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-18.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-18.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -169,7 +173,7 @@
 <p>随后点击 Deploy 部署合约，MetaMask 会弹出部署合约的交易界面</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-19.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-19.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -182,7 +186,7 @@
 <p>合约部署成功后会收到 Chrome 的消息提示，并在 Remix 的 Deployed Contracts 中也会有显示</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-20.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-20.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -195,7 +199,7 @@
 <h4 id="水龙头测试"><a href="#水龙头测试" class="headerlink" title="水龙头测试"></a>水龙头测试</h4><p>我们刚刚创建的水龙头中还没有以太坊，因此我们可以通过 MetaMask 向水龙头合约的地址中发送一些以太坊。水龙头合约的地址会显示在 Remix 中的，见上图 FAUCET AT 0X7A4…34219，可以直接复制。</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-21.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-21.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -207,7 +211,7 @@
 <p>交易被确认后，我们的水龙头中就有了0.999726个以太币，现在我们可以通过 Remix 中合约一栏的 withdraw 按钮来提取以太币了。需要注意，这里输入的以太币个数是以 wei 为单位的。</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-22.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-22.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -219,7 +223,7 @@
 <p>点击 withdraw 后，会弹出警告框</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-23.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-23.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -232,7 +236,7 @@
 <p>交易被确认后，我们得到了刚刚提取的0.999726个以太币</p>
 <center>
     <img style="border-radius: 0.3125em;
-    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="/posts/part2-15.png">
+    box-shadow: 0 2px 4px 0 rgba(34,36,38,.12),0 2px 10px 0 rgba(34,36,38,.08);" src="\Pic\Blockchain_Pic\part2-15.png">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -242,7 +246,7 @@
 
 
 <p>若大家没有执行成功可以重新做一次、查找其他资料或者<a href="https://www.bilibili.com/video/BV1sJ411D72u?p=465" target="_blank" rel="noopener">观看此视频</a></p>
-<h2 id="三、投票合约的实现"><a href="#三、投票合约的实现" class="headerlink" title="三、投票合约的实现"></a>三、投票合约的实现</h2><p><img src="/posts/rating.png" style="zoom:67%;"></p>
+<h2 id="三、投票合约的实现"><a href="#三、投票合约的实现" class="headerlink" title="三、投票合约的实现"></a>三、投票合约的实现</h2><p><img src="\Pic\Blockchain_Pic\rating.png" style="zoom:67%;"></p>
 <p>本次教程将以一个较复杂的投票合约作为结束，我们希望实现的功能是为每个（投票）建议建立一份合约,然后作为合约的创造者-主席，主席将赋予每个成员(地址)投票权，而成员的投票权可以选择委托给其他人也可以自己投票，结束时将返回投票最多的提案。听起来很简单一个功能实现起来却较为复杂，下面我们拆分开进行讲解</p>
 <p>注：</p>
 <ol>
