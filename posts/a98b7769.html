@@ -119,7 +119,7 @@
 </ul>
 <p>将文本分解而成的单元（单词、字符或<code>n-gram</code>）叫作标记（token），将文本分解成标记的过程叫作分词（tokenization）。所有文本向量化过程都是应用某种分词方案，然后将数值向量与生成的标记相关联。这些向量组合成序列张量，被输入到深度神经网络中。将向量与标记相关联的方法有很多种。本节将介绍两种主要方法：对标记做<code>one-hot</code>编码（one-hot encoding）与标记嵌入［token embedding，通常只用于单词，叫作词嵌入（word embedding）］。<br>本节剩余内容将解释这些方法，并介绍如何使用这些方法，将原始文本转换为可以输入到<code>Keras</code>网络中的<code>Numpy</code>张量。</p>
 <center>
-    <img src="\Pic\DeepLearning_Pic\从文本到标记再到向量.png" width="300" height="300" alt="从文本到标记再到向量" align="center">
+    <img src="\Pic\DeepLearning_Pic\从文本到标记再到向量.png" width="500" height="500" alt="从文本到标记再到向量" align="center">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -222,7 +222,7 @@
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 将一个Embedding 层实例化</span></span><br><span class="line"><span class="keyword">from</span> keras.layers <span class="keyword">import</span> Embedding</span><br><span class="line">embedding_layer = Embedding(<span class="number">1000</span>, <span class="number">64</span>)</span><br></pre></td></tr></table></figure>
 <p>最好将Embedding层理解为一个字典，将整数索引（表示特定单词）映射为密集向量。它接收整数作为输入，并在内部字典中查找这些整数，然后返回相关联的向量。Embedding 层实际上是一种字典查找</p>
 <center>
-    <img src="\Pic\DeepLearning_Pic\encoding_3.png" width="200" height="200" alt="Embedding层" align="center">
+    <img src="\Pic\DeepLearning_Pic\encoding_3.png" width="400" height="400" alt="Embedding层" align="center">
     <br>
     <div style="color:orange; border-bottom: 1px solid #d9d9d9;
     display: inline-block;
@@ -257,16 +257,12 @@ _________________________________________________________________
 <p>我们来看一下如何在Keras 模型中使用GloVe嵌入。同样的方法也适用于word2vec 嵌入或其他词嵌入数据库。这个例子还可以改进前面刚刚介绍过的文本分词技术，即从原始文本开始，一步步进行处理。</p>
 <h2 id="3-从原始文本到词嵌入"><a href="#3-从原始文本到词嵌入" class="headerlink" title="3. 从原始文本到词嵌入"></a>3. 从原始文本到词嵌入</h2><p>本节的模型与之前刚刚见过的那个类似：将句子嵌入到向量序列中，然后将其展平，最后在上面训练一个Dense层。但此处将使用预训练的词嵌入。此外，我们将从头开始，先下载IMDB 原始文本数据，而不是使用Keras内置的已经预先分词的IMDB 数据。</p>
 <blockquote>
-<ol>
-<li>下载IMDB 数据的原始文本</li>
-</ol>
+<p>下载IMDB 数据的原始文本</p>
 </blockquote>
 <p>首先，打开<a href="http://mng.bz/0tIo" target="_blank" rel="noopener">http://mng.bz/0tIo</a> ，下载原始IMDB 数据集并解压。接下来，我们将训练评论转换成字符串列表，每个字符串对应一条评论。你也可以将评论标签（正面/ 负面）转换成labels列表。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 处理IMDB原始数据的标签</span></span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line">imdb_dir = <span class="string">'data/aclImdb'</span></span><br><span class="line">train_dir = os.path.join(imdb_dir, <span class="string">'train'</span>)</span><br><span class="line">labels = []</span><br><span class="line">texts = []</span><br><span class="line"><span class="keyword">for</span> label_type <span class="keyword">in</span> [<span class="string">'neg'</span>, <span class="string">'pos'</span>]:</span><br><span class="line">    dir_name = os.path.join(train_dir, label_type)</span><br><span class="line">    <span class="keyword">for</span> fname <span class="keyword">in</span> os.listdir(dir_name):</span><br><span class="line">        <span class="keyword">if</span> fname[<span class="number">-4</span>:] == <span class="string">'.txt'</span>:</span><br><span class="line">            f = open(os.path.join(dir_name, fname))</span><br><span class="line">            texts.append(f.read())</span><br><span class="line">            f.close()</span><br><span class="line">            <span class="keyword">if</span> label_type == <span class="string">'neg'</span>:</span><br><span class="line">                labels.append(<span class="number">0</span>)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                labels.append(<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
 <blockquote>
-<ol>
-<li>对数据进行分词</li>
-</ol>
+<p>对数据进行分词</p>
 </blockquote>
 <p>利用本节前面介绍过的概念，我们对文本进行分词，并将其划分为训练集和验证集。因为预训练的词嵌入对训练数据很少的问题特别有用（否则，针对于具体任务的嵌入可能效果更好），所以我们又添加了以下限制：将训练数据限定为前200个样本。因此，你需要在读取200个样本之后学习对电影评论进行分类。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 对IMDB原始数据的文本进行分词</span></span><br><span class="line"><span class="keyword">from</span> keras.preprocessing.text <span class="keyword">import</span> Tokenizer</span><br><span class="line"><span class="keyword">from</span> keras.preprocessing.sequence <span class="keyword">import</span> pad_sequences</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">maxlen = <span class="number">100</span></span><br><span class="line">training_samples = <span class="number">200</span></span><br><span class="line">validation_samples = <span class="number">10000</span></span><br><span class="line">max_words = <span class="number">10000</span></span><br><span class="line">tokenizer = Tokenizer(num_words=max_words)</span><br><span class="line">tokenizer.fit_on_texts(texts)</span><br><span class="line">sequences = tokenizer.texts_to_sequences(texts)</span><br><span class="line">word_index = tokenizer.word_index</span><br><span class="line">print(<span class="string">'Found %s unique tokens.'</span> % len(word_index))</span><br><span class="line">data = pad_sequences(sequences, maxlen=maxlen)</span><br><span class="line">labels = np.asarray(labels)</span><br><span class="line">print(<span class="string">'Shape of data tensor:'</span>, data.shape)</span><br><span class="line">print(<span class="string">'Shape of label tensor:'</span>, labels.shape)</span><br><span class="line">indices = np.arange(data.shape[<span class="number">0</span>])</span><br><span class="line">np.random.shuffle(indices)</span><br><span class="line">data = data[indices]</span><br><span class="line">labels = labels[indices]</span><br><span class="line">x_train = data[:training_samples]</span><br><span class="line">y_train = labels[:training_samples]</span><br><span class="line">x_val = data[training_samples: training_samples + validation_samples]</span><br><span class="line">y_val = labels[training_samples: training_samples + validation_samples]</span><br></pre></td></tr></table></figure>
@@ -274,15 +270,11 @@ _________________________________________________________________
 Shape of data tensor: (25000, 100)
 Shape of label tensor: (25000,)
 </code></pre><blockquote>
-<ol>
-<li>下载GloVe词嵌入</li>
-</ol>
+<p>下载GloVe词嵌入</p>
 </blockquote>
 <p>打开<a href="https://nlp.stanford.edu/projects/glove" target="_blank" rel="noopener">https://nlp.stanford.edu/projects/glove</a> ，下载2014年英文维基百科的预计算嵌入。这是一个822 MB的压缩文件，文件名是glove.6B.zip，里面包含400 000 个单词（或非单词的标记）的100 维嵌入向量，解压文件。</p>
 <blockquote>
-<ol>
-<li>对嵌入进行预处理</li>
-</ol>
+<p>对嵌入进行预处理</p>
 </blockquote>
 <p>我们对解压后的文件（一个.txt 文件）进行解析，构建一个将单词（字符串）映射为其向量表示（数值向量）的索引。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 解析GloVe词嵌入文件</span></span><br><span class="line">glove_dir = <span class="string">'model/glove.6B'</span></span><br><span class="line">embeddings_index = &#123;&#125;</span><br><span class="line">f = open(os.path.join(glove_dir, <span class="string">'glove.6B.100d.txt'</span>))</span><br><span class="line"><span class="keyword">for</span> line <span class="keyword">in</span> f:</span><br><span class="line">    values = line.split()</span><br><span class="line">    word = values[<span class="number">0</span>]</span><br><span class="line">    coefs = np.asarray(values[<span class="number">1</span>:], dtype=<span class="string">'float32'</span>)</span><br><span class="line">    embeddings_index[word] = coefs</span><br><span class="line">f.close()</span><br><span class="line">print(<span class="string">'Found %s word vectors.'</span> % len(embeddings_index))</span><br></pre></td></tr></table></figure>
@@ -290,9 +282,7 @@ Shape of label tensor: (25000,)
 </code></pre><p>接下来，需要构建一个可以加载到<code>Embedding</code>层中的嵌入矩阵。它必须是一个形状为<code>(max_words, embedding_dim)</code> 的矩阵，对于单词索引（在分词时构建）中索引为$i$的单词，这个矩阵的元素$i$就是这个单词对应的<code>embedding_dim</code>维向量。注意，索引0不应该代表任何单词或标记，它只是一个占位符。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 准备GloVe词嵌入矩阵</span></span><br><span class="line">embedding_dim = <span class="number">100</span></span><br><span class="line">embedding_matrix = np.zeros((max_words, embedding_dim))</span><br><span class="line"><span class="keyword">for</span> word, i <span class="keyword">in</span> word_index.items():</span><br><span class="line">    <span class="keyword">if</span> i &lt; max_words:</span><br><span class="line">        embedding_vector = embeddings_index.get(word)</span><br><span class="line">        <span class="keyword">if</span> embedding_vector <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            embedding_matrix[i] = embedding_vector</span><br></pre></td></tr></table></figure>
 <blockquote>
-<ol>
-<li>定义模型</li>
-</ol>
+<p>定义模型</p>
 </blockquote>
 <p>我们将使用与前面相同的模型架构。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> keras.models <span class="keyword">import</span> Sequential</span><br><span class="line"><span class="keyword">from</span> keras.layers <span class="keyword">import</span> Embedding, Flatten, Dense</span><br><span class="line">model = Sequential()</span><br><span class="line">model.add(Embedding(max_words, embedding_dim, input_length=maxlen))</span><br><span class="line">model.add(Flatten())</span><br><span class="line">model.add(Dense(<span class="number">32</span>, activation=<span class="string">'relu'</span>))</span><br><span class="line">model.add(Dense(<span class="number">1</span>, activation=<span class="string">'sigmoid'</span>))</span><br><span class="line">model.summary()</span><br></pre></td></tr></table></figure>
@@ -313,17 +303,13 @@ Trainable params: 1,320,065
 Non-trainable params: 0
 _________________________________________________________________
 </code></pre><blockquote>
-<ol>
-<li>在模型中加载GloVe嵌入</li>
-</ol>
+<p>在模型中加载GloVe嵌入</p>
 </blockquote>
 <p>Embedding层只有一个权重矩阵，是一个二维的浮点数矩阵，其中每个元素$i$是与索引$i$相关联的词向量。将准备好的<code>GloVe</code>矩阵加载到<code>Embedding</code>层中，即模型的第一层。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 将预训练的词嵌入加载到Embedding层中</span></span><br><span class="line">model.layers[<span class="number">0</span>].set_weights([embedding_matrix])</span><br><span class="line">model.layers[<span class="number">0</span>].trainable = <span class="literal">False</span></span><br></pre></td></tr></table></figure>
 <p>此外，需要冻结<code>Embedding</code>层（即将其<code>trainable</code>属性设为<code>False</code>），其原理和预训练的卷积神经网络特征相同，你已经很熟悉了。如果一个模型的一部分是经过预训练的（如<code>Embedding</code>层），而另一部分是随机初始化的（如分类器），那么在训练期间不应该更新预训练的部分，以避免丢失它们所保存的信息。随机初始化的层会引起较大的梯度更新，会破坏已经学到的特征。</p>
 <blockquote>
-<ol>
-<li>训练模型与评估模型</li>
-</ol>
+<p>训练模型与评估模型</p>
 </blockquote>
 <p>下面编译并训练模型。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">model.compile(optimizer=<span class="string">'rmsprop'</span>,</span><br><span class="line">            loss=<span class="string">'binary_crossentropy'</span>,</span><br><span class="line">            metrics=[<span class="string">'acc'</span>])</span><br><span class="line">history = model.fit(x_train, y_train,</span><br><span class="line">            epochs=<span class="number">10</span>,</span><br><span class="line">            batch_size=<span class="number">32</span>,</span><br><span class="line">            validation_data=(x_val, y_val))</span><br><span class="line">model.save_weights(<span class="string">'model/pre_trained_glove_model.h5'</span>)</span><br></pre></td></tr></table></figure>
