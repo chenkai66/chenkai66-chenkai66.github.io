@@ -77,7 +77,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">21.4k</span>
+            <span class="post-count">17.5k</span>
         </span>
     </span>
 
@@ -86,7 +86,7 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">94 分钟</span>
+            <span class="post-count">70 分钟</span>
         </span>
     </span>
 </div>
@@ -334,67 +334,7 @@ labels batch shape: (20,)
 </code></pre><p>利用生成器，我们让模型对数据进行拟合。我们将使用<code>fit_generator</code>方法来拟合，它在数据生成器上的效果和fit 相同。它的第一个参数应该是一个Python生成器，可以不停地生成输入和目标组成的批量，比如<code>train_generator</code>。因为数据是不断生成的，所以Keras模型要知道每一轮需要从生成器中抽取多少个样本。这是<code>steps_per_epoch</code>参数的作用：从生成器中抽取<code>steps_per_epoch</code>个批量后（即运行了<code>steps_per_epoch</code>次梯度下降），拟合过程将进入下一个轮次。本例中，每个批量包含20个样本，所以读取完所有2000 个样本需要100个批量。</p>
 <p>使用<code>fit_generator</code>时，你可以传入一个<code>validation_data</code>参数，其作用和在<code>fit</code>方法中类似。值得注意的是，这个参数可以是一个数据生成器，但也可以是Numpy数组组成的元组。如果向<code>validation_data</code>传入一个生成器，那么这个生成器应该能够不停地生成验证数据批量，因此你还需要指定<code>validation_steps</code>参数，说明需要从验证生成器中抽取多少个批次用于评估。</p>
 <h2 id="5-拟合模型"><a href="#5-拟合模型" class="headerlink" title="5. 拟合模型"></a>5. 拟合模型</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">history = model.fit_generator(</span><br><span class="line">    train_generator,</span><br><span class="line">    steps_per_epoch=<span class="number">100</span>,</span><br><span class="line">    epochs=<span class="number">30</span>,</span><br><span class="line">    validation_data=validation_generator,</span><br><span class="line">    validation_steps=<span class="number">50</span>)</span><br></pre></td></tr></table></figure>
-<pre><code>Epoch 1/30
-100/100 [==============================] - 71s 709ms/step - loss: 0.6845 - acc: 0.5520 - val_loss: 0.6738 - val_acc: 0.5850
-Epoch 2/30
-100/100 [==============================] - 65s 645ms/step - loss: 0.6184 - acc: 0.6405 - val_loss: 0.5264 - val_acc: 0.6730
-Epoch 3/30
-100/100 [==============================] - 83s 830ms/step - loss: 0.5660 - acc: 0.7160 - val_loss: 0.4590 - val_acc: 0.6360
-Epoch 4/30
-100/100 [==============================] - 74s 739ms/step - loss: 0.5222 - acc: 0.7400 - val_loss: 0.6281 - val_acc: 0.6680
-Epoch 5/30
-100/100 [==============================] - 70s 699ms/step - loss: 0.4870 - acc: 0.7635 - val_loss: 0.5049 - val_acc: 0.7010
-Epoch 6/30
-100/100 [==============================] - 70s 700ms/step - loss: 0.4575 - acc: 0.7800 - val_loss: 0.6481 - val_acc: 0.7110
-Epoch 7/30
-100/100 [==============================] - 70s 698ms/step - loss: 0.4273 - acc: 0.8025 - val_loss: 0.7052 - val_acc: 0.7060
-Epoch 8/30
-100/100 [==============================] - 70s 697ms/step - loss: 0.3928 - acc: 0.8265 - val_loss: 0.4466 - val_acc: 0.7050
-Epoch 9/30
-100/100 [==============================] - 70s 700ms/step - loss: 0.3731 - acc: 0.8485 - val_loss: 0.5841 - val_acc: 0.7180
-Epoch 10/30
-100/100 [==============================] - 71s 708ms/step - loss: 0.3347 - acc: 0.8575 - val_loss: 0.5448 - val_acc: 0.6970
-Epoch 11/30
-100/100 [==============================] - 71s 706ms/step - loss: 0.3212 - acc: 0.8655 - val_loss: 0.6970 - val_acc: 0.7150
-Epoch 12/30
-100/100 [==============================] - 70s 703ms/step - loss: 0.2870 - acc: 0.8830 - val_loss: 0.4558 - val_acc: 0.7210
-Epoch 13/30
-100/100 [==============================] - 70s 704ms/step - loss: 0.2593 - acc: 0.8990 - val_loss: 0.4447 - val_acc: 0.6940
-Epoch 14/30
-100/100 [==============================] - 70s 704ms/step - loss: 0.2326 - acc: 0.9165 - val_loss: 0.5825 - val_acc: 0.7220
-Epoch 15/30
-100/100 [==============================] - 71s 706ms/step - loss: 0.2018 - acc: 0.9325 - val_loss: 0.1710 - val_acc: 0.7170
-Epoch 16/30
-100/100 [==============================] - 71s 708ms/step - loss: 0.1785 - acc: 0.9390 - val_loss: 0.7726 - val_acc: 0.7160
-Epoch 17/30
-100/100 [==============================] - 71s 708ms/step - loss: 0.1579 - acc: 0.9480 - val_loss: 0.4888 - val_acc: 0.7150
-Epoch 18/30
-100/100 [==============================] - 71s 709ms/step - loss: 0.1399 - acc: 0.9545 - val_loss: 0.7219 - val_acc: 0.7130
-Epoch 19/30
-100/100 [==============================] - 71s 708ms/step - loss: 0.1229 - acc: 0.9580 - val_loss: 0.3776 - val_acc: 0.7180
-Epoch 20/30
-100/100 [==============================] - 71s 708ms/step - loss: 0.1002 - acc: 0.9735 - val_loss: 1.0687 - val_acc: 0.7240
-Epoch 21/30
-100/100 [==============================] - 71s 707ms/step - loss: 0.0841 - acc: 0.9785 - val_loss: 1.6117 - val_acc: 0.7270
-Epoch 22/30
-100/100 [==============================] - 71s 710ms/step - loss: 0.0753 - acc: 0.9840 - val_loss: 0.3944 - val_acc: 0.7240
-Epoch 23/30
-100/100 [==============================] - 71s 707ms/step - loss: 0.0649 - acc: 0.9825 - val_loss: 1.1620 - val_acc: 0.7240
-Epoch 24/30
-100/100 [==============================] - 71s 708ms/step - loss: 0.0503 - acc: 0.9905 - val_loss: 0.4844 - val_acc: 0.7260
-Epoch 25/30
-100/100 [==============================] - 71s 707ms/step - loss: 0.0464 - acc: 0.9875 - val_loss: 0.4670 - val_acc: 0.7080
-Epoch 26/30
-100/100 [==============================] - 71s 706ms/step - loss: 0.0362 - acc: 0.9945 - val_loss: 0.4580 - val_acc: 0.7140
-Epoch 27/30
-100/100 [==============================] - 71s 708ms/step - loss: 0.0324 - acc: 0.9920 - val_loss: 0.6673 - val_acc: 0.7240
-Epoch 28/30
-100/100 [==============================] - 71s 708ms/step - loss: 0.0211 - acc: 0.9970 - val_loss: 0.7170 - val_acc: 0.7260
-Epoch 29/30
-100/100 [==============================] - 71s 709ms/step - loss: 0.0195 - acc: 0.9965 - val_loss: 1.4715 - val_acc: 0.7250
-Epoch 30/30
-100/100 [==============================] - 71s 708ms/step - loss: 0.0137 - acc: 0.9965 - val_loss: 1.1098 - val_acc: 0.7010
-</code></pre><p>始终在训练完成后保存模型，这是一种良好实践。</p>
+<p>始终在训练完成后保存模型，这是一种良好实践。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 保存模型</span></span><br><span class="line">model.save(<span class="string">'model/ComputerVersion/cats_and_dogs_small_1.h5'</span>)</span><br></pre></td></tr></table></figure>
 <p>我们来分别绘制训练过程中模型在训练数据和验证数据上的损失和精度</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line">acc = history.history[<span class="string">'acc'</span>]</span><br><span class="line">val_acc = history.history[<span class="string">'val_acc'</span>]</span><br><span class="line">loss = history.history[<span class="string">'loss'</span>]</span><br><span class="line">val_loss = history.history[<span class="string">'val_loss'</span>]</span><br><span class="line">epochs = range(<span class="number">1</span>, len(acc) + <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">plt.plot(epochs, acc, <span class="string">'bo'</span>, label=<span class="string">'Training acc'</span>)</span><br><span class="line">plt.plot(epochs, val_acc, <span class="string">'b'</span>, label=<span class="string">'Validation acc'</span>)</span><br><span class="line">plt.title(<span class="string">'Training and validation accuracy'</span>)</span><br><span class="line">plt.legend()</span><br><span class="line">plt.figure()</span><br><span class="line"></span><br><span class="line">plt.plot(epochs, loss, <span class="string">'bo'</span>, label=<span class="string">'Training loss'</span>)</span><br><span class="line">plt.plot(epochs, val_loss, <span class="string">'b'</span>, label=<span class="string">'Validation loss'</span>)</span><br><span class="line">plt.title(<span class="string">'Training and validation loss'</span>)</span><br><span class="line">plt.legend()</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
@@ -478,209 +418,7 @@ Epoch 30/30
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">model = models.Sequential()</span><br><span class="line"></span><br><span class="line">model.add(layers.Conv2D(<span class="number">32</span>, (<span class="number">3</span>, <span class="number">3</span>), activation=<span class="string">'relu'</span>,input_shape=(<span class="number">150</span>, <span class="number">150</span>, <span class="number">3</span>)))</span><br><span class="line">model.add(layers.MaxPooling2D((<span class="number">2</span>, <span class="number">2</span>)))</span><br><span class="line">model.add(layers.Conv2D(<span class="number">64</span>, (<span class="number">3</span>, <span class="number">3</span>), activation=<span class="string">'relu'</span>))</span><br><span class="line">model.add(layers.MaxPooling2D((<span class="number">2</span>, <span class="number">2</span>)))</span><br><span class="line">model.add(layers.Conv2D(<span class="number">128</span>, (<span class="number">3</span>, <span class="number">3</span>), activation=<span class="string">'relu'</span>))</span><br><span class="line">model.add(layers.MaxPooling2D((<span class="number">2</span>, <span class="number">2</span>)))</span><br><span class="line">model.add(layers.Conv2D(<span class="number">128</span>, (<span class="number">3</span>, <span class="number">3</span>), activation=<span class="string">'relu'</span>))</span><br><span class="line">model.add(layers.MaxPooling2D((<span class="number">2</span>, <span class="number">2</span>)))</span><br><span class="line">model.add(layers.Flatten())</span><br><span class="line">model.add(layers.Dropout(<span class="number">0.5</span>))</span><br><span class="line">model.add(layers.Dense(<span class="number">512</span>, activation=<span class="string">'relu'</span>))</span><br><span class="line">model.add(layers.Dense(<span class="number">1</span>, activation=<span class="string">'sigmoid'</span>))</span><br><span class="line"></span><br><span class="line">model.compile(loss=<span class="string">'binary_crossentropy'</span>,optimizer=optimizers.RMSprop(lr=<span class="number">1e-4</span>),metrics=[<span class="string">'acc'</span>])</span><br></pre></td></tr></table></figure>
 <p>我们来训练这个使用了数据增强和dropout 的网络。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 利用数据增强生成器训练卷积神经网络</span></span><br><span class="line">train_datagen = ImageDataGenerator(</span><br><span class="line">    rescale=<span class="number">1.</span>/<span class="number">255</span>,</span><br><span class="line">    rotation_range=<span class="number">40</span>,</span><br><span class="line">    width_shift_range=<span class="number">0.2</span>,</span><br><span class="line">    height_shift_range=<span class="number">0.2</span>,</span><br><span class="line">    shear_range=<span class="number">0.2</span>,</span><br><span class="line">    zoom_range=<span class="number">0.2</span>,</span><br><span class="line">    horizontal_flip=<span class="literal">True</span>,)</span><br><span class="line"></span><br><span class="line">test_datagen = ImageDataGenerator(rescale=<span class="number">1.</span>/<span class="number">255</span>)</span><br><span class="line"></span><br><span class="line">train_generator = train_datagen.flow_from_directory(</span><br><span class="line">    train_dir,</span><br><span class="line">    target_size=(<span class="number">150</span>, <span class="number">150</span>),</span><br><span class="line">    batch_size=<span class="number">32</span>,</span><br><span class="line">    class_mode=<span class="string">'binary'</span>)</span><br><span class="line"></span><br><span class="line">validation_generator = test_datagen.flow_from_directory(</span><br><span class="line">    validation_dir,</span><br><span class="line">    target_size=(<span class="number">150</span>, <span class="number">150</span>),</span><br><span class="line">    batch_size=<span class="number">32</span>,</span><br><span class="line">    class_mode=<span class="string">'binary'</span>)</span><br><span class="line"></span><br><span class="line">history = model.fit_generator(</span><br><span class="line">    train_generator,</span><br><span class="line">    steps_per_epoch=<span class="number">100</span>,</span><br><span class="line">    epochs=<span class="number">100</span>,</span><br><span class="line">    validation_data=validation_generator,</span><br><span class="line">    validation_steps=<span class="number">50</span>)</span><br></pre></td></tr></table></figure>
-<pre><code>Found 2000 images belonging to 2 classes.
-Found 1000 images belonging to 2 classes.
-Epoch 1/100
-100/100 [==============================] - 76s 765ms/step - loss: 0.6914 - acc: 0.5183 - val_loss: 0.7206 - val_acc: 0.5032
-Epoch 2/100
-100/100 [==============================] - 72s 724ms/step - loss: 0.6739 - acc: 0.5729 - val_loss: 0.6612 - val_acc: 0.5921
-Epoch 3/100
-100/100 [==============================] - 72s 723ms/step - loss: 0.6692 - acc: 0.5701 - val_loss: 0.7034 - val_acc: 0.5374
-Epoch 4/100
-100/100 [==============================] - 72s 724ms/step - loss: 0.6496 - acc: 0.6080 - val_loss: 0.6402 - val_acc: 0.6269
-Epoch 5/100
-100/100 [==============================] - 75s 749ms/step - loss: 0.6313 - acc: 0.6408 - val_loss: 0.6454 - val_acc: 0.6650
-Epoch 6/100
-100/100 [==============================] - 77s 774ms/step - loss: 0.6112 - acc: 0.6555 - val_loss: 0.6192 - val_acc: 0.6823
-Epoch 7/100
-100/100 [==============================] - 76s 761ms/step - loss: 0.6064 - acc: 0.6585 - val_loss: 0.6323 - val_acc: 0.6853
-Epoch 8/100
-100/100 [==============================] - 77s 775ms/step - loss: 0.5988 - acc: 0.6724 - val_loss: 0.5059 - val_acc: 0.6804
-Epoch 9/100
-100/100 [==============================] - 75s 753ms/step - loss: 0.5842 - acc: 0.6926 - val_loss: 0.5870 - val_acc: 0.7139
-Epoch 10/100
-100/100 [==============================] - 77s 771ms/step - loss: 0.5765 - acc: 0.6954 - val_loss: 0.5300 - val_acc: 0.7157
-Epoch 11/100
-100/100 [==============================] - 77s 772ms/step - loss: 0.5766 - acc: 0.6869 - val_loss: 0.6192 - val_acc: 0.7004
-Epoch 12/100
-100/100 [==============================] - 74s 737ms/step - loss: 0.5625 - acc: 0.7048 - val_loss: 0.6041 - val_acc: 0.6916
-Epoch 13/100
-100/100 [==============================] - 73s 733ms/step - loss: 0.5667 - acc: 0.7014 - val_loss: 0.6984 - val_acc: 0.6849
-Epoch 14/100
-100/100 [==============================] - 80s 800ms/step - loss: 0.5551 - acc: 0.7142 - val_loss: 0.5477 - val_acc: 0.6859
-Epoch 15/100
-100/100 [==============================] - 74s 745ms/step - loss: 0.5481 - acc: 0.7263 - val_loss: 0.6152 - val_acc: 0.7139
-Epoch 16/100
-100/100 [==============================] - 75s 752ms/step - loss: 0.5450 - acc: 0.7155 - val_loss: 0.4643 - val_acc: 0.7088
-Epoch 17/100
-100/100 [==============================] - 75s 751ms/step - loss: 0.5368 - acc: 0.7225 - val_loss: 0.5045 - val_acc: 0.7259
-Epoch 18/100
-100/100 [==============================] - 77s 772ms/step - loss: 0.5334 - acc: 0.7305 - val_loss: 0.5234 - val_acc: 0.7384
-Epoch 19/100
-100/100 [==============================] - 73s 728ms/step - loss: 0.5276 - acc: 0.7446 - val_loss: 0.3467 - val_acc: 0.7284
-Epoch 20/100
-100/100 [==============================] - 72s 722ms/step - loss: 0.5252 - acc: 0.7346 - val_loss: 0.5238 - val_acc: 0.7506
-Epoch 21/100
-100/100 [==============================] - 73s 734ms/step - loss: 0.5319 - acc: 0.7304 - val_loss: 0.6062 - val_acc: 0.7189
-Epoch 22/100
-100/100 [==============================] - 74s 737ms/step - loss: 0.5140 - acc: 0.7434 - val_loss: 0.5258 - val_acc: 0.7500
-Epoch 23/100
-100/100 [==============================] - 76s 759ms/step - loss: 0.5001 - acc: 0.7538 - val_loss: 0.5850 - val_acc: 0.6681
-Epoch 24/100
-100/100 [==============================] - 75s 752ms/step - loss: 0.5181 - acc: 0.7345 - val_loss: 0.5819 - val_acc: 0.7429
-Epoch 25/100
-100/100 [==============================] - 73s 726ms/step - loss: 0.5130 - acc: 0.7421 - val_loss: 0.5566 - val_acc: 0.7519
-Epoch 26/100
-100/100 [==============================] - 74s 736ms/step - loss: 0.4970 - acc: 0.7513 - val_loss: 0.5302 - val_acc: 0.7468
-Epoch 27/100
-100/100 [==============================] - 75s 750ms/step - loss: 0.5017 - acc: 0.7617 - val_loss: 0.7022 - val_acc: 0.7597
-Epoch 28/100
-100/100 [==============================] - 74s 740ms/step - loss: 0.4944 - acc: 0.7601 - val_loss: 0.5136 - val_acc: 0.7602
-Epoch 29/100
-100/100 [==============================] - 76s 760ms/step - loss: 0.4971 - acc: 0.7575 - val_loss: 0.5346 - val_acc: 0.7539
-Epoch 30/100
-100/100 [==============================] - 73s 732ms/step - loss: 0.4934 - acc: 0.7582 - val_loss: 0.5304 - val_acc: 0.7253
-Epoch 31/100
-100/100 [==============================] - 75s 746ms/step - loss: 0.4920 - acc: 0.7557 - val_loss: 0.5527 - val_acc: 0.7410
-Epoch 32/100
-100/100 [==============================] - 74s 736ms/step - loss: 0.4881 - acc: 0.7676 - val_loss: 0.4412 - val_acc: 0.7622
-Epoch 33/100
-100/100 [==============================] - 74s 741ms/step - loss: 0.4879 - acc: 0.7594 - val_loss: 0.4859 - val_acc: 0.7773
-Epoch 34/100
-100/100 [==============================] - 73s 731ms/step - loss: 0.4791 - acc: 0.7775 - val_loss: 0.5089 - val_acc: 0.7809
-Epoch 35/100
-100/100 [==============================] - 76s 762ms/step - loss: 0.4783 - acc: 0.7718 - val_loss: 0.4133 - val_acc: 0.7862
-Epoch 36/100
-100/100 [==============================] - 75s 750ms/step - loss: 0.4723 - acc: 0.7754 - val_loss: 0.7177 - val_acc: 0.7371
-Epoch 37/100
-100/100 [==============================] - 72s 722ms/step - loss: 0.4684 - acc: 0.7705 - val_loss: 0.2175 - val_acc: 0.8014
-Epoch 38/100
-100/100 [==============================] - 74s 743ms/step - loss: 0.4617 - acc: 0.7784 - val_loss: 0.5956 - val_acc: 0.7655
-Epoch 39/100
-100/100 [==============================] - 74s 743ms/step - loss: 0.4610 - acc: 0.7811 - val_loss: 0.4567 - val_acc: 0.7970
-Epoch 40/100
-100/100 [==============================] - 76s 756ms/step - loss: 0.4573 - acc: 0.7828 - val_loss: 0.6099 - val_acc: 0.7816
-Epoch 41/100
-100/100 [==============================] - 73s 732ms/step - loss: 0.4521 - acc: 0.7883 - val_loss: 0.5290 - val_acc: 0.7809
-Epoch 42/100
-100/100 [==============================] - 72s 722ms/step - loss: 0.4563 - acc: 0.7854 - val_loss: 0.5905 - val_acc: 0.7938
-Epoch 43/100
-100/100 [==============================] - 75s 752ms/step - loss: 0.4538 - acc: 0.7822 - val_loss: 0.3387 - val_acc: 0.7919
-Epoch 44/100
-100/100 [==============================] - 76s 758ms/step - loss: 0.4508 - acc: 0.7893 - val_loss: 0.3386 - val_acc: 0.7766
-Epoch 45/100
-100/100 [==============================] - 76s 764ms/step - loss: 0.4392 - acc: 0.7981 - val_loss: 0.4522 - val_acc: 0.7539
-Epoch 46/100
-100/100 [==============================] - 75s 750ms/step - loss: 0.4415 - acc: 0.7904 - val_loss: 0.4479 - val_acc: 0.8039
-Epoch 47/100
-100/100 [==============================] - 75s 746ms/step - loss: 0.4431 - acc: 0.7996 - val_loss: 0.6296 - val_acc: 0.8015
-Epoch 48/100
-100/100 [==============================] - 74s 735ms/step - loss: 0.4337 - acc: 0.7842 - val_loss: 0.7442 - val_acc: 0.7899
-Epoch 49/100
-100/100 [==============================] - 73s 728ms/step - loss: 0.4492 - acc: 0.7895 - val_loss: 0.3889 - val_acc: 0.8090
-Epoch 50/100
-100/100 [==============================] - 73s 734ms/step - loss: 0.4369 - acc: 0.8011 - val_loss: 0.3906 - val_acc: 0.7719
-Epoch 51/100
-100/100 [==============================] - 73s 728ms/step - loss: 0.4203 - acc: 0.8106 - val_loss: 0.3646 - val_acc: 0.7303
-Epoch 52/100
-100/100 [==============================] - 75s 754ms/step - loss: 0.4243 - acc: 0.8056 - val_loss: 0.3277 - val_acc: 0.7957
-Epoch 53/100
-100/100 [==============================] - 74s 736ms/step - loss: 0.4288 - acc: 0.7986 - val_loss: 0.3046 - val_acc: 0.8096
-Epoch 54/100
-100/100 [==============================] - 73s 734ms/step - loss: 0.4203 - acc: 0.8046 - val_loss: 0.1641 - val_acc: 0.8189
-Epoch 55/100
-100/100 [==============================] - 73s 732ms/step - loss: 0.4296 - acc: 0.8065 - val_loss: 0.4410 - val_acc: 0.7963
-Epoch 56/100
-100/100 [==============================] - 74s 736ms/step - loss: 0.4264 - acc: 0.8112 - val_loss: 0.7351 - val_acc: 0.7751
-Epoch 57/100
-100/100 [==============================] - 74s 742ms/step - loss: 0.4208 - acc: 0.8081 - val_loss: 0.4422 - val_acc: 0.7899
-Epoch 58/100
-100/100 [==============================] - 73s 731ms/step - loss: 0.4186 - acc: 0.8059 - val_loss: 0.3010 - val_acc: 0.8230
-Epoch 59/100
-100/100 [==============================] - 72s 724ms/step - loss: 0.4123 - acc: 0.8078 - val_loss: 0.2892 - val_acc: 0.8061
-Epoch 60/100
-100/100 [==============================] - 74s 736ms/step - loss: 0.4048 - acc: 0.8211 - val_loss: 0.4229 - val_acc: 0.8039
-Epoch 61/100
-100/100 [==============================] - 72s 724ms/step - loss: 0.4085 - acc: 0.8147 - val_loss: 0.6638 - val_acc: 0.7932
-Epoch 62/100
-100/100 [==============================] - 74s 736ms/step - loss: 0.3915 - acc: 0.8229 - val_loss: 0.4043 - val_acc: 0.7824
-Epoch 63/100
-100/100 [==============================] - 73s 725ms/step - loss: 0.4047 - acc: 0.8112 - val_loss: 0.3251 - val_acc: 0.8035
-Epoch 64/100
-100/100 [==============================] - 72s 722ms/step - loss: 0.3958 - acc: 0.8185 - val_loss: 0.1415 - val_acc: 0.8125
-Epoch 65/100
-100/100 [==============================] - 73s 730ms/step - loss: 0.4035 - acc: 0.8021 - val_loss: 0.4303 - val_acc: 0.8103
-Epoch 66/100
-100/100 [==============================] - 72s 719ms/step - loss: 0.3885 - acc: 0.8141 - val_loss: 0.6505 - val_acc: 0.8054
-Epoch 67/100
-100/100 [==============================] - 73s 729ms/step - loss: 0.4019 - acc: 0.8169 - val_loss: 0.3303 - val_acc: 0.8122
-Epoch 68/100
-100/100 [==============================] - 72s 720ms/step - loss: 0.4013 - acc: 0.8147 - val_loss: 0.4759 - val_acc: 0.8247
-Epoch 69/100
-100/100 [==============================] - 74s 743ms/step - loss: 0.3903 - acc: 0.8178 - val_loss: 0.5856 - val_acc: 0.8128
-Epoch 70/100
-100/100 [==============================] - 72s 724ms/step - loss: 0.3819 - acc: 0.8292 - val_loss: 0.5976 - val_acc: 0.8086
-Epoch 71/100
-100/100 [==============================] - 72s 722ms/step - loss: 0.3844 - acc: 0.8229 - val_loss: 0.1998 - val_acc: 0.8185
-Epoch 72/100
-100/100 [==============================] - 75s 746ms/step - loss: 0.3849 - acc: 0.8251 - val_loss: 0.3054 - val_acc: 0.8325
-Epoch 73/100
-100/100 [==============================] - 73s 731ms/step - loss: 0.3930 - acc: 0.8207 - val_loss: 0.5404 - val_acc: 0.8138
-Epoch 74/100
-100/100 [==============================] - 74s 735ms/step - loss: 0.3792 - acc: 0.8314 - val_loss: 0.7166 - val_acc: 0.7919
-Epoch 75/100
-100/100 [==============================] - 73s 729ms/step - loss: 0.3747 - acc: 0.8273 - val_loss: 0.3519 - val_acc: 0.8099
-Epoch 76/100
-100/100 [==============================] - 72s 717ms/step - loss: 0.3782 - acc: 0.8323 - val_loss: 0.3318 - val_acc: 0.8109
-Epoch 77/100
-100/100 [==============================] - 74s 741ms/step - loss: 0.3732 - acc: 0.8336 - val_loss: 0.4652 - val_acc: 0.8247
-Epoch 78/100
-100/100 [==============================] - 72s 720ms/step - loss: 0.3614 - acc: 0.8386 - val_loss: 0.4755 - val_acc: 0.8325
-Epoch 79/100
-100/100 [==============================] - 75s 747ms/step - loss: 0.3750 - acc: 0.8330 - val_loss: 0.2174 - val_acc: 0.8086
-Epoch 80/100
-100/100 [==============================] - 73s 727ms/step - loss: 0.3593 - acc: 0.8386 - val_loss: 0.1871 - val_acc: 0.8286
-Epoch 81/100
-100/100 [==============================] - 75s 754ms/step - loss: 0.3712 - acc: 0.8365 - val_loss: 0.2686 - val_acc: 0.8128
-Epoch 82/100
-100/100 [==============================] - 75s 746ms/step - loss: 0.3682 - acc: 0.8387 - val_loss: 0.3900 - val_acc: 0.8138
-Epoch 83/100
-100/100 [==============================] - 74s 737ms/step - loss: 0.3644 - acc: 0.8403 - val_loss: 0.3761 - val_acc: 0.8306
-Epoch 84/100
-100/100 [==============================] - 77s 766ms/step - loss: 0.3391 - acc: 0.8488 - val_loss: 0.3467 - val_acc: 0.8318
-Epoch 85/100
-100/100 [==============================] - 75s 752ms/step - loss: 0.3486 - acc: 0.8482 - val_loss: 0.3446 - val_acc: 0.8261
-Epoch 86/100
-100/100 [==============================] - 76s 757ms/step - loss: 0.3519 - acc: 0.8483 - val_loss: 0.7064 - val_acc: 0.8293
-Epoch 87/100
-100/100 [==============================] - 76s 764ms/step - loss: 0.3520 - acc: 0.8381 - val_loss: 0.4178 - val_acc: 0.8242
-Epoch 88/100
-100/100 [==============================] - 73s 728ms/step - loss: 0.3543 - acc: 0.8453 - val_loss: 0.2981 - val_acc: 0.8267
-Epoch 89/100
-100/100 [==============================] - 75s 752ms/step - loss: 0.3465 - acc: 0.8527 - val_loss: 0.4845 - val_acc: 0.8363
-Epoch 90/100
-100/100 [==============================] - 73s 729ms/step - loss: 0.3451 - acc: 0.8387 - val_loss: 0.3519 - val_acc: 0.8319
-Epoch 91/100
-100/100 [==============================] - 74s 739ms/step - loss: 0.3562 - acc: 0.8401 - val_loss: 0.3915 - val_acc: 0.8299
-Epoch 92/100
-100/100 [==============================] - 77s 773ms/step - loss: 0.3336 - acc: 0.8516 - val_loss: 0.3190 - val_acc: 0.8344
-Epoch 93/100
-100/100 [==============================] - 81s 813ms/step - loss: 0.3436 - acc: 0.8427 - val_loss: 0.5416 - val_acc: 0.7938
-Epoch 94/100
-100/100 [==============================] - 80s 800ms/step - loss: 0.3318 - acc: 0.8535 - val_loss: 0.3949 - val_acc: 0.7912
-Epoch 95/100
-100/100 [==============================] - 78s 780ms/step - loss: 0.3330 - acc: 0.8589 - val_loss: 0.4805 - val_acc: 0.8222
-Epoch 96/100
-100/100 [==============================] - 83s 827ms/step - loss: 0.3341 - acc: 0.8533 - val_loss: 0.2260 - val_acc: 0.8273
-Epoch 97/100
-100/100 [==============================] - 78s 783ms/step - loss: 0.3212 - acc: 0.8621 - val_loss: 0.4926 - val_acc: 0.8338
-Epoch 98/100
-100/100 [==============================] - 83s 829ms/step - loss: 0.3245 - acc: 0.8526 - val_loss: 0.5733 - val_acc: 0.8177
-Epoch 99/100
-100/100 [==============================] - 87s 872ms/step - loss: 0.3156 - acc: 0.8628 - val_loss: 0.5779 - val_acc: 0.8204
-Epoch 100/100
-100/100 [==============================] - 84s 843ms/step - loss: 0.3205 - acc: 0.8589 - val_loss: 0.5135 - val_acc: 0.8479
-</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 保存模型</span></span><br><span class="line">model.save(<span class="string">'model/ComputerVersion/cats_and_dogs_small_2.h5'</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 保存模型</span></span><br><span class="line">model.save(<span class="string">'model/ComputerVersion/cats_and_dogs_small_2.h5'</span>)</span><br></pre></td></tr></table></figure>
 <p>我们再次绘制结果，使用了数据增强和dropout 之后，模型不再过拟合：训练曲线紧紧跟随着验证曲线。现在的精度为82%，比未正则化的模型提高了15%（相对比例）。</p>
 <p>通过进一步使用正则化方法以及调节网络参数（比如每个卷积层的过滤器个数或网络中的层数），你可以得到更高的精度，可以达到86%或87%。但只靠从头开始训练自己的卷积神经网络，再想提高精度就十分困难，因为可用的数据太少。想要在这个问题上进一步提高精度，下一步需要使用预训练的模型，这是接下来两节的重点。</p>
 <h1 id="三、使用预训练的卷积神经网络"><a href="#三、使用预训练的卷积神经网络" class="headerlink" title="三、使用预训练的卷积神经网络"></a>三、使用预训练的卷积神经网络</h1><p>想要将深度学习应用于小型图像数据集，一种常用且非常高效的方法是使用预训练网络。预训练网络（pretrained network）是一个保存好的网络，之前已在大型数据集（通常是大规模图像分类任务）上训练好。如果这个原始数据集足够大且足够通用，那么预训练网络学到的特征的空间层次结构可以有效地作为视觉世界的通用模型，因此这些特征可用于各种不同的计算机视觉问题，即使这些新问题涉及的类别和原始任务完全不同。举个例子，你在ImageNet 上训练了一个网络（其类别主要是动物和日常用品），然后将这个训练好的网络应用于某个不相干的任务，比如在图像中识别家具。这种学到的特征在不同问题之间的可移植性，是深度学习与许多早期浅层学习方法相比的重要优势，它使得深度学习对小数据问题非常有效。</p>
@@ -776,68 +514,7 @@ Found 1000 images belonging to 2 classes.
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">train_features = np.reshape(train_features, (<span class="number">2000</span>, <span class="number">4</span> * <span class="number">4</span> * <span class="number">512</span>))</span><br><span class="line">validation_features = np.reshape(validation_features, (<span class="number">1000</span>, <span class="number">4</span> * <span class="number">4</span> * <span class="number">512</span>))</span><br><span class="line">test_features = np.reshape(test_features, (<span class="number">1000</span>, <span class="number">4</span> * <span class="number">4</span> * <span class="number">512</span>))</span><br></pre></td></tr></table></figure>
 <p>现在你可以定义你的密集连接分类器（注意要使用<code>dropout</code>正则化），并在刚刚保存的数据和标签上训练这个分类器。</p>
 <h3 id="定义并训练密集连接分类器"><a href="#定义并训练密集连接分类器" class="headerlink" title="定义并训练密集连接分类器"></a>定义并训练密集连接分类器</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> keras <span class="keyword">import</span> models</span><br><span class="line"><span class="keyword">from</span> keras <span class="keyword">import</span> layers</span><br><span class="line"><span class="keyword">from</span> keras <span class="keyword">import</span> optimizers</span><br><span class="line">model = models.Sequential()</span><br><span class="line">model.add(layers.Dense(<span class="number">256</span>, activation=<span class="string">'relu'</span>, input_dim=<span class="number">4</span> * <span class="number">4</span> * <span class="number">512</span>))</span><br><span class="line">model.add(layers.Dropout(<span class="number">0.5</span>))</span><br><span class="line">model.add(layers.Dense(<span class="number">1</span>, activation=<span class="string">'sigmoid'</span>))</span><br><span class="line">model.compile(optimizer=optimizers.RMSprop(lr=<span class="number">2e-5</span>),</span><br><span class="line">    loss=<span class="string">'binary_crossentropy'</span>,</span><br><span class="line">    metrics=[<span class="string">'acc'</span>])</span><br><span class="line">history = model.fit(train_features, train_labels,</span><br><span class="line">    epochs=<span class="number">30</span>,</span><br><span class="line">    batch_size=<span class="number">20</span>,</span><br><span class="line">    validation_data=(validation_features, validation_labels))</span><br></pre></td></tr></table></figure>
-<pre><code>Train on 2000 samples, validate on 1000 samples
-Epoch 1/30
-2000/2000 [==============================] - 4s 2ms/step - loss: 0.6064 - acc: 0.6600 - val_loss: 0.4430 - val_acc: 0.8350
-Epoch 2/30
-2000/2000 [==============================] - 3s 2ms/step - loss: 0.4158 - acc: 0.8210 - val_loss: 0.3588 - val_acc: 0.8610
-Epoch 3/30
-2000/2000 [==============================] - 3s 2ms/step - loss: 0.3449 - acc: 0.8585 - val_loss: 0.3250 - val_acc: 0.8770
-Epoch 4/30
-2000/2000 [==============================] - 4s 2ms/step - loss: 0.3145 - acc: 0.8645 - val_loss: 0.3024 - val_acc: 0.8840
-Epoch 5/30
-2000/2000 [==============================] - 3s 2ms/step - loss: 0.2900 - acc: 0.8800 - val_loss: 0.2865 - val_acc: 0.8910
-Epoch 6/30
-2000/2000 [==============================] - 3s 2ms/step - loss: 0.2563 - acc: 0.8995 - val_loss: 0.2808 - val_acc: 0.8860
-Epoch 7/30
-2000/2000 [==============================] - 3s 2ms/step - loss: 0.2441 - acc: 0.9035 - val_loss: 0.2654 - val_acc: 0.8950
-Epoch 8/30
-2000/2000 [==============================] - 3s 2ms/step - loss: 0.2302 - acc: 0.9185 - val_loss: 0.2627 - val_acc: 0.8950
-Epoch 9/30
-2000/2000 [==============================] - 3s 2ms/step - loss: 0.2226 - acc: 0.9095 - val_loss: 0.2599 - val_acc: 0.8930
-Epoch 10/30
-2000/2000 [==============================] - 3s 2ms/step - loss: 0.1979 - acc: 0.9275 - val_loss: 0.2521 - val_acc: 0.9010
-Epoch 11/30
-2000/2000 [==============================] - 3s 2ms/step - loss: 0.1949 - acc: 0.9305 - val_loss: 0.2537 - val_acc: 0.8940
-Epoch 12/30
-2000/2000 [==============================] - 3s 2ms/step - loss: 0.1872 - acc: 0.9390 - val_loss: 0.2518 - val_acc: 0.8990
-Epoch 13/30
-2000/2000 [==============================] - 3s 2ms/step - loss: 0.1781 - acc: 0.9275 - val_loss: 0.2451 - val_acc: 0.8980
-Epoch 14/30
-2000/2000 [==============================] - 3s 2ms/step - loss: 0.1662 - acc: 0.9430 - val_loss: 0.2477 - val_acc: 0.9060
-Epoch 15/30
-2000/2000 [==============================] - 3s 2ms/step - loss: 0.1632 - acc: 0.9450 - val_loss: 0.2449 - val_acc: 0.8980
-Epoch 16/30
-2000/2000 [==============================] - 3s 2ms/step - loss: 0.1530 - acc: 0.9480 - val_loss: 0.2389 - val_acc: 0.9030
-Epoch 17/30
-2000/2000 [==============================] - 3s 2ms/step - loss: 0.1477 - acc: 0.9465 - val_loss: 0.2454 - val_acc: 0.9010
-Epoch 18/30
-2000/2000 [==============================] - 3s 2ms/step - loss: 0.1434 - acc: 0.9525 - val_loss: 0.2463 - val_acc: 0.8990
-Epoch 19/30
-2000/2000 [==============================] - 3s 2ms/step - loss: 0.1346 - acc: 0.9550 - val_loss: 0.2390 - val_acc: 0.9020
-Epoch 20/30
-2000/2000 [==============================] - 3s 2ms/step - loss: 0.1305 - acc: 0.9595 - val_loss: 0.2374 - val_acc: 0.9000
-Epoch 21/30
-2000/2000 [==============================] - 3s 2ms/step - loss: 0.1216 - acc: 0.9630 - val_loss: 0.2430 - val_acc: 0.9000
-Epoch 22/30
-2000/2000 [==============================] - 3s 2ms/step - loss: 0.1166 - acc: 0.9625 - val_loss: 0.2381 - val_acc: 0.9030
-Epoch 23/30
-2000/2000 [==============================] - 4s 2ms/step - loss: 0.1103 - acc: 0.9685 - val_loss: 0.2373 - val_acc: 0.9030
-Epoch 24/30
-2000/2000 [==============================] - 3s 2ms/step - loss: 0.1112 - acc: 0.9635 - val_loss: 0.2460 - val_acc: 0.9020
-Epoch 25/30
-2000/2000 [==============================] - 4s 2ms/step - loss: 0.1067 - acc: 0.9675 - val_loss: 0.2380 - val_acc: 0.8990
-Epoch 26/30
-2000/2000 [==============================] - 3s 2ms/step - loss: 0.1004 - acc: 0.9695 - val_loss: 0.2378 - val_acc: 0.9000
-Epoch 27/30
-2000/2000 [==============================] - 4s 2ms/step - loss: 0.0994 - acc: 0.9680 - val_loss: 0.2450 - val_acc: 0.9030
-Epoch 28/30
-2000/2000 [==============================] - 3s 2ms/step - loss: 0.0947 - acc: 0.9710 - val_loss: 0.2396 - val_acc: 0.9010
-Epoch 29/30
-2000/2000 [==============================] - 3s 2ms/step - loss: 0.0870 - acc: 0.9770 - val_loss: 0.2416 - val_acc: 0.9020
-Epoch 30/30
-2000/2000 [==============================] - 3s 2ms/step - loss: 0.0870 - acc: 0.9730 - val_loss: 0.2473 - val_acc: 0.9010
-</code></pre><p>训练速度非常快，因为你只需处理两个Dense 层。我们来看一下训练期间的损失曲线和精度曲线：</p>
+<p>训练速度非常快，因为你只需处理两个<code>Dense</code>层。我们来看一下训练期间的损失曲线和精度曲线：</p>
 <h3 id="绘制结果"><a href="#绘制结果" class="headerlink" title="绘制结果"></a>绘制结果</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line">acc = history.history[<span class="string">'acc'</span>]</span><br><span class="line">val_acc = history.history[<span class="string">'val_acc'</span>]</span><br><span class="line">loss = history.history[<span class="string">'loss'</span>]</span><br><span class="line">val_loss = history.history[<span class="string">'val_loss'</span>]</span><br><span class="line"></span><br><span class="line">epochs = range(<span class="number">1</span>, len(acc) + <span class="number">1</span>)</span><br><span class="line">plt.plot(epochs, acc, <span class="string">'bo'</span>, label=<span class="string">'Training acc'</span>)</span><br><span class="line">plt.plot(epochs, val_acc, <span class="string">'b'</span>, label=<span class="string">'Validation acc'</span>)</span><br><span class="line">plt.title(<span class="string">'Training and validation accuracy'</span>)</span><br><span class="line">plt.legend()</span><br><span class="line">plt.figure()</span><br><span class="line">plt.plot(epochs, loss, <span class="string">'bo'</span>, label=<span class="string">'Training loss'</span>)</span><br><span class="line">plt.plot(epochs, val_loss, <span class="string">'b'</span>, label=<span class="string">'Validation loss'</span>)</span><br><span class="line">plt.title(<span class="string">'Training and validation loss'</span>)</span><br><span class="line">plt.legend()</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
 <center>
     <img src="\Pic\DeepLearning_Pic\output_51_0.png" width="400" height="400" alt="训练损失和验证损失" align="center">
@@ -896,67 +573,7 @@ This is the number of trainable weights after freezing the conv base: 4
 <pre><code>Found 2000 images belonging to 2 classes.
 Found 1000 images belonging to 2 classes.
 </code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">history = model.fit_generator(</span><br><span class="line">    train_generator,</span><br><span class="line">    steps_per_epoch=<span class="number">100</span>,</span><br><span class="line">    epochs=<span class="number">30</span>,</span><br><span class="line">    validation_data=validation_generator,</span><br><span class="line">    validation_steps=<span class="number">50</span>)</span><br></pre></td></tr></table></figure>
-<pre><code>Epoch 1/30
-100/100 [==============================] - 154s 2s/step - loss: 0.3479 - acc: 0.8495 - val_loss: 0.1390 - val_acc: 0.8900
-Epoch 2/30
-100/100 [==============================] - 165s 2s/step - loss: 0.3448 - acc: 0.8560 - val_loss: 0.2075 - val_acc: 0.9010
-Epoch 3/30
-100/100 [==============================] - 178s 2s/step - loss: 0.3488 - acc: 0.8435 - val_loss: 0.2230 - val_acc: 0.9020
-Epoch 4/30
-100/100 [==============================] - 176s 2s/step - loss: 0.3232 - acc: 0.8555 - val_loss: 0.1981 - val_acc: 0.9030
-Epoch 5/30
-100/100 [==============================] - 166s 2s/step - loss: 0.3177 - acc: 0.8700 - val_loss: 0.3433 - val_acc: 0.8960
-Epoch 6/30
-100/100 [==============================] - 166s 2s/step - loss: 0.3232 - acc: 0.8630 - val_loss: 0.3095 - val_acc: 0.8990
-Epoch 7/30
-100/100 [==============================] - 170s 2s/step - loss: 0.3226 - acc: 0.8575 - val_loss: 0.1717 - val_acc: 0.9000
-Epoch 8/30
-100/100 [==============================] - 166s 2s/step - loss: 0.2967 - acc: 0.8735 - val_loss: 0.1980 - val_acc: 0.9020
-Epoch 9/30
-100/100 [==============================] - 165s 2s/step - loss: 0.3155 - acc: 0.8650 - val_loss: 0.5357 - val_acc: 0.8940
-Epoch 10/30
-100/100 [==============================] - 164s 2s/step - loss: 0.3109 - acc: 0.8570 - val_loss: 0.1268 - val_acc: 0.9020
-Epoch 11/30
-100/100 [==============================] - 164s 2s/step - loss: 0.3071 - acc: 0.8620 - val_loss: 0.4099 - val_acc: 0.8990
-Epoch 12/30
-100/100 [==============================] - 167s 2s/step - loss: 0.3166 - acc: 0.8585 - val_loss: 0.1766 - val_acc: 0.9000
-Epoch 13/30
-100/100 [==============================] - 163s 2s/step - loss: 0.2989 - acc: 0.8740 - val_loss: 0.1520 - val_acc: 0.9050
-Epoch 14/30
-100/100 [==============================] - 163s 2s/step - loss: 0.2943 - acc: 0.8730 - val_loss: 0.2935 - val_acc: 0.9010
-Epoch 15/30
-100/100 [==============================] - 163s 2s/step - loss: 0.2965 - acc: 0.8730 - val_loss: 0.5893 - val_acc: 0.9000
-Epoch 16/30
-100/100 [==============================] - 164s 2s/step - loss: 0.2848 - acc: 0.8775 - val_loss: 0.1792 - val_acc: 0.9070
-Epoch 17/30
-100/100 [==============================] - 166s 2s/step - loss: 0.2841 - acc: 0.8810 - val_loss: 0.2951 - val_acc: 0.9040
-Epoch 18/30
-100/100 [==============================] - 165s 2s/step - loss: 0.3002 - acc: 0.8650 - val_loss: 0.2552 - val_acc: 0.9030
-Epoch 19/30
-100/100 [==============================] - 165s 2s/step - loss: 0.3013 - acc: 0.8690 - val_loss: 0.4531 - val_acc: 0.8970
-Epoch 20/30
-100/100 [==============================] - 164s 2s/step - loss: 0.2898 - acc: 0.8750 - val_loss: 0.2342 - val_acc: 0.9070
-Epoch 21/30
-100/100 [==============================] - 165s 2s/step - loss: 0.2806 - acc: 0.8815 - val_loss: 0.2162 - val_acc: 0.9050
-Epoch 22/30
-100/100 [==============================] - 165s 2s/step - loss: 0.2854 - acc: 0.8750 - val_loss: 0.3686 - val_acc: 0.9040
-Epoch 23/30
-100/100 [==============================] - 165s 2s/step - loss: 0.2948 - acc: 0.8635 - val_loss: 0.2450 - val_acc: 0.9110
-Epoch 24/30
-100/100 [==============================] - 175s 2s/step - loss: 0.2738 - acc: 0.8790 - val_loss: 0.1684 - val_acc: 0.9100
-Epoch 25/30
-100/100 [==============================] - 170s 2s/step - loss: 0.2792 - acc: 0.8765 - val_loss: 0.1878 - val_acc: 0.9080
-Epoch 26/30
-100/100 [==============================] - 167s 2s/step - loss: 0.2687 - acc: 0.8855 - val_loss: 0.3175 - val_acc: 0.9080
-Epoch 27/30
-100/100 [==============================] - 172s 2s/step - loss: 0.2655 - acc: 0.8930 - val_loss: 0.1548 - val_acc: 0.9090
-Epoch 28/30
-100/100 [==============================] - 179s 2s/step - loss: 0.2628 - acc: 0.8910 - val_loss: 0.1822 - val_acc: 0.9020
-Epoch 29/30
-100/100 [==============================] - 177s 2s/step - loss: 0.2766 - acc: 0.8720 - val_loss: 0.2272 - val_acc: 0.9110
-Epoch 30/30
-100/100 [==============================] - 176s 2s/step - loss: 0.2676 - acc: 0.8815 - val_loss: 0.1242 - val_acc: 0.9120
-</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">model.save(<span class="string">'model/ComputerVersion/cats_and_dogs_small_dataEnforcementFeatureExtraction.h5'</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">model.save(<span class="string">'model/ComputerVersion/cats_and_dogs_small_dataEnforcementFeatureExtraction.h5'</span>)</span><br></pre></td></tr></table></figure>
 <p>如你所见，这比从头开始训练的小型卷积神经网络要好得多。</p>
 <h2 id="4-微调模型"><a href="#4-微调模型" class="headerlink" title="4. 微调模型"></a>4. 微调模型</h2><p>另一种广泛使用的模型复用方法是模型微调（fine-tuning），与特征提取互为补充。对于用于特征提取的冻结的模型基，微调是指将其顶部的几层“解冻”，并将这解冻的几层和新增加的部分（本例中是全连接分类器）联合训练。之所以叫作微调，是因为它只是略微调整了所复用模型中更加抽象的表示，以便让这些表示与手头的问题更加相关。</p>
 <center>
@@ -1329,9 +946,8 @@ Predicted: [(&#39;n02504458&#39;, &#39;African_elephant&#39;, 0.87728226), (&#39
 <li>印度象（Indian elephant，0.54599163%的概率）</li>
 </ul>
 <p>网络识别出图像中包含数量不确定的非洲象。预测向量中被最大激活的元素是对应“非洲象”类别的元素，索引编号为386。</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">np.argmax(preds[<span class="number">0</span>])</span><br></pre></td></tr></table></figure>
-<pre><code>386
-</code></pre><p>为了展示图像中哪些部分最像非洲象，我们来使用<code>Grad-CAM</code>算法。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">np.argmax(preds[<span class="number">0</span>])</span><br><span class="line">    <span class="comment"># 386</span></span><br></pre></td></tr></table></figure>
+<p>为了展示图像中哪些部分最像非洲象，我们来使用<code>Grad-CAM</code>算法。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">african_elephant_output = model.output[:, <span class="number">386</span>]</span><br><span class="line">last_conv_layer = model.get_layer(<span class="string">'block5_conv3'</span>)</span><br><span class="line">grads = K.gradients(african_elephant_output, last_conv_layer.output)[<span class="number">0</span>]</span><br><span class="line">pooled_grads = K.mean(grads, axis=(<span class="number">0</span>, <span class="number">1</span>, <span class="number">2</span>))</span><br><span class="line">iterate = K.function([model.input],[pooled_grads, last_conv_layer.output[<span class="number">0</span>]])</span><br><span class="line">pooled_grads_value, conv_layer_output_value = iterate([x])</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">512</span>):</span><br><span class="line">    conv_layer_output_value[:, :, i] *= pooled_grads_value[i]</span><br><span class="line">heatmap = np.mean(conv_layer_output_value, axis=<span class="number">-1</span>)</span><br></pre></td></tr></table></figure>
 <p>为了便于可视化，我们还需要将热力图标准化到<code>0~1</code>范围内。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">heatmap = np.maximum(heatmap, <span class="number">0</span>)</span><br><span class="line">heatmap /= np.max(heatmap)</span><br><span class="line">plt.matshow(heatmap)</span><br></pre></td></tr></table></figure>
@@ -1347,11 +963,9 @@ Predicted: [(&#39;n02504458&#39;, &#39;African_elephant&#39;, 0.87728226), (&#39
 
 
 <p>最后，我们可以用OpenCV 来生成一张图像，将原始图像叠加在刚刚得到的热力图上</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line">img = cv2.imread(img_path)</span><br><span class="line">heatmap = cv2.resize(heatmap, (img.shape[<span class="number">1</span>], img.shape[<span class="number">0</span>]))</span><br><span class="line">heatmap = np.uint8(<span class="number">255</span> * heatmap)</span><br><span class="line">heatmap = cv2.applyColorMap(heatmap, cv2.COLORMAP_JET)</span><br><span class="line">superimposed_img = heatmap * <span class="number">0.4</span> + img</span><br><span class="line">cv2.imwrite(<span class="string">'data/pic_output/elephant_cam.jpg'</span>, superimposed_img)</span><br></pre></td></tr></table></figure>
-<pre><code>True
-</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cv2.imshow(<span class="string">'合并后的图像'</span>, superimposed_img)</span><br><span class="line">cv2.waitKey(<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
-<pre><code>-1
-</code></pre><h1 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h1><ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> cv2</span><br><span class="line">img = cv2.imread(img_path)</span><br><span class="line">heatmap = cv2.resize(heatmap, (img.shape[<span class="number">1</span>], img.shape[<span class="number">0</span>]))</span><br><span class="line">heatmap = np.uint8(<span class="number">255</span> * heatmap)</span><br><span class="line">heatmap = cv2.applyColorMap(heatmap, cv2.COLORMAP_JET)</span><br><span class="line">superimposed_img = heatmap * <span class="number">0.4</span> + img</span><br><span class="line">cv2.imwrite(<span class="string">'data/pic_output/elephant_cam.jpg'</span>, superimposed_img)</span><br><span class="line">    <span class="comment"># True</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cv2.imshow(<span class="string">'合并后的图像'</span>, superimposed_img)</span><br><span class="line">cv2.waitKey(<span class="number">0</span>) </span><br><span class="line">    <span class="comment"># -1</span></span><br></pre></td></tr></table></figure>
+<h1 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h1><ul>
 <li>卷积神经网络是解决视觉分类问题的最佳工具。</li>
 <li>卷积神经网络通过学习模块化模式和概念的层次结构来表示视觉世界。</li>
 <li>卷积神经网络学到的表示很容易可视化，卷积神经网络不是黑盒。</li>
@@ -1432,6 +1046,15 @@ Predicted: [(&#39;n02504458&#39;, &#39;African_elephant&#39;, 0.87728226), (&#39
 
    
   <nav class="article-nav">
+    
+      <a href="/posts/a98b7769.html" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Python深度学习（三）深度学习用于文本和序列
+          
+        </div>
+      </a>
     
     
       <a href="/posts/d8ee3b71.html" class="article-nav-link">

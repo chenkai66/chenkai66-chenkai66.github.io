@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    Python深度学习（三）深度学习用于文本和序列 |  言念君子
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      
+      <canvas width="1777" height="841"
+        style="position: fixed; left: 0px; top: 0px; z-index: 99999; pointer-events: none;"></canvas>
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Python深度学习（三）深度学习用于文本和序列"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Python深度学习（三）深度学习用于文本和序列
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/posts/a98b7769.html" class="article-date">
+  <time datetime="2021-04-06T08:27:01.204Z" itemprop="datePublished">2021-04-06</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/DeepLearning/">DeepLearning</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">20.5k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">81 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>本节将介绍使用深度学习模型处理文本（可以将其理解为单词序列或字符序列）、时间序列和一般的序列数据。用于处理序列的两种基本的深度学习算法分别是循环神经网络（recurrent neural network）和一维卷积神经网络（1D convnet），后者是二维卷积神经网络的一维版本。下面将讨论这两种方法。<br>这些算法的应用包括：</p>
+<ul>
+<li>文档分类和时间序列分类，比如识别文章的主题或书的作者；</li>
+<li>时间序列对比，比如估测两个文档或两支股票行情的相关程度；</li>
+<li>序列到序列的学习，比如将英语翻译成法语；</li>
+<li>情感分析，比如将推文或电影评论的情感划分为正面或负面；</li>
+<li>时间序列预测，比如根据某地最近的天气数据来预测未来天气。</li>
+</ul>
+<p>本节的示例重点讨论两个小任务：一个是IMDB数据集的情感分析，这个任务前面介绍过；另一个是温度预测。但这两个任务中所使用的技术可以应用于上面列出来的所有应用。</p>
+<h1 id="一、处理文本数据"><a href="#一、处理文本数据" class="headerlink" title="一、处理文本数据"></a>一、处理文本数据</h1><p>文本是最常用的序列数据之一，可以理解为字符序列或单词序列，但最常见的是单词级处理。后面几节介绍的深度学习序列处理模型都可以根据文本生成基本形式的自然语言理解，并可用于文档分类、情感分析、作者识别甚至问答（QA，在有限的语境下）等应用。当然，请记住，这些深度学习模型都没有像人类一样真正地理解文本，而只是映射出书面语言的统计结构，但这足以解决许多简单的文本任务。深度学习用于自然语言处理是将模式识别应用于单词、句子和段落，这与计算机视觉是将模式识别应用于像素大致相同。</p>
+<p>与其他所有神经网络一样，深度学习模型不会接收原始文本作为输入，它只能处理数值张量。文本<strong>向量化</strong>（vectorize）是指将文本转换为数值张量的过程。它有多种实现方法。</p>
+<ul>
+<li>将文本分割为单词，并将每个单词转换为一个向量。</li>
+<li>将文本分割为字符，并将每个字符转换为一个向量。</li>
+<li>提取单词或字符的<code>n-gram</code>，并将每个<code>n-gram</code>转换为一个向量。<code>n-gram</code>是多个连续单词或字符的集合（<code>n-gram</code>之间可重叠）。</li>
+</ul>
+<p>将文本分解而成的单元（单词、字符或<code>n-gram</code>）叫作标记（token），将文本分解成标记的过程叫作分词（tokenization）。所有文本向量化过程都是应用某种分词方案，然后将数值向量与生成的标记相关联。这些向量组合成序列张量，被输入到深度神经网络中。将向量与标记相关联的方法有很多种。本节将介绍两种主要方法：对标记做<code>one-hot</code>编码（one-hot encoding）与标记嵌入［token embedding，通常只用于单词，叫作词嵌入（word embedding）］。<br>本节剩余内容将解释这些方法，并介绍如何使用这些方法，将原始文本转换为可以输入到<code>Keras</code>网络中的<code>Numpy</code>张量。</p>
+<center>
+    <img src="\Pic\DeepLearning_Pic\从文本到标记再到向量.png" width="300" height="300" alt="从文本到标记再到向量" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">从文本到标记再到向量</div>
+</center>
+
+<h2 id="1-单词和字符的one-hot-编码"><a href="#1-单词和字符的one-hot-编码" class="headerlink" title="1. 单词和字符的one-hot 编码"></a>1. 单词和字符的one-hot 编码</h2><p>one-hot编码是将标记转换为向量的最常用、最基本的方法。在IMDB和路透社两个例子中，你已经用过这种方法（都是处理单词）。它将每个单词与一个唯一的整数索引相关联，然后将这个整数索引 $i$ 转换为长度为 $N$ 的二进制向量（$N$ 是词表大小），这个向量只有第 $i$ 个元素是1，其余元素都为0。<br>当然，也可以进行字符级的one-hot编码。为了让你完全理解什么是<code>one-hot</code>编码以及如何实现<code>one-hot</code>编码，下面给出了两个简单示例，一个是单词级的<code>one-hot</code>编码，另一个是字符级的<code>one-hot</code>编码。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 单词级的one-hot 编码（简单示例）</span></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">samples = [<span class="string">'The cat sat on the mat.'</span>, <span class="string">'The dog ate my homework.'</span>]</span><br><span class="line">token_index = &#123;&#125;</span><br><span class="line"><span class="keyword">for</span> sample <span class="keyword">in</span> samples:</span><br><span class="line">    <span class="keyword">for</span> word <span class="keyword">in</span> sample.split():</span><br><span class="line">        <span class="keyword">if</span> word <span class="keyword">not</span> <span class="keyword">in</span> token_index:</span><br><span class="line">            token_index[word] = len(token_index) + <span class="number">1</span></span><br><span class="line">max_length = <span class="number">10</span></span><br><span class="line">results = np.zeros(shape=(len(samples),max_length,max(token_index.values()) + <span class="number">1</span>))</span><br><span class="line"><span class="keyword">for</span> i, sample <span class="keyword">in</span> enumerate(samples):</span><br><span class="line">    <span class="keyword">for</span> j, word <span class="keyword">in</span> list(enumerate(sample.split()))[:max_length]:</span><br><span class="line">        index = token_index.get(word)</span><br><span class="line">        results[i, j, index] = <span class="number">1.</span></span><br></pre></td></tr></table></figure>
+<pre><code>array([[[0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+        [0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
+        [0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0.],
+        [0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0.],
+        [0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0.],
+        [0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0.],
+        [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+        [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+        [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+        [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]],
+
+       [[0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+        [0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0.],
+        [0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0.],
+        [0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0.],
+        [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1.],
+        [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+        [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+        [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+        [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+        [0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]]])
+</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 字符级的one-hot 编码（简单示例）</span></span><br><span class="line"><span class="keyword">import</span> string</span><br><span class="line">samples = [<span class="string">'The cat sat on the mat.'</span>, <span class="string">'The dog ate my homework.'</span>]</span><br><span class="line">characters = string.printable</span><br><span class="line">token_index = dict(zip(range(<span class="number">1</span>, len(characters) + <span class="number">1</span>), characters))</span><br><span class="line">max_length = <span class="number">50</span></span><br><span class="line">results = np.zeros((len(samples), max_length, max(token_index.keys()) + <span class="number">1</span>))</span><br><span class="line"><span class="keyword">for</span> i, sample <span class="keyword">in</span> enumerate(samples):</span><br><span class="line">    <span class="keyword">for</span> j, character <span class="keyword">in</span> enumerate(sample):</span><br><span class="line">        index = token_index.get(character)</span><br><span class="line">        results[i, j, index] = <span class="number">1.</span></span><br></pre></td></tr></table></figure>
+<pre><code>array([[[1., 1., 1., ..., 1., 1., 1.],
+        [1., 1., 1., ..., 1., 1., 1.],
+        [1., 1., 1., ..., 1., 1., 1.],
+        ...,
+        [0., 0., 0., ..., 0., 0., 0.],
+        [0., 0., 0., ..., 0., 0., 0.],
+        [0., 0., 0., ..., 0., 0., 0.]],
+
+       [[1., 1., 1., ..., 1., 1., 1.],
+        [1., 1., 1., ..., 1., 1., 1.],
+        [1., 1., 1., ..., 1., 1., 1.],
+        ...,
+        [0., 0., 0., ..., 0., 0., 0.],
+        [0., 0., 0., ..., 0., 0., 0.],
+        [0., 0., 0., ..., 0., 0., 0.]]])
+</code></pre><p>注意，Keras 的内置函数可以对原始文本数据进行单词级或字符级的<code>one-hot</code>编码。你应该使用这些函数，因为它们实现了许多重要的特性，比如从字符串中去除特殊字符、只考虑数据集中前 $N$ 个最常见的单词（这是一种常用的限制，以避免处理非常大的输入向量空间）。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 用Keras实现单词级的one-hot编码</span></span><br><span class="line"><span class="keyword">from</span> keras.preprocessing.text <span class="keyword">import</span> Tokenizer</span><br><span class="line">samples = [<span class="string">'The cat sat on the mat.'</span>, <span class="string">'The dog ate my homework.'</span>]</span><br><span class="line">tokenizer = Tokenizer(num_words=<span class="number">1000</span>)</span><br><span class="line">tokenizer.fit_on_texts(samples)</span><br><span class="line">sequences = tokenizer.texts_to_sequences(samples)</span><br><span class="line">one_hot_results = tokenizer.texts_to_matrix(samples, mode=<span class="string">'binary'</span>)</span><br><span class="line">word_index = tokenizer.word_index</span><br><span class="line">print(<span class="string">'Found %s unique tokens.'</span> % len(word_index))</span><br></pre></td></tr></table></figure>
+<p>one-hot 编码的一种变体是所谓的one-hot散列技巧（one-hot hashing trick），如果词表中唯一标记的数量太大而无法直接处理，就可以使用这种技巧。这种方法没有为每个单词显式分配一个索引并将这些索引保存在一个字典中，而是将单词散列编码为固定长度的向量，通常用一个非常简单的散列函数来实现。这种方法的主要优点在于，它避免了维护一个显式的单词索引，从而节省内存并允许数据的在线编码（在读取完所有数据之前，你就可以立刻生成标记向量）。</p>
+<p>这种方法有一个缺点，就是可能会出现散列冲突（hash collision），即两个不同的单词可能具有相同的散列值，随后任何机器学习模型观察这些散列值，都无法区分它们所对应的单词。如果散列空间的维度远大于需要散列的唯一标记的个数，散列冲突的可能性会减小。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用散列技巧的单词级的one-hot编码（简单示例）</span></span><br><span class="line">samples = [<span class="string">'The cat sat on the mat.'</span>, <span class="string">'The dog ate my homework.'</span>]</span><br><span class="line">dimensionality = <span class="number">1000</span></span><br><span class="line">max_length = <span class="number">10</span></span><br><span class="line">results = np.zeros((len(samples), max_length, dimensionality))</span><br><span class="line"><span class="keyword">for</span> i, sample <span class="keyword">in</span> enumerate(samples):</span><br><span class="line">    <span class="keyword">for</span> j, word <span class="keyword">in</span> list(enumerate(sample.split()))[:max_length]:</span><br><span class="line">        index = abs(hash(word)) % dimensionality</span><br><span class="line">        results[i, j, index] = <span class="number">1.</span></span><br></pre></td></tr></table></figure>
+<pre><code>array([[[0., 0., 0., ..., 0., 0., 0.],
+        [0., 0., 0., ..., 0., 0., 0.],
+        [0., 0., 0., ..., 0., 0., 0.],
+        ...,
+        [0., 0., 0., ..., 0., 0., 0.],
+        [0., 0., 0., ..., 0., 0., 0.],
+        [0., 0., 0., ..., 0., 0., 0.]],
+
+       [[0., 0., 0., ..., 0., 0., 0.],
+        [0., 0., 0., ..., 0., 0., 0.],
+        [0., 0., 0., ..., 0., 0., 0.],
+        ...,
+        [0., 0., 0., ..., 0., 0., 0.],
+        [0., 0., 0., ..., 0., 0., 0.],
+        [0., 0., 0., ..., 0., 0., 0.]]])
+</code></pre><h2 id="2-使用词嵌入"><a href="#2-使用词嵌入" class="headerlink" title="2. 使用词嵌入"></a>2. 使用词嵌入</h2><p>将单词与向量相关联还有另一种常用的强大方法，就是使用密集的词向量（word vector），也叫词嵌入（word embedding）。one-hot 编码得到的向量是二进制的、稀疏的（绝大部分元素都是0）、维度很高的（维度大小等于词表中的单词个数），而词嵌入是低维的浮点数向量（即密集向量，与稀疏向量相对）。与one-hot 编码得到的词向量不同，词嵌入是从数据中学习得到的。常见的词向量维度是256、512 或1024（处理非常大的词表时）。与此相对，onehot编码的词向量维度通常为20 000 或更高（对应包含20 000 个标记的词表）。因此，词向量可以将更多的信息塞入更低的维度中。</p>
+<center>
+    <img src="\Pic\DeepLearning_Pic\encoding_1.png" width="300" height="300" alt="one-hot 编码或one-hot 散列得到的词表示是稀疏的、高维的、硬编码的，
+而词嵌入是密集的、相对低维的，而且是从数据中学习得到的" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">one-hot 编码或one-hot 散列得到的词表示是稀疏的、高维的、硬编码的，
+而词嵌入是密集的、相对低维的，而且是从数据中学习得到的</div>
+</center>
+
+<p>获取词嵌入有两种方法。</p>
+<ul>
+<li>在完成主任务（比如文档分类或情感预测）的同时学习词嵌入。在这种情况下，一开始是随机的词向量，然后对这些词向量进行学习，其学习方式与学习神经网络的权重相同</li>
+<li>在不同于待解决问题的机器学习任务上预计算好词嵌入，然后将其加载到模型中。这些词嵌入叫作预训练词嵌入（pretrained word embedding）</li>
+</ul>
+<p><strong>1. 利用Embedding 层学习词嵌入</strong></p>
+<p>要将一个词与一个密集向量相关联，最简单的方法就是随机选择向量。这种方法的问题在于，得到的嵌入空间没有任何结构。例如，accurate 和exact 两个词的嵌入可能完全不同，尽管它们在大多数句子里都是可以互换的。深度神经网络很难对这种杂乱的、非结构化的嵌入空间进行学习。</p>
+<p>说得更抽象一点，词向量之间的几何关系应该表示这些词之间的语义关系。词嵌入的作用应该是将人类的语言映射到几何空间中。例如，在一个合理的嵌入空间中，同义词应该被嵌入到相似的词向量中，一般来说，任意两个词向量之间的几何距离（比如L2 距离）应该和这两个词的语义距离有关（表示不同事物的词被嵌入到相隔很远的点，而相关的词则更加靠近）。除了距离，你可能还希望嵌入空间中的特定方向也是有意义的。为了更清楚地说明这一点，我们来看一个具体示例。</p>
+<p>在下图中，四个词被嵌入在二维平面上，这四个词分别是cat（猫）、dog（狗）、wolf（狼）和tiger（虎）。对于我们这里选择的向量表示，这些词之间的某些语义关系可以被编码为几何变换。例如，从cat 到tiger 的向量与从dog 到wolf 的向量相等，这个向量可以被解释为“从宠物到野生动物”向量。同样，从dog 到cat 的向量与从wolf 到tiger 的向量也相等，它可以被解释为“从犬科到猫科”向量。</p>
+<center>
+    <img src="\Pic\DeepLearning_Pic\encoding_2.png" width="200" height="200" alt="词嵌入空间的简单示例" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">词嵌入空间的简单示例</div>
+</center>
+
+<p>在真实的词嵌入空间中，常见的有意义的几何变换的例子包括“性别”向量和“复数”向量。例如，将king（国王）向量加上female（女性）向量，得到的是queen（女王）向量。将king（国王）向量加上plural（复数）向量，得到的是kings 向量。词嵌入空间通常具有几千个这种可解释的、并且可能很有用的向量。</p>
+<p>有没有一个理想的词嵌入空间，可以完美地映射人类语言，并可用于所有自然语言处理任务？可能有，但我们尚未发现。此外，也不存在人类语言（human language）这种东西。世界上有许多种不同的语言，而且它们不是同构的，因为语言是特定文化和特定环境的反射。但从更实际的角度来说，一个好的词嵌入空间在很大程度上取决于你的任务。英语电影评论情感分析模型的完美词嵌入空间，可能不同于英语法律文档分类模型的完美词嵌入空间，因为某些语义关系的重要性因任务而异。</p>
+<p>因此，合理的做法是对每个新任务都学习一个新的嵌入空间。幸运的是，反向传播让这种学习变得很简单，而Keras 使其变得更简单。我们要做的就是学习一个层的权重，这个层就是Embedding 层。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 将一个Embedding 层实例化</span></span><br><span class="line"><span class="keyword">from</span> keras.layers <span class="keyword">import</span> Embedding</span><br><span class="line">embedding_layer = Embedding(<span class="number">1000</span>, <span class="number">64</span>)</span><br></pre></td></tr></table></figure>
+<p>最好将Embedding层理解为一个字典，将整数索引（表示特定单词）映射为密集向量。它接收整数作为输入，并在内部字典中查找这些整数，然后返回相关联的向量。Embedding 层实际上是一种字典查找</p>
+<center>
+    <img src="\Pic\DeepLearning_Pic\encoding_3.png" width="200" height="200" alt="Embedding层" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">Embedding层</div>
+</center>
+
+<p>Embedding 层的输入是一个二维整数张量，其形状为(samples, sequence_length)，每个元素是一个整数序列。它能够嵌入长度可变的序列，例如，对于前一个例子中的Embedding 层，你可以输入形状为(32, 10)（32 个长度为10 的序列组成的批量）或(64,15)（64 个长度为15 的序列组成的批量）的批量。不过一批数据中的所有序列必须具有相同的长度（因为需要将它们打包成一个张量），所以较短的序列应该用0 填充，较长的序列应该被截断。</p>
+<p>这个Embedding层返回一个形状为$(samples, sequence_length, embedding_dimensionality)$的三维浮点数张量。然后可以用RNN 层或一维卷积层来处理这个三维张量（二者都会在后面介绍）。</p>
+<p>将一个Embedding层实例化时，它的权重（即标记向量的内部字典）最开始是随机的，与其他层一样。在训练过程中，利用反向传播来逐渐调节这些词向量，改变空间结构以便下游模型可以利用。一旦训练完成，嵌入空间将会展示大量结构，这种结构专门针对训练模型所要解决的问题。</p>
+<p>我们将这个想法应用于你熟悉的IMDB 电影评论情感预测任务。首先，我们需要快速准备数据。将电影评论限制为前10 000个最常见的单词（第一次处理这个数据集时就是这么做的），然后将评论长度限制为只有20个单词。对于这10 000个单词，网络将对每个词都学习一个8维嵌入，将输入的整数序列（二维整数张量）转换为嵌入序列（三维浮点数张量），然后将这个张量展平为二维，最后在上面训练一个Dense层用于分类。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 加载IMDB数据，准备用于Embedding层</span></span><br><span class="line"><span class="keyword">from</span> keras.datasets <span class="keyword">import</span> imdb</span><br><span class="line"><span class="keyword">from</span> keras <span class="keyword">import</span> preprocessing</span><br><span class="line">max_features = <span class="number">10000</span></span><br><span class="line">maxlen = <span class="number">20</span></span><br><span class="line">(x_train, y_train), (x_test, y_test) = imdb.load_data(</span><br><span class="line">num_words=max_features)</span><br><span class="line">x_train = preprocessing.sequence.pad_sequences(x_train, maxlen=maxlen)</span><br><span class="line">x_test = preprocessing.sequence.pad_sequences(x_test, maxlen=maxlen)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在IMDB数据上使用Embedding层和分类器</span></span><br><span class="line"><span class="keyword">from</span> keras.models <span class="keyword">import</span> Sequential</span><br><span class="line"><span class="keyword">from</span> keras.layers <span class="keyword">import</span> Flatten, Dense, Embedding</span><br><span class="line">model = Sequential()</span><br><span class="line">model.add(Embedding(<span class="number">10000</span>, <span class="number">8</span>, input_length=maxlen))</span><br><span class="line">model.add(Flatten())</span><br><span class="line">model.add(Dense(<span class="number">1</span>, activation=<span class="string">'sigmoid'</span>))</span><br><span class="line">model.compile(optimizer=<span class="string">'rmsprop'</span>, loss=<span class="string">'binary_crossentropy'</span>, metrics=[<span class="string">'acc'</span>])</span><br><span class="line">model.summary()</span><br><span class="line">history = model.fit(x_train, y_train,</span><br><span class="line">epochs=<span class="number">10</span>,</span><br><span class="line">batch_size=<span class="number">32</span>,</span><br><span class="line">validation_split=<span class="number">0.2</span>)</span><br></pre></td></tr></table></figure>
+<pre><code>Model: &quot;sequential_1&quot;
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+embedding_2 (Embedding)      (None, 20, 8)             80000     
+_________________________________________________________________
+flatten_1 (Flatten)          (None, 160)               0         
+_________________________________________________________________
+dense_1 (Dense)              (None, 1)                 161       
+=================================================================
+Total params: 80,161
+Trainable params: 80,161
+Non-trainable params: 0
+_________________________________________________________________
+</code></pre><p>得到的验证精度约为76%，考虑到仅查看每条评论的前20个单词，这个结果还是相当不错的。但请注意，仅仅将嵌入序列展开并在上面训练一个Dense层，会导致模型对输入序列中的每个单词单独处理，而没有考虑单词之间的关系和句子结构（举个例子，这个模型可能会将thismovie is a bomb 和this movie is the bomb 两条都归为负面评论a）。更好的做法是在嵌入序列上添加循环层或一维卷积层，将每个序列作为整体来学习特征。这也是接下来几节的重点。</p>
+<p><strong>2. 使用预训练的词嵌入</strong><br>有时可用的训练数据很少，以至于只用手头数据无法学习适合特定任务的词嵌入。那么应该怎么办？</p>
+<p>你可以从预计算的嵌入空间中加载嵌入向量（你知道这个嵌入空间是高度结构化的，并且具有有用的属性，即抓住了语言结构的一般特点），而不是在解决问题的同时学习词嵌入。在自然语言处理中使用预训练的词嵌入，其背后的原理与在图像分类中使用预训练的卷积神经网络是一样的：没有足够的数据来自己学习真正强大的特征，但你需要的特征应该是非常通用的，比如常见的视觉特征或语义特征。在这种情况下，重复使用在其他问题上学到的特征，这种做<br>法是有道理的。</p>
+<p>这种词嵌入通常是利用词频统计计算得出的（观察哪些词共同出现在句子或文档中），用到的技术很多，有些涉及神经网络，有些则不涉及。Bengio等人在21 世纪初首先研究了一种思路，就是用无监督的方法计算一个密集的低维词嵌入空间，但直到最有名且最成功的词嵌入方案之一word2vec 算法发布之后，这一思路才开始在研究领域和工业应用中取得成功。word2vec算法由Google的Tomas Mikolov于2013 年开发，其维度抓住了特定的语义属性，比如性别。有许多预计算的词嵌入数据库， 你都可以下载并在Keras的Embedding层中使用。word2vec就是其中之一。另一个常用的是GloVe（global vectors for word representation，词表示全局向量），由斯坦福大学的研究人员于2014 年开发。这种嵌入方法基于对词共现统计矩阵进行因式分解。其开发者已经公开了数百万个英文标记的预计算嵌入，它们都是从维基百科数据和Common Crawl 数据得到的。</p>
+<p>我们来看一下如何在Keras 模型中使用GloVe嵌入。同样的方法也适用于word2vec 嵌入或其他词嵌入数据库。这个例子还可以改进前面刚刚介绍过的文本分词技术，即从原始文本开始，一步步进行处理。</p>
+<h2 id="3-从原始文本到词嵌入"><a href="#3-从原始文本到词嵌入" class="headerlink" title="3. 从原始文本到词嵌入"></a>3. 从原始文本到词嵌入</h2><p>本节的模型与之前刚刚见过的那个类似：将句子嵌入到向量序列中，然后将其展平，最后在上面训练一个Dense层。但此处将使用预训练的词嵌入。此外，我们将从头开始，先下载IMDB 原始文本数据，而不是使用Keras内置的已经预先分词的IMDB 数据。</p>
+<blockquote>
+<ol>
+<li>下载IMDB 数据的原始文本</li>
+</ol>
+</blockquote>
+<p>首先，打开<a href="http://mng.bz/0tIo" target="_blank" rel="noopener">http://mng.bz/0tIo</a> ，下载原始IMDB 数据集并解压。接下来，我们将训练评论转换成字符串列表，每个字符串对应一条评论。你也可以将评论标签（正面/ 负面）转换成labels列表。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 处理IMDB原始数据的标签</span></span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line">imdb_dir = <span class="string">'data/aclImdb'</span></span><br><span class="line">train_dir = os.path.join(imdb_dir, <span class="string">'train'</span>)</span><br><span class="line">labels = []</span><br><span class="line">texts = []</span><br><span class="line"><span class="keyword">for</span> label_type <span class="keyword">in</span> [<span class="string">'neg'</span>, <span class="string">'pos'</span>]:</span><br><span class="line">    dir_name = os.path.join(train_dir, label_type)</span><br><span class="line">    <span class="keyword">for</span> fname <span class="keyword">in</span> os.listdir(dir_name):</span><br><span class="line">        <span class="keyword">if</span> fname[<span class="number">-4</span>:] == <span class="string">'.txt'</span>:</span><br><span class="line">            f = open(os.path.join(dir_name, fname))</span><br><span class="line">            texts.append(f.read())</span><br><span class="line">            f.close()</span><br><span class="line">            <span class="keyword">if</span> label_type == <span class="string">'neg'</span>:</span><br><span class="line">                labels.append(<span class="number">0</span>)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                labels.append(<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<ol>
+<li>对数据进行分词</li>
+</ol>
+</blockquote>
+<p>利用本节前面介绍过的概念，我们对文本进行分词，并将其划分为训练集和验证集。因为预训练的词嵌入对训练数据很少的问题特别有用（否则，针对于具体任务的嵌入可能效果更好），所以我们又添加了以下限制：将训练数据限定为前200个样本。因此，你需要在读取200个样本之后学习对电影评论进行分类。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 对IMDB原始数据的文本进行分词</span></span><br><span class="line"><span class="keyword">from</span> keras.preprocessing.text <span class="keyword">import</span> Tokenizer</span><br><span class="line"><span class="keyword">from</span> keras.preprocessing.sequence <span class="keyword">import</span> pad_sequences</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">maxlen = <span class="number">100</span></span><br><span class="line">training_samples = <span class="number">200</span></span><br><span class="line">validation_samples = <span class="number">10000</span></span><br><span class="line">max_words = <span class="number">10000</span></span><br><span class="line">tokenizer = Tokenizer(num_words=max_words)</span><br><span class="line">tokenizer.fit_on_texts(texts)</span><br><span class="line">sequences = tokenizer.texts_to_sequences(texts)</span><br><span class="line">word_index = tokenizer.word_index</span><br><span class="line">print(<span class="string">'Found %s unique tokens.'</span> % len(word_index))</span><br><span class="line">data = pad_sequences(sequences, maxlen=maxlen)</span><br><span class="line">labels = np.asarray(labels)</span><br><span class="line">print(<span class="string">'Shape of data tensor:'</span>, data.shape)</span><br><span class="line">print(<span class="string">'Shape of label tensor:'</span>, labels.shape)</span><br><span class="line">indices = np.arange(data.shape[<span class="number">0</span>])</span><br><span class="line">np.random.shuffle(indices)</span><br><span class="line">data = data[indices]</span><br><span class="line">labels = labels[indices]</span><br><span class="line">x_train = data[:training_samples]</span><br><span class="line">y_train = labels[:training_samples]</span><br><span class="line">x_val = data[training_samples: training_samples + validation_samples]</span><br><span class="line">y_val = labels[training_samples: training_samples + validation_samples]</span><br></pre></td></tr></table></figure>
+<pre><code>Found 88582 unique tokens.
+Shape of data tensor: (25000, 100)
+Shape of label tensor: (25000,)
+</code></pre><blockquote>
+<ol>
+<li>下载GloVe词嵌入</li>
+</ol>
+</blockquote>
+<p>打开<a href="https://nlp.stanford.edu/projects/glove" target="_blank" rel="noopener">https://nlp.stanford.edu/projects/glove</a> ，下载2014年英文维基百科的预计算嵌入。这是一个822 MB的压缩文件，文件名是glove.6B.zip，里面包含400 000 个单词（或非单词的标记）的100 维嵌入向量，解压文件。</p>
+<blockquote>
+<ol>
+<li>对嵌入进行预处理</li>
+</ol>
+</blockquote>
+<p>我们对解压后的文件（一个.txt 文件）进行解析，构建一个将单词（字符串）映射为其向量表示（数值向量）的索引。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 解析GloVe词嵌入文件</span></span><br><span class="line">glove_dir = <span class="string">'model/glove.6B'</span></span><br><span class="line">embeddings_index = &#123;&#125;</span><br><span class="line">f = open(os.path.join(glove_dir, <span class="string">'glove.6B.100d.txt'</span>))</span><br><span class="line"><span class="keyword">for</span> line <span class="keyword">in</span> f:</span><br><span class="line">    values = line.split()</span><br><span class="line">    word = values[<span class="number">0</span>]</span><br><span class="line">    coefs = np.asarray(values[<span class="number">1</span>:], dtype=<span class="string">'float32'</span>)</span><br><span class="line">    embeddings_index[word] = coefs</span><br><span class="line">f.close()</span><br><span class="line">print(<span class="string">'Found %s word vectors.'</span> % len(embeddings_index))</span><br></pre></td></tr></table></figure>
+<pre><code>Found 400000 word vectors.
+</code></pre><p>接下来，需要构建一个可以加载到<code>Embedding</code>层中的嵌入矩阵。它必须是一个形状为<code>(max_words, embedding_dim)</code> 的矩阵，对于单词索引（在分词时构建）中索引为$i$的单词，这个矩阵的元素$i$就是这个单词对应的<code>embedding_dim</code>维向量。注意，索引0不应该代表任何单词或标记，它只是一个占位符。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 准备GloVe词嵌入矩阵</span></span><br><span class="line">embedding_dim = <span class="number">100</span></span><br><span class="line">embedding_matrix = np.zeros((max_words, embedding_dim))</span><br><span class="line"><span class="keyword">for</span> word, i <span class="keyword">in</span> word_index.items():</span><br><span class="line">    <span class="keyword">if</span> i &lt; max_words:</span><br><span class="line">        embedding_vector = embeddings_index.get(word)</span><br><span class="line">        <span class="keyword">if</span> embedding_vector <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            embedding_matrix[i] = embedding_vector</span><br></pre></td></tr></table></figure>
+<blockquote>
+<ol>
+<li>定义模型</li>
+</ol>
+</blockquote>
+<p>我们将使用与前面相同的模型架构。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> keras.models <span class="keyword">import</span> Sequential</span><br><span class="line"><span class="keyword">from</span> keras.layers <span class="keyword">import</span> Embedding, Flatten, Dense</span><br><span class="line">model = Sequential()</span><br><span class="line">model.add(Embedding(max_words, embedding_dim, input_length=maxlen))</span><br><span class="line">model.add(Flatten())</span><br><span class="line">model.add(Dense(<span class="number">32</span>, activation=<span class="string">'relu'</span>))</span><br><span class="line">model.add(Dense(<span class="number">1</span>, activation=<span class="string">'sigmoid'</span>))</span><br><span class="line">model.summary()</span><br></pre></td></tr></table></figure>
+<pre><code>Model: &quot;sequential_2&quot;
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+embedding_3 (Embedding)      (None, 100, 100)          1000000   
+_________________________________________________________________
+flatten_2 (Flatten)          (None, 10000)             0         
+_________________________________________________________________
+dense_2 (Dense)              (None, 32)                320032    
+_________________________________________________________________
+dense_3 (Dense)              (None, 1)                 33        
+=================================================================
+Total params: 1,320,065
+Trainable params: 1,320,065
+Non-trainable params: 0
+_________________________________________________________________
+</code></pre><blockquote>
+<ol>
+<li>在模型中加载GloVe嵌入</li>
+</ol>
+</blockquote>
+<p>Embedding层只有一个权重矩阵，是一个二维的浮点数矩阵，其中每个元素$i$是与索引$i$相关联的词向量。将准备好的<code>GloVe</code>矩阵加载到<code>Embedding</code>层中，即模型的第一层。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 将预训练的词嵌入加载到Embedding层中</span></span><br><span class="line">model.layers[<span class="number">0</span>].set_weights([embedding_matrix])</span><br><span class="line">model.layers[<span class="number">0</span>].trainable = <span class="literal">False</span></span><br></pre></td></tr></table></figure>
+<p>此外，需要冻结<code>Embedding</code>层（即将其<code>trainable</code>属性设为<code>False</code>），其原理和预训练的卷积神经网络特征相同，你已经很熟悉了。如果一个模型的一部分是经过预训练的（如<code>Embedding</code>层），而另一部分是随机初始化的（如分类器），那么在训练期间不应该更新预训练的部分，以避免丢失它们所保存的信息。随机初始化的层会引起较大的梯度更新，会破坏已经学到的特征。</p>
+<blockquote>
+<ol>
+<li>训练模型与评估模型</li>
+</ol>
+</blockquote>
+<p>下面编译并训练模型。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">model.compile(optimizer=<span class="string">'rmsprop'</span>,</span><br><span class="line">            loss=<span class="string">'binary_crossentropy'</span>,</span><br><span class="line">            metrics=[<span class="string">'acc'</span>])</span><br><span class="line">history = model.fit(x_train, y_train,</span><br><span class="line">            epochs=<span class="number">10</span>,</span><br><span class="line">            batch_size=<span class="number">32</span>,</span><br><span class="line">            validation_data=(x_val, y_val))</span><br><span class="line">model.save_weights(<span class="string">'model/pre_trained_glove_model.h5'</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line">acc = history.history[<span class="string">'acc'</span>]</span><br><span class="line">val_acc = history.history[<span class="string">'val_acc'</span>]</span><br><span class="line">loss = history.history[<span class="string">'loss'</span>]</span><br><span class="line">val_loss = history.history[<span class="string">'val_loss'</span>]</span><br><span class="line">epochs = range(<span class="number">1</span>, len(acc) + <span class="number">1</span>)</span><br><span class="line">plt.plot(epochs, acc, <span class="string">'bo'</span>, label=<span class="string">'Training acc'</span>)</span><br><span class="line">plt.plot(epochs, val_acc, <span class="string">'b'</span>, label=<span class="string">'Validation acc'</span>)</span><br><span class="line">plt.title(<span class="string">'Training and validation accuracy'</span>)</span><br><span class="line">plt.legend()</span><br></pre></td></tr></table></figure>
+<center>
+    <img src="\Pic\DeepLearning_Pic\output_29_11.png" width="400" height="400" alt="b" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;"></div>
+</center>
+
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">plt.figure()</span><br><span class="line">plt.plot(epochs, loss, <span class="string">'bo'</span>, label=<span class="string">'Training loss'</span>)</span><br><span class="line">plt.plot(epochs, val_loss, <span class="string">'b'</span>, label=<span class="string">'Validation loss'</span>)</span><br><span class="line">plt.title(<span class="string">'Training and validation loss'</span>)</span><br><span class="line">plt.legend()</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<center>
+    <img src="\Pic\DeepLearning_Pic\output_30_0.png" width="400" height="400" alt="b" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;"></div>
+</center>
+
+
+
+<p>模型很快就开始过拟合，考虑到训练样本很少，这一点也不奇怪。出于同样的原因，验证精度的波动很大，但似乎达到了接近60%。</p>
+<p>你也可以在不加载预训练词嵌入、也不冻结嵌入层的情况下训练相同的模型。在这种情况下，你将会学到针对任务的输入标记的嵌入。如果有大量的可用数据，这种方法通常比预训练词嵌入更加强大，但本例只有200个训练样本。我们来试一下这种方法</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在不使用预训练词嵌入的情况下，训练相同的模型</span></span><br><span class="line"><span class="keyword">from</span> keras.models <span class="keyword">import</span> Sequential</span><br><span class="line"><span class="keyword">from</span> keras.layers <span class="keyword">import</span> Embedding, Flatten, Dense</span><br><span class="line">model = Sequential()</span><br><span class="line">model.add(Embedding(max_words, embedding_dim, input_length=maxlen))</span><br><span class="line">model.add(Flatten())</span><br><span class="line">model.add(Dense(<span class="number">32</span>, activation=<span class="string">'relu'</span>))</span><br><span class="line">model.add(Dense(<span class="number">1</span>, activation=<span class="string">'sigmoid'</span>))</span><br><span class="line">model.summary()</span><br><span class="line">model.compile(optimizer=<span class="string">'rmsprop'</span>,</span><br><span class="line">        loss=<span class="string">'binary_crossentropy'</span>,</span><br><span class="line">        metrics=[<span class="string">'acc'</span>])</span><br><span class="line">history = model.fit(x_train, y_train,</span><br><span class="line">        epochs=<span class="number">10</span>,</span><br><span class="line">        batch_size=<span class="number">32</span>,</span><br><span class="line">        validation_data=(x_val, y_val))</span><br></pre></td></tr></table></figure>
+<pre><code>Model: &quot;sequential_3&quot;
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+embedding_4 (Embedding)      (None, 100, 100)          1000000   
+_________________________________________________________________
+flatten_3 (Flatten)          (None, 10000)             0         
+_________________________________________________________________
+dense_4 (Dense)              (None, 32)                320032    
+_________________________________________________________________
+dense_5 (Dense)              (None, 1)                 33        
+=================================================================
+Total params: 1,320,065
+Trainable params: 1,320,065
+Non-trainable params: 0
+_________________________________________________________________
+</code></pre><p>验证精度停留在50% 多一点。因此，在本例中，预训练词嵌入的性能要优于与任务一起学习的嵌入。如果增加样本数量，情况将很快发生变化，你可以把它作为一个练习。</p>
+<p>最后，我们在测试数据上评估模型。首先，你需要对测试数据进行分词。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">test_dir = os.path.join(imdb_dir, <span class="string">'test'</span>)</span><br><span class="line">labels = []</span><br><span class="line">texts = []</span><br><span class="line"><span class="keyword">for</span> label_type <span class="keyword">in</span> [<span class="string">'neg'</span>, <span class="string">'pos'</span>]:</span><br><span class="line">    dir_name = os.path.join(test_dir, label_type)</span><br><span class="line">    <span class="keyword">for</span> fname <span class="keyword">in</span> sorted(os.listdir(dir_name)):</span><br><span class="line">        <span class="keyword">if</span> fname[<span class="number">-4</span>:] == <span class="string">'.txt'</span>:</span><br><span class="line">            f = open(os.path.join(dir_name, fname))</span><br><span class="line">            texts.append(f.read())</span><br><span class="line">            f.close()</span><br><span class="line">            <span class="keyword">if</span> label_type == <span class="string">'neg'</span>:</span><br><span class="line">                labels.append(<span class="number">0</span>)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                labels.append(<span class="number">1</span>)</span><br><span class="line">sequences = tokenizer.texts_to_sequences(texts)</span><br><span class="line">x_test = pad_sequences(sequences, maxlen=maxlen)</span><br><span class="line">y_test = np.asarray(labels)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">model.load_weights(<span class="string">'model/pre_trained_glove_model.h5'</span>)</span><br><span class="line">model.evaluate(x_test, y_test)</span><br></pre></td></tr></table></figure>
+<pre><code>25000/25000 [==============================] - 1s 44us/step
+[0.7739053187370301, 0.5541599988937378]
+</code></pre><p>我们只用了很少的训练样本，得到这样的结果很不容易。</p>
+<h1 id="二、理解循环神经网络"><a href="#二、理解循环神经网络" class="headerlink" title="二、理解循环神经网络"></a>二、理解循环神经网络</h1><p>目前你见过的所有神经网络（比如密集连接网络和卷积神经网络）都有一个主要特点，那就是它们都没有记忆。它们单独处理每个输入，在输入与输入之间没有保存任何状态。对于这样的网络，要想处理数据点的序列或时间序列，你需要向网络同时展示整个序列，即将序列转换成单个数据点。例如，你在IMDB 示例中就是这么做的：将全部电影评论转换为一个大向量，然后一次性处理。这种网络叫作前馈网络（feedforward network）。</p>
+<p>与此相反，当你在阅读这个句子时，你是一个词一个词地阅读（或者说，眼睛一次扫视一次扫视地阅读），同时会记住之前的内容。这让你能够动态理解这个句子所传达的含义。生物智能以渐进的方式处理信息，同时保存一个关于所处理内容的内部模型，这个模型是根据过去的信息构建的，并随着新信息的进入而不断更新。</p>
+<p>循环神经网络（RNN，recurrent neural network）采用同样的原理，不过是一个极其简化的版本：它处理序列的方式是，遍历所有序列元素，并保存一个状态（state），其中包含与已查看内容相关的信息。实际上，RNN 是一类具有内部环的神经网络。在处理两个不同的独立序列（比如两条不同的IMDB 评论）之间，RNN 状态会被重置，因此，你仍可以将一个序列看作单个数据点，即网络的单个输入。真正改变的是，数据点不再是在单个步骤中进行处理，相反，网络内部会对序列元素进行遍历。</p>
+<center>
+    <img src="\Pic\DeepLearning_Pic\rnn1.png" width="200" height="200" alt="循环网络：带有环的网络" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">循环网络：带有环的网络</div>
+</center>
+
+<p>为了将环（loop）和状态的概念解释清楚，我们用Numpy来实现一个简单RNN的前向传递。这个RNN的输入是一个张量序列，我们将其编码成大小为$(timesteps, input_features)$的二维张量。它对时间步（timestep）进行遍历，在每个时间步，它考虑$t$时刻的当前状态与$t$时刻的输入［形状为$(input_ features,)$］，对二者计算得到$t$时刻的输出。然后，我们<strong>将下一个时间步的状态设置为上一个时间步的输出</strong>。对于第一个时间步，上一个时间步的输出没有定义，所以它没有当前状态。因此，你需要将状态初始化为一个全零向量，这叫作网络的初始状态（initial state）。</p>
+<p>RNN的伪代码如下所示。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">state_t = <span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> input_t <span class="keyword">in</span> input_sequence:</span><br><span class="line">    output_t = f(input_t, state_t)</span><br><span class="line">    state_t = output_t</span><br></pre></td></tr></table></figure>
+<p>你甚至可以给出具体的函数$f$：从输入和状态到输出的变换，其参数包括两个矩阵（$W$和$U$）和一个偏置向量。它类似于前馈网络中密集连接层所做的变换，因此更详细的RNN伪代码如下：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">state_t = <span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> input_t <span class="keyword">in</span> input_sequence:</span><br><span class="line">    output_t = activation(dot(W, input_t) + dot(U, state_t) + b)</span><br><span class="line">    state_t = output_t</span><br></pre></td></tr></table></figure></p>
+<p>为了将这些概念的含义解释得更加清楚，我们为简单RNN的前向传播编写一个简单的Numpy实现。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">timesteps = <span class="number">100</span></span><br><span class="line">input_features = <span class="number">32</span></span><br><span class="line">output_features = <span class="number">64</span></span><br><span class="line">inputs = np.random.random((timesteps, input_features))</span><br><span class="line">state_t = np.zeros((output_features,))</span><br><span class="line">W = np.random.random((output_features, input_features))</span><br><span class="line">U = np.random.random((output_features, output_features))</span><br><span class="line">b = np.random.random((output_features,))</span><br><span class="line">successive_outputs = []</span><br><span class="line"><span class="keyword">for</span> input_t <span class="keyword">in</span> inputs:</span><br><span class="line">    output_t = np.tanh(np.dot(W, input_t) + np.dot(U, state_t) + b)</span><br><span class="line">    successive_outputs.append(output_t)</span><br><span class="line">    state_t = output_t</span><br><span class="line">final_output_sequence = np.stack(successive_outputs, axis=<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+<p>总之，RNN 是一个for 循环，它重复使用循环前一次迭代的计算结果，仅此而已。当然，你可以构建许多不同的RNN，它们都满足上述定义。这个例子只是最简单的RNN表述之一。RNN的特征在于其时间步函数，比如前面例子中的这个函数</p>
+<h2 id="1-Keras-中的循环层"><a href="#1-Keras-中的循环层" class="headerlink" title="1. Keras 中的循环层"></a>1. Keras 中的循环层</h2><p>上面Numpy 的简单实现，对应一个实际的Keras 层，即SimpleRNN层。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> keras.layers <span class="keyword">import</span> SimpleRNN</span><br></pre></td></tr></table></figure><br>二者有一点小小的区别：SimpleRNN层能够像其他Keras层一样处理序列批量，而不是像Numpy示例那样只能处理单个序列。因此，它接收形状为<code>(batch_size, timesteps,input_features)</code>的输入，而不是<code>(timesteps, input_features)</code>。</p>
+<p>与Keras 中的所有循环层一样，SimpleRNN可以在两种不同的模式下运行：一种是返回每个时间步连续输出的完整序列，即形状为<code>(batch_size, timesteps, output_features)</code>的三维张量；另一种是只返回每个输入序列的最终输出，即形状为<code>(batch_size, output_features)</code>的二维张量。这两种模式由return_sequences 这个构造函数参数来控制。我们来看一个使用SimpleRNN的例子，它只返回最后一个时间步的输出。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> keras.models <span class="keyword">import</span> Sequential</span><br><span class="line"><span class="keyword">from</span> keras.layers <span class="keyword">import</span> Embedding, SimpleRNN</span><br><span class="line">model = Sequential()</span><br><span class="line">model.add(Embedding(<span class="number">10000</span>, <span class="number">32</span>))</span><br><span class="line">model.add(SimpleRNN(<span class="number">32</span>))</span><br><span class="line">model.summary()</span><br></pre></td></tr></table></figure>
+<pre><code>Model: &quot;sequential_4&quot;
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+embedding_5 (Embedding)      (None, None, 32)          320000    
+_________________________________________________________________
+simple_rnn_1 (SimpleRNN)     (None, 32)                2080      
+=================================================================
+Total params: 322,080
+Trainable params: 322,080
+Non-trainable params: 0
+_________________________________________________________________
+</code></pre><p>下面这个例子返回完整的状态序列</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">model = Sequential()</span><br><span class="line">model.add(Embedding(<span class="number">10000</span>, <span class="number">32</span>))</span><br><span class="line">model.add(SimpleRNN(<span class="number">32</span>, return_sequences=<span class="literal">True</span>))</span><br><span class="line">model.summary()</span><br></pre></td></tr></table></figure>
+<pre><code>Model: &quot;sequential_5&quot;
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+embedding_6 (Embedding)      (None, None, 32)          320000    
+_________________________________________________________________
+simple_rnn_2 (SimpleRNN)     (None, None, 32)          2080      
+=================================================================
+Total params: 322,080
+Trainable params: 322,080
+Non-trainable params: 0
+_________________________________________________________________
+</code></pre><p>为了提高网络的表示能力，将多个循环层逐个堆叠有时也是很有用的。在这种情况下，你需要让所有中间层都返回完整的输出序列。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">model = Sequential()</span><br><span class="line">model.add(Embedding(<span class="number">10000</span>, <span class="number">32</span>))</span><br><span class="line">model.add(SimpleRNN(<span class="number">32</span>, return_sequences=<span class="literal">True</span>))</span><br><span class="line">model.add(SimpleRNN(<span class="number">32</span>, return_sequences=<span class="literal">True</span>))</span><br><span class="line">model.add(SimpleRNN(<span class="number">32</span>, return_sequences=<span class="literal">True</span>))</span><br><span class="line">model.add(SimpleRNN(<span class="number">32</span>))</span><br><span class="line">model.summary()</span><br></pre></td></tr></table></figure>
+<pre><code>Model: &quot;sequential_6&quot;
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+embedding_7 (Embedding)      (None, None, 32)          320000    
+_________________________________________________________________
+simple_rnn_3 (SimpleRNN)     (None, None, 32)          2080      
+_________________________________________________________________
+simple_rnn_4 (SimpleRNN)     (None, None, 32)          2080      
+_________________________________________________________________
+simple_rnn_5 (SimpleRNN)     (None, None, 32)          2080      
+_________________________________________________________________
+simple_rnn_6 (SimpleRNN)     (None, 32)                2080      
+=================================================================
+Total params: 328,320
+Trainable params: 328,320
+Non-trainable params: 0
+_________________________________________________________________
+</code></pre><p>接下来，我们将这个模型应用于IMDB电影评论分类问题。首先，对数据进行预处理。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> keras.datasets <span class="keyword">import</span> imdb</span><br><span class="line"><span class="keyword">from</span> keras.preprocessing <span class="keyword">import</span> sequence</span><br><span class="line">max_features = <span class="number">10000</span></span><br><span class="line">maxlen = <span class="number">500</span></span><br><span class="line">batch_size = <span class="number">32</span></span><br><span class="line">print(<span class="string">'Loading data...'</span>)</span><br><span class="line">(input_train, y_train), (input_test, y_test) = imdb.load_data(num_words=max_features)</span><br><span class="line">print(len(input_train), <span class="string">'train sequences'</span>)</span><br><span class="line">print(len(input_test), <span class="string">'test sequences'</span>)</span><br><span class="line">print(<span class="string">'Pad sequences (samples x time)'</span>)</span><br><span class="line">input_train = sequence.pad_sequences(input_train, maxlen=maxlen)</span><br><span class="line">input_test = sequence.pad_sequences(input_test, maxlen=maxlen)</span><br><span class="line">print(<span class="string">'input_train shape:'</span>, input_train.shape)</span><br><span class="line">print(<span class="string">'input_test shape:'</span>, input_test.shape)</span><br></pre></td></tr></table></figure>
+<pre><code>Loading data...
+25000 train sequences
+25000 test sequences
+Pad sequences (samples x time)
+input_train shape: (25000, 500)
+input_test shape: (25000, 500)
+</code></pre><p>我们用一个Embedding层和一个SimpleRNN层来训练一个简单的循环网络</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> keras.layers <span class="keyword">import</span> Dense</span><br><span class="line">model = Sequential()</span><br><span class="line">model.add(Embedding(max_features, <span class="number">32</span>))</span><br><span class="line">model.add(SimpleRNN(<span class="number">32</span>))</span><br><span class="line">model.add(Dense(<span class="number">1</span>, activation=<span class="string">'sigmoid'</span>))</span><br><span class="line">model.compile(optimizer=<span class="string">'rmsprop'</span>, loss=<span class="string">'binary_crossentropy'</span>, metrics=[<span class="string">'acc'</span>])</span><br><span class="line">history = model.fit(input_train, y_train,</span><br><span class="line">                epochs=<span class="number">10</span>,</span><br><span class="line">                batch_size=<span class="number">128</span>,</span><br><span class="line">                validation_split=<span class="number">0.2</span>)</span><br></pre></td></tr></table></figure>
+<pre><code>Train on 20000 samples, validate on 5000 samples
+Epoch 1/10
+20000/20000 [==============================] - 17s 832us/step - loss: 0.6298 - acc: 0.6252 - val_loss: 0.5190 - val_acc: 0.7454
+Epoch 2/10
+20000/20000 [==============================] - 17s 832us/step - loss: 0.4073 - acc: 0.8216 - val_loss: 0.3733 - val_acc: 0.8438
+Epoch 3/10
+20000/20000 [==============================] - 17s 844us/step - loss: 0.2946 - acc: 0.8804 - val_loss: 0.3948 - val_acc: 0.8318
+Epoch 4/10
+20000/20000 [==============================] - 17s 856us/step - loss: 0.2396 - acc: 0.9059 - val_loss: 0.4578 - val_acc: 0.8388
+Epoch 5/10
+20000/20000 [==============================] - 17s 870us/step - loss: 0.2003 - acc: 0.9233 - val_loss: 0.4395 - val_acc: 0.8168
+Epoch 6/10
+20000/20000 [==============================] - 18s 887us/step - loss: 0.1601 - acc: 0.9406 - val_loss: 0.5268 - val_acc: 0.8204
+Epoch 7/10
+20000/20000 [==============================] - 17s 874us/step - loss: 0.1124 - acc: 0.9612 - val_loss: 0.5143 - val_acc: 0.8048
+Epoch 8/10
+20000/20000 [==============================] - 18s 914us/step - loss: 0.0923 - acc: 0.9682 - val_loss: 0.4945 - val_acc: 0.8362
+Epoch 9/10
+20000/20000 [==============================] - 18s 877us/step - loss: 0.0507 - acc: 0.9839 - val_loss: 0.5826 - val_acc: 0.8092
+Epoch 10/10
+20000/20000 [==============================] - 18s 879us/step - loss: 0.0540 - acc: 0.9821 - val_loss: 0.5969 - val_acc: 0.8182
+</code></pre><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line">acc = history.history[<span class="string">'acc'</span>]</span><br><span class="line">val_acc = history.history[<span class="string">'val_acc'</span>]</span><br><span class="line">loss = history.history[<span class="string">'loss'</span>]</span><br><span class="line">val_loss = history.history[<span class="string">'val_loss'</span>]</span><br><span class="line">epochs = range(<span class="number">1</span>, len(acc) + <span class="number">1</span>)</span><br><span class="line">plt.plot(epochs, acc, <span class="string">'bo'</span>, label=<span class="string">'Training acc'</span>)</span><br><span class="line">plt.plot(epochs, val_acc, <span class="string">'b'</span>, label=<span class="string">'Validation acc'</span>)</span><br><span class="line">plt.title(<span class="string">'Training and validation accuracy'</span>)</span><br><span class="line">plt.legend()</span><br><span class="line">plt.figure()</span><br><span class="line">plt.plot(epochs, loss, <span class="string">'bo'</span>, label=<span class="string">'Training loss'</span>)</span><br><span class="line">plt.plot(epochs, val_loss, <span class="string">'b'</span>, label=<span class="string">'Validation loss'</span>)</span><br><span class="line">plt.title(<span class="string">'Training and validation loss'</span>)</span><br><span class="line">plt.legend()</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<center>
+    <img src="\Pic\DeepLearning_Pic\output_49_0.png" width="400" height="400" alt="b" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;"></div>
+</center>
+
+<center>
+    <img src="\Pic\DeepLearning_Pic\output_49_1.png" width="400" height="400" alt="b" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;"></div>
+</center>
+
+
+<p>处理这个数据集的第一个简单方法得到的测试精度是88%。不幸的是，与这个基准相比，这个小型循环网络的表现并不好（验证精度只有85%）。问题的部分原因在于，输入只考虑了前500 个单词，而不是整个序列，因此，RNN获得的信息比前面的基准模型更少。另一部分原因在于，SimpleRNN不擅长处理长序列，比如文本。其他类型的循环层的表现要好得多。我们来看几个更高级的循环层。</p>
+<h2 id="2-理解LSTM层和GRU层"><a href="#2-理解LSTM层和GRU层" class="headerlink" title="2. 理解LSTM层和GRU层"></a>2. 理解LSTM层和GRU层</h2><p>SimpleRNN并不是Keras中唯一可用的循环层，还有另外两个：LSTM和GRU。在实践中总会用到其中之一，因为SimpleRNN通常过于简化，没有实用价值。SimpleRNN 的最大问题是，在时刻t，理论上来说，它应该能够记住许多时间步之前见过的信息，但实际上它是不可能学到这种长期依赖的。其原因在于梯度消失问题（vanishing gradient problem），这一效应类似于在层数较多的非循环网络（即前馈网络）中观察到的效应：随着层数的增加，网络最终变得无法训练。Hochreiter、Schmidhuber和Bengio在20世纪90年代初研究了这一效应的理论原因a。LSTM层和GRU层都是为了解决这个问题而设计的。</p>
+<p>先来看LSTM层。其背后的长短期记忆（LSTM，long short-term memory）算法由Hochreiter和Schmidhuber在1997 年开发b，是二人研究梯度消失问题的重要成果。LSTM层是SimpleRNN层的一种变体，它增加了一种携带信息跨越多个时间步的方法。假设有一条传送带，其运行方向平行于你所处理的序列。序列中的信息可以在任意位置跳上传送带，然后被传送到更晚的时间步，并在需要时原封不动地跳回来。这实际上就是LSTM 的原理：它保存信息以便后面使用，从而防止较早期的信号在处理过程中逐渐消失。</p>
+<p>为了详细了解LSTM，我们先从SimpleRNN单元开始讲起。因为有许多个权重矩阵，所以对单元中的$W$和$U$两个矩阵添加下标字母$o$（Wo 和Uo），表示输出。</p>
+<center>
+    <img src="\Pic\DeepLearning_Pic\lstm.png" width="200" height="200" alt="讨论LSTM层的出发点：SimpleRNN层" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">讨论LSTM层的出发点：SimpleRNN层</div>
+</center>
+
+<p>我们向这张图像中添加额外的数据流，其中携带着跨越时间步的信息。它在不同的时间步的值叫作$C_t$，其中$C$表示携带（carry）。这些信息将会对单元产生以下影响：它将与输入连接和循环连接进行运算（通过一个密集变换，即与权重矩阵作点积，然后加上一个偏置，再应用一个激活函数），从而影响传递到下一个时间步的状态（通过一个激活函数和一个乘法运算）。从概念上来看，携带数据流是一种调节下一个输出和下一个状态的方法，到目前为<br>止都很简单。</p>
+<p>下面来看这一方法的精妙之处，即携带数据流下一个值的计算方法。它涉及三个不同的变换，这三个变换的形式都和SimpleRNN单元相同。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">y = activation(dot(state_t, U) + dot(input_t, W) + b)</span><br></pre></td></tr></table></figure>
+<p>但这三个变换都具有各自的权重矩阵，我们分别用字母$i$、$j$和$k$作为下标。目前的模型架构如下所示：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">output_t = activation(dot(state_t, Uo) + dot(input_t, Wo) + dot(C_t, Vo) + bo)</span><br><span class="line">i_t = activation(dot(state_t, Ui) + dot(input_t, Wi) + bi)</span><br><span class="line">f_t = activation(dot(state_t, Uf) + dot(input_t, Wf) + bf)</span><br><span class="line">k_t = activation(dot(state_t, Uk) + dot(input_t, Wk) + bk)</span><br><span class="line">c_t+<span class="number">1</span> = i_t * k_t + c_t * f_t</span><br></pre></td></tr></table></figure>
+<p>如果要更哲学一点，你还可以解释每个运算的目的。比如你可以说，将<code>c_t</code>和<code>f_t</code>相乘，是为了故意遗忘携带数据流中的不相关信息。同时，<code>i_t</code>和<code>k_t</code>都提供关于当前的信息，可以用新信息来更新携带轨道。但归根结底，这些解释并没有多大意义，因为这些运算的实际效果是由参数化权重决定的，而权重是以端到端的方式进行学习，每次训练都要从头开始，不可能为某个运算赋予特定的目的。RNN单元的类型（如前所述）决定了你的假设空间，即在训练期间搜索良好模型配置的空间，但它不能决定RNN 单元的作用，那是由单元权重来决定的。同一个单元具有不同的权重，可以实现完全不同的作用。因此，组成RNN 单元的运算组合，最好被解释为对搜索的一组约束，而不是一种工程意义上的设计。</p>
+<p>对于研究人员来说，这种约束的选择（即如何实现RNN单元）似乎最好是留给最优化算法来完成（比如遗传算法或强化学习过程），而不是让人类工程师来完成。在未来，那将是我们构建网络的方式。总之，你不需要理解关于LSTM单元具体架构的任何内容。作为人类，理解它不应该是你要做的。你只需要记住LSTM单元的作用：允许过去的信息稍后重新进入，从而解决梯度消失问题。</p>
+<h2 id="3-Keras中一个LSTM-的具体例子"><a href="#3-Keras中一个LSTM-的具体例子" class="headerlink" title="3. Keras中一个LSTM 的具体例子"></a>3. Keras中一个LSTM 的具体例子</h2><p>现在我们来看一个更实际的问题：使用LSTM层来创建一个模型，然后在IMDB数据上训练模型。这个网络与前面介绍的SimpleRNN网络类似。你只需指定LSTM层的输出维度，其他所有参数（有很多）都使用Keras默认值。Keras具有很好的默认值，无须手动调参，模型通常也能正常运行。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> keras.layers <span class="keyword">import</span> LSTM</span><br><span class="line">model = Sequential()</span><br><span class="line">model.add(Embedding(max_features, <span class="number">32</span>))</span><br><span class="line">model.add(LSTM(<span class="number">32</span>))</span><br><span class="line">model.add(Dense(<span class="number">1</span>, activation=<span class="string">'sigmoid'</span>))</span><br><span class="line">model.compile(optimizer=<span class="string">'rmsprop'</span>,</span><br><span class="line">            loss=<span class="string">'binary_crossentropy'</span>,</span><br><span class="line">            metrics=[<span class="string">'acc'</span>])</span><br><span class="line">history = model.fit(input_train, y_train,</span><br><span class="line">                epochs=<span class="number">10</span>,</span><br><span class="line">                batch_size=<span class="number">128</span>,</span><br><span class="line">                validation_split=<span class="number">0.2</span>)</span><br></pre></td></tr></table></figure>
+<pre><code>Train on 20000 samples, validate on 5000 samples
+Epoch 1/10
+20000/20000 [==============================] - 44s 2ms/step - loss: 0.5221 - acc: 0.7523 - val_loss: 0.3656 - val_acc: 0.8520
+Epoch 2/10
+20000/20000 [==============================] - 43s 2ms/step - loss: 0.3005 - acc: 0.8812 - val_loss: 0.3048 - val_acc: 0.8766
+Epoch 3/10
+20000/20000 [==============================] - 43s 2ms/step - loss: 0.2410 - acc: 0.9086 - val_loss: 0.3063 - val_acc: 0.8700
+Epoch 4/10
+20000/20000 [==============================] - 43s 2ms/step - loss: 0.2031 - acc: 0.9252 - val_loss: 0.3210 - val_acc: 0.8862
+Epoch 5/10
+20000/20000 [==============================] - 43s 2ms/step - loss: 0.1816 - acc: 0.9348 - val_loss: 0.3304 - val_acc: 0.8542
+Epoch 6/10
+20000/20000 [==============================] - 43s 2ms/step - loss: 0.1661 - acc: 0.9412 - val_loss: 0.3082 - val_acc: 0.8778
+Epoch 7/10
+20000/20000 [==============================] - 44s 2ms/step - loss: 0.1480 - acc: 0.9482 - val_loss: 0.3066 - val_acc: 0.8738
+Epoch 8/10
+20000/20000 [==============================] - 45s 2ms/step - loss: 0.1429 - acc: 0.9513 - val_loss: 0.4828 - val_acc: 0.8404
+Epoch 9/10
+20000/20000 [==============================] - 47s 2ms/step - loss: 0.1278 - acc: 0.9554 - val_loss: 0.3790 - val_acc: 0.8838
+Epoch 10/10
+20000/20000 [==============================] - 49s 2ms/step - loss: 0.1162 - acc: 0.9593 - val_loss: 0.3512 - val_acc: 0.8512
+</code></pre><p>LSTM更适用于评论分析全局的长期性结构（这正是LSTM所擅长的），对情感分析问题帮助不大。对于这样的基本问题，观察每条评论中出现了哪些词及其出现频率就可以很好地解决。这也正是第一个全连接方法的做法。但还有更加困难的自然语言处理问题，特别是问答和机器翻译，这时LSTM的优势就明显了。</p>
+<h1 id="三、循环神经网络的高级用法"><a href="#三、循环神经网络的高级用法" class="headerlink" title="三、循环神经网络的高级用法"></a>三、循环神经网络的高级用法</h1><p>本节将介绍提高循环神经网络的性能和泛化能力的三种高级技巧。学完本节，你将会掌握用Keras实现循环网络的大部分内容。我们将在温度预测问题中介绍这三个概念。在这个问题中，数据点时间序列来自建筑物屋顶安装的传感器，包括温度、气压、湿度等，你将要利用这些数据来预测最后一个数据点24小时之后的温度。这是一个相当有挑战性的问题，其中包含许多处理时间序列时经常遇到的困难。</p>
+<p>我们将会介绍以下三种技巧。</p>
+<ul>
+<li>循环<code>dropout</code>（recurrent dropout）。这是一种特殊的内置方法，在循环层中使用<code>dropout</code>来降低过拟合</li>
+<li>堆叠循环层（stacking recurrent layers）。这会提高网络的表示能力（代价是更高的计算负荷）</li>
+<li>双向循环层（bidirectional recurrent layer）。将相同的信息以不同的方式呈现给循环网络，可以提高精度并缓解遗忘问题</li>
+</ul>
+<h2 id="1-温度预测问题"><a href="#1-温度预测问题" class="headerlink" title="1. 温度预测问题"></a>1. 温度预测问题</h2><p>到目前为止，我们遇到的唯一一种序列数据就是文本数据，比如IMDB数据集和路透社数据集。但除了语言处理，其他许多问题中也都用到了序列数据。在本节的所有例子中，我们将使用一个天气时间序列数据集，它由德国耶拿的马克思• 普朗克生物地球化学研究所的气象站记录。</p>
+<p>在这个数据集中，每10分钟记录14个不同的量（比如气温、气压、湿度、风向等），其中包含多年的记录。原始数据可追溯到2003年，但本例仅使用2009—2016年的数据。这个数据集非常适合用来学习处理数值型时间序列。我们将会用这个数据集来构建模型，输入最近的一些数据（几天的数据点），可以预测24小时之后的气温。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line">data_dir = <span class="string">'data/climate/'</span></span><br><span class="line">fname = os.path.join(data_dir, <span class="string">'jena_climate_2009_2016.csv'</span>)</span><br><span class="line">f = open(fname)</span><br><span class="line">data = f.read()</span><br><span class="line">f.close()</span><br><span class="line">lines = data.split(<span class="string">'\n'</span>)</span><br><span class="line">header = lines[<span class="number">0</span>].split(<span class="string">','</span>)</span><br><span class="line">lines = lines[<span class="number">1</span>:]</span><br><span class="line">print(header)</span><br><span class="line">print(len(lines))</span><br></pre></td></tr></table></figure>
+<pre><code>[&#39;&quot;Date Time&quot;&#39;, &#39;&quot;p (mbar)&quot;&#39;, &#39;&quot;T (degC)&quot;&#39;, &#39;&quot;Tpot (K)&quot;&#39;, &#39;&quot;Tdew (degC)&quot;&#39;, &#39;&quot;rh (%)&quot;&#39;, &#39;&quot;VPmax (mbar)&quot;&#39;, &#39;&quot;VPact (mbar)&quot;&#39;, &#39;&quot;VPdef (mbar)&quot;&#39;, &#39;&quot;sh (g/kg)&quot;&#39;, &#39;&quot;H2OC (mmol/mol)&quot;&#39;, &#39;&quot;rho (g/m**3)&quot;&#39;, &#39;&quot;wv (m/s)&quot;&#39;, &#39;&quot;max. wv (m/s)&quot;&#39;, &#39;&quot;wd (deg)&quot;&#39;]
+420451
+</code></pre><p>从输出可以看出，共有 420 551 行数据（每行是一个时间步，记录了一个日期和 14 个与天气有关的值），接下来，将 420 551 行数据转换成一个Numpy数组。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">float_data = np.zeros((len(lines), len(header) - <span class="number">1</span>))</span><br><span class="line"><span class="keyword">for</span> i, line <span class="keyword">in</span> enumerate(lines):</span><br><span class="line">    values = [float(x) <span class="keyword">for</span> x <span class="keyword">in</span> line.split(<span class="string">','</span>)[<span class="number">1</span>:]]</span><br><span class="line">    float_data[i, :] = values</span><br><span class="line"></span><br><span class="line"><span class="comment"># 绘制温度时间序列</span></span><br><span class="line"><span class="keyword">from</span> matplotlib <span class="keyword">import</span> pyplot <span class="keyword">as</span> plt</span><br><span class="line">temp = float_data[:, <span class="number">1</span>] <span class="comment"># 温度（单位：摄氏度）</span></span><br><span class="line">plt.plot(range(len(temp)), temp)</span><br></pre></td></tr></table></figure>
+<center>
+    <img src="\Pic\DeepLearning_Pic\output_56_1.png" width="400" height="400" alt="b" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;"></div>
+</center>
+
+
+
+<p>下图给出了前 10 天温度数据的图像，因为每 10 分钟记录一个数据，所以每天有 144 个数据点。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">plt.plot(range(<span class="number">1440</span>), temp[:<span class="number">1440</span>])</span><br></pre></td></tr></table></figure>
+<center>
+    <img src="\Pic\DeepLearning_Pic\output_58_1.png" width="400" height="400" alt="b" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;"></div>
+</center>
+
+
+<p>在这张图中，你可以看到每天的周期性变化，尤其是最后4 天特别明显。另外请注意，这 10 天一定是来自于很冷的冬季月份。</p>
+<p>如果你想根据过去几个月的数据来预测下个月的平均温度，那么问题很简单，因为数据具有可靠的年度周期性。但从几天的数据来看，温度看起来更混乱一些。以天作为观察尺度，这个时间序列是可以预测的吗？我们来寻找这个问题的答案。</p>
+<h2 id="2-准备数据"><a href="#2-准备数据" class="headerlink" title="2. 准备数据"></a>2. 准备数据</h2><p>这个问题的确切表述如下：一个时间步是 10 分钟，每 <code>steps</code> 个时间步采样一次数据，给定过去 <code>lookback</code> 个时间步之内的数据，能否预测 <code>delay</code> 个时间步之后的温度？用到的参数值如下。</p>
+<ul>
+<li><code>lookback = 720</code>：给定过去 5 天内的观测数据。</li>
+<li><code>steps = 6</code>：观测数据的采样频率是每小时一个数据点。</li>
+<li><code>delay = 144</code>：目标是未来 24 小时之后的数据。</li>
+</ul>
+<p>开始之前，你需要完成以下两件事。</p>
+<ul>
+<li>将数据预处理为神经网络可以处理的格式。这很简单。数据已经是数值型的，所以不需要做向量化。但数据中的每个时间序列位于不同的范围（比如温度通道位于 -20 到+30 之间，但气压大约在1000 毫巴上下）。你需要对每个时间序列分别做标准化，让它们在相似的范围内都取较小的值。</li>
+<li>编写一个 Python 生成器，以当前的浮点数数组作为输入，并从最近的数据中生成数据批量，同时生成未来的目标温度。因为数据集中的样本是高度冗余的（对于第 <code>N</code> 个样本和第 <code>N+1</code> 个样本，大部分时间步都是相同的），所以显式地保存每个样本是一种浪费。相反，我们将使用原始数据即时生成样本。</li>
+</ul>
+<p>预处理数据的方法是，将每个时间序列减去其平均值，然后除以其标准差。我们将使用前 200 000 个时间步作为训练数据，所以只对这部分数据计算平均值和标准差。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mean = float_data[:<span class="number">200000</span>].mean(axis=<span class="number">0</span>)</span><br><span class="line">float_data -= mean</span><br><span class="line">std = float_data[:<span class="number">200000</span>].std(axis=<span class="number">0</span>)</span><br><span class="line">float_data /= std</span><br></pre></td></tr></table></figure>
+<p>下面的代码给出了将要用到的生成器。它生成了一个元组<code>(samples, targets)</code>，其中<code>samples</code>是输入数据的一个批量，<code>targets</code>是对应的目标温度数组。生成器的参数如下：</p>
+<ul>
+<li><code>data</code>：浮点数数据组成的原始数组，我们已将其标准化。</li>
+<li><code>lookback</code>：输入数据应该包括过去多少个时间步。</li>
+<li><code>delay</code>：目标应该在未来多少个时间步之后。</li>
+<li><code>min_index</code> 和 <code>max_index</code>：data 数组中的索引，用于界定需要抽取哪些时间步。这有助于保存一部分数据用于验证、另一部分用于测试。</li>
+<li><code>shuffle</code>：是打乱样本，还是按顺序抽取样本。</li>
+<li><code>batch_size</code>：每个批量的样本数。</li>
+<li><code>step</code>：数据采样的周期（单位：时间步）。我们将其设为6，为的是每小时抽取一个数据点。</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 生成时间序列样本及其目标的生成器</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">generator</span><span class="params">(data, lookback, delay, min_index, max_index, shuffle=False, batch_size=<span class="number">128</span>, step=<span class="number">6</span>)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> max_index <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        max_index = len(data) - delay - <span class="number">1</span></span><br><span class="line">    i = min_index + lookback</span><br><span class="line">    <span class="keyword">while</span> <span class="number">1</span>:</span><br><span class="line">        <span class="keyword">if</span> shuffle:</span><br><span class="line">            rows = np.random.randint(min_index + lookback, max_index, size=batch_size)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">if</span> i + batch_size &gt;= max_index:</span><br><span class="line">                i = min_index + lookback</span><br><span class="line">            rows = np.arange(i, min(i + batch_size, max_index))</span><br><span class="line">            i += len(rows)</span><br><span class="line">        samples = np.zeros((len(rows), lookback // step, data.shape[<span class="number">-1</span>]))</span><br><span class="line">        targets = np.zeros((len(rows),))</span><br><span class="line">        <span class="keyword">for</span> j, row <span class="keyword">in</span> enumerate(rows):</span><br><span class="line">            indices = range(rows[j] - lookback, rows[j], step)</span><br><span class="line">            samples[j] = data[indices]</span><br><span class="line">            targets[j] = data[rows[j] + delay][<span class="number">1</span>]</span><br><span class="line">        <span class="keyword">yield</span> samples, targets</span><br></pre></td></tr></table></figure>
+<p>下面，我们使用这个抽象的<code>generator</code>函数来实例化三个生成器：一个用于训练，一个用于验证，还有一个用于测试。每个生成器分别读取原始数据的不同时间段：训练生成器读取前 200 000 个时间步，验证生成器读取随后的 100 000 个时间步，测试生成器读取剩下的时间步。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">lookback = <span class="number">1440</span></span><br><span class="line">step = <span class="number">6</span></span><br><span class="line">delay = <span class="number">144</span></span><br><span class="line">batch_size = <span class="number">128</span></span><br><span class="line"></span><br><span class="line">train_gen = generator(float_data,</span><br><span class="line">                lookback=lookback,</span><br><span class="line">                delay=delay,</span><br><span class="line">                min_index=<span class="number">0</span>,</span><br><span class="line">                max_index=<span class="number">200000</span>,</span><br><span class="line">                shuffle=<span class="literal">True</span>,</span><br><span class="line">                step=step,</span><br><span class="line">                batch_size=batch_size)</span><br><span class="line">val_gen = generator(float_data,</span><br><span class="line">                lookback=lookback,</span><br><span class="line">                delay=delay,</span><br><span class="line">                min_index=<span class="number">200001</span>,</span><br><span class="line">                max_index=<span class="number">300000</span>,</span><br><span class="line">                step=step,</span><br><span class="line">                batch_size=batch_size)</span><br><span class="line">test_gen = generator(float_data,</span><br><span class="line">                lookback=lookback,</span><br><span class="line">                delay=delay,</span><br><span class="line">                min_index=<span class="number">300001</span>,</span><br><span class="line">                max_index=<span class="literal">None</span>,</span><br><span class="line">                step=step,</span><br><span class="line">                batch_size=batch_size)</span><br><span class="line"></span><br><span class="line">val_steps = (<span class="number">300000</span> - <span class="number">200001</span> - lookback) //batch_size</span><br><span class="line">test_steps = (len(float_data) - <span class="number">300001</span> - lookback) //batch_size</span><br></pre></td></tr></table></figure>
+<h2 id="3-一种基于常识的、非机器学习的基准方法"><a href="#3-一种基于常识的、非机器学习的基准方法" class="headerlink" title="3. 一种基于常识的、非机器学习的基准方法"></a>3. 一种基于常识的、非机器学习的基准方法</h2><p>开始使用黑盒深度学习模型解决温度预测问题之前，我们先尝试一种基于常识的简单方法。它可以作为合理性检查，还可以建立一个基准，更高级的机器学习模型需要打败这个基准才能表现出其有效性。面对一个尚没有已知解决方案的新问题时，这种基于常识的基准方法很有用。</p>
+<p>一个经典的例子就是不平衡的分类任务，其中某些类别比其他类别更常见。如果数据集中包含 90% 的类别 A 实例和 10% 的类别B 实例，那么分类任务的一种基于常识的方法就是对新样本始终预测类别“A”。这种分类器的总体精度为90%，因此任何基于学习的方法在精度高于90%时才能证明其有效性。有时候，这样基本的基准方法可能很难打败。</p>
+<p>本例中，我们可以放心地假设，温度时间序列是连续的（明天的温度很可能接近今天的温度），并且具有每天的周期性变化。因此，一种基于常识的方法就是始终预测 24 小时后的温度等于现在的温度。我们使用平均绝对误差（MAE）指标来评估这种方法。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">np.mean(np.abs(preds - targets))</span><br></pre></td></tr></table></figure><br>下面是评估的循环代码。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">evaluate_naive_method</span><span class="params">()</span>:</span></span><br><span class="line">    batch_maes = []</span><br><span class="line">    <span class="keyword">for</span> step <span class="keyword">in</span> range(val_steps):</span><br><span class="line">        samples, targets = next(val_gen)</span><br><span class="line">        preds = samples[:, <span class="number">-1</span>, <span class="number">1</span>]</span><br><span class="line">        mae = np.mean(np.abs(preds - targets))</span><br><span class="line">        batch_maes.append(mae)</span><br><span class="line">    print(np.mean(batch_maes))</span><br><span class="line">evaluate_naive_method()</span><br><span class="line">    <span class="comment"># 0.2897359729905486</span></span><br></pre></td></tr></table></figure>
+<p>得到的 MAE 为 0.29。因为温度数据被标准化成均值为0、标准差为1，所以无法直接对这个值进行解释。它转化成温度的平均绝对误差为<code>0.29×temperature_std</code>摄氏度，即2.57℃。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 将 MAE 转换成摄氏温度误差</span></span><br><span class="line">celsius_mae = <span class="number">0.29</span> * std[<span class="number">1</span>]</span><br><span class="line">celsius_mae</span><br><span class="line">    <span class="comment"># 2.5672247338393395</span></span><br></pre></td></tr></table></figure>
+<p>这个平均绝对误差还是相当大的。接下来的任务是利用深度学习知识来改进结果。</p>
+<h2 id="4-一种基本的机器学习方法"><a href="#4-一种基本的机器学习方法" class="headerlink" title="4. 一种基本的机器学习方法"></a>4. 一种基本的机器学习方法</h2><p>在尝试机器学习方法之前，建立一个基于常识的基准方法是很有用的；同样，在开始研究复杂且计算代价很高的模型（比如RNN）之前，尝试使用简单且计算代价低的机器学习模型也是很有用的，比如小型的密集连接网络。这可以保证进一步增加问题的复杂度是合理的，并且会带来真正的好处。</p>
+<p>下面代码给出了一个密集连接模型，首先将数据展平，然后通过两个<code>Dense</code>层并运行。注意，最后一个<code>Dense</code>层没有使用激活函数，这对于回归问题是很常见的。我们使用<code>MAE</code>作为损失。评估数据和评估指标都与常识方法完全相同，所以可以直接比较两种方法的结果。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 训练并评估一个密集连接模型</span></span><br><span class="line"><span class="keyword">from</span> keras.models <span class="keyword">import</span> Sequential</span><br><span class="line"><span class="keyword">from</span> keras <span class="keyword">import</span> layers</span><br><span class="line"><span class="keyword">from</span> keras.optimizers <span class="keyword">import</span> RMSprop</span><br><span class="line">model = Sequential()</span><br><span class="line">model.add(layers.Flatten(input_shape=(lookback // step, float_data.shape[<span class="number">-1</span>])))</span><br><span class="line">model.add(layers.Dense(<span class="number">32</span>, activation=<span class="string">'relu'</span>))</span><br><span class="line">model.add(layers.Dense(<span class="number">1</span>))</span><br><span class="line">model.compile(optimizer=RMSprop(), loss=<span class="string">'mae'</span>)</span><br><span class="line">history = model.fit_generator(train_gen,</span><br><span class="line">                        steps_per_epoch=<span class="number">500</span>,</span><br><span class="line">                        epochs=<span class="number">20</span>,</span><br><span class="line">                        validation_data=val_gen,</span><br><span class="line">                        validation_steps=val_steps)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 绘制曲线</span></span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line">loss = history.history[<span class="string">'loss'</span>]</span><br><span class="line">val_loss = history.history[<span class="string">'val_loss'</span>]</span><br><span class="line">epochs = range(<span class="number">1</span>, len(loss) + <span class="number">1</span>)</span><br><span class="line">plt.figure()</span><br><span class="line">plt.plot(epochs, loss, <span class="string">'bo'</span>, label=<span class="string">'Training loss'</span>)</span><br><span class="line">plt.plot(epochs, val_loss, <span class="string">'b'</span>, label=<span class="string">'Validation loss'</span>)</span><br><span class="line">plt.title(<span class="string">'Training and validation loss'</span>)</span><br><span class="line">plt.legend()</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<center>
+    <img src="\Pic\DeepLearning_Pic\output_70_1.png" width="400" height="400" alt="b" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;"></div>
+</center>
+
+
+<p>部分验证损失接近不包含学习的基准方法，但这个结果并不可靠。这也展示了首先建立这个基准方法的优点，事实证明，超越这个基准并不容易。我们的常识中包含了大量有价值的信息，而机器学习模型并不知道这些信息。</p>
+<p>你可能会问，如果从数据到目标之间存在一个简单且表现良好的模型（即基于常识的基准方法），那为什么我们训练的模型没有找到这个模型并进一步改进呢？原因在于，这个简单的解决方案并不是训练过程所要寻找的目标。我们在模型空间（即假设空间）中搜索解决方案，这个模型空间是具有我们所定义的架构的所有两层网络组成的空间。这些网络已经相当复杂了。如果你在一个复杂模型的空间中寻找解决方案，那么可能无法学到简单且性能良好的基准方法，虽然技术上来说它属于假设空间的一部分。</p>
+<p>通常来说，这对机器学习是一个非常重要的限制：如果学习算法没有被硬编码要求去寻找特定类型的简单模型，那么有时候参数学习是无法找到简单问题的简单解决方案的。</p>
+<h2 id="5-第一个循环网络基准"><a href="#5-第一个循环网络基准" class="headerlink" title="5. 第一个循环网络基准"></a>5. 第一个循环网络基准</h2><p>第一个全连接方法的效果并不好，但这并不意味着机器学习不适用于这个问题。前一个方法首先将时间序列展平，这从输入数据中删除了时间的概念。我们来看一下数据本来的样子：它是一个序列，其中因果关系和顺序都很重要。我们将尝试一种循环序列处理模型，它应该特别适合这种序列数据，因为它利用了数据点的时间顺序，这与第一个方法不同。</p>
+<p>我们将使用 Chung 等人在2014 年开发的 GRU 层，而不是上一节介绍的 LSTM 层。门控循环单元（GRU，gated recurrent unit）层的工作原理与 LSTM 相同。但它做了一些简化，因此运行的计算代价更低（虽然表示能力可能不如LSTM），机器学习中到处可以见到这种计算代价与表示能力之间的折中。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 训练并评估一个基于 GRU 的模型</span></span><br><span class="line"><span class="keyword">from</span> keras.models <span class="keyword">import</span> Sequential</span><br><span class="line"><span class="keyword">from</span> keras <span class="keyword">import</span> layers</span><br><span class="line"><span class="keyword">from</span> keras.optimizers <span class="keyword">import</span> RMSprop</span><br><span class="line">model = Sequential()</span><br><span class="line">model.add(layers.GRU(<span class="number">32</span>, input_shape=(<span class="literal">None</span>, float_data.shape[<span class="number">-1</span>])))</span><br><span class="line">model.add(layers.Dense(<span class="number">1</span>))</span><br><span class="line">model.compile(optimizer=RMSprop(), loss=<span class="string">'mae'</span>)</span><br><span class="line">history = model.fit_generator(train_gen,</span><br><span class="line">                        steps_per_epoch=<span class="number">500</span>,</span><br><span class="line">                        epochs=<span class="number">20</span>,</span><br><span class="line">                        validation_data=val_gen,</span><br><span class="line">                        validation_steps=val_steps)</span><br></pre></td></tr></table></figure>
+<p>效果好多了！远优于基于常识的基准方法。这证明了机器学习的价值，也证明了循环网络与序列展平的密集网络相比在这种任务上的优势。</p>
+<h2 id="6-使用循环dropout来降低过拟合"><a href="#6-使用循环dropout来降低过拟合" class="headerlink" title="6. 使用循环dropout来降低过拟合"></a>6. 使用循环<code>dropout</code>来降低过拟合</h2><p>从训练和验证曲线中可以明显看出，模型出现过拟合：几轮过后，训练损失和验证损失就开始显著偏离。我们已经学过降低过拟合的一种经典技术——<code>dropout</code>，即将某一层的输入单元随机设为0，其目的是打破该层训练数据中的偶然相关性。但在循环网络中如何正确地使用<code>dropout</code>，这并不是一个简单的问题。人们早就知道，在循环层前面应用<code>dropout</code>，这种正则化会妨碍学习过程，而不是有所帮助。2015 年，在关于贝叶斯深度学习的博士论文中，Yarin Gal确定了在循环网络中使用<code>dropout</code>的正确方法：<strong>对每个时间步应该使用相同的<code>dropout</code>掩码（dropout mask，相同模式的舍弃单元），而不是让<code>dropout</code>掩码随着时间步的增加而随机变化。</strong> 此外，为了对GRU、LSTM等循环层得到的表示做正则化，应该将不随时间变化的<code>dropout</code>掩码应用于层的内部循环激活（叫作循环<code>dropout</code>掩码）。对每个时间步使用相同的<code>dropout</code>掩码，可以让网络沿着时间正确地传播其学习误差，而随时间随机变化的<code>dropout</code>掩码则会破坏这个误差信号，并且不利于学习过程。</p>
+<p>Yarin Gal 使用Keras开展这项研究，并帮助将这种机制直接内置到Keras循环层中。Keras的每个循环层都有两个与<code>dropout</code>相关的参数：一个是<code>dropout</code>，它是一个浮点数，指定该层输入单元的<code>dropout</code>比率；另一个是<code>recurrent_dropout</code>，指定循环单元的<code>dropout</code>比率。我们向GRU 层中添加<code>dropout</code>和循环<code>dropout</code>，看一下这么做对过拟合的影响。因为使用<code>dropout</code>正则化的网络总是需要更长的时间才能完全收敛，所以网络训练轮次增加为原来的2倍。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 训练并评估一个使用dropout正则化的基于GRU的模型</span></span><br><span class="line"><span class="keyword">from</span> keras.models <span class="keyword">import</span> Sequential</span><br><span class="line"><span class="keyword">from</span> keras <span class="keyword">import</span> layers</span><br><span class="line"><span class="keyword">from</span> keras.optimizers <span class="keyword">import</span> RMSprop</span><br><span class="line">model = Sequential()</span><br><span class="line">model.add(layers.GRU(<span class="number">32</span>,</span><br><span class="line">        dropout=<span class="number">0.2</span>,</span><br><span class="line">        recurrent_dropout=<span class="number">0.2</span>,</span><br><span class="line">        input_shape=(<span class="literal">None</span>, float_data.shape[<span class="number">-1</span>])))</span><br><span class="line">model.add(layers.Dense(<span class="number">1</span>))</span><br><span class="line">model.compile(optimizer=RMSprop(), loss=<span class="string">'mae'</span>)</span><br><span class="line">history = model.fit_generator(train_gen,</span><br><span class="line">                        steps_per_epoch=<span class="number">500</span>,</span><br><span class="line">                        epochs=<span class="number">1</span>,</span><br><span class="line">                        validation_data=val_gen,</span><br><span class="line">                        validation_steps=val_steps)</span><br></pre></td></tr></table></figure>
+<p>成功！前30个轮次不再过拟合。不过，虽然评估分数更加稳定，但最佳分数并没有比之前低很多。</p>
+<h2 id="7-循环层堆叠"><a href="#7-循环层堆叠" class="headerlink" title="7. 循环层堆叠"></a>7. 循环层堆叠</h2><p>模型不再过拟合，但似乎遇到了性能瓶颈，所以我们应该考虑增加网络容量。回想一下机器学习的通用工作流程：增加网络容量通常是一个好主意，直到过拟合变成主要的障碍（假设你已经采取基本步骤来降低过拟合，比如使用dropout）。只要过拟合不是太严重，那么很可能是容量不足的问题。</p>
+<p>增加网络容量的通常做法是增加每层单元数或增加层数。循环层堆叠（recurrent layer stacking）是构建更加强大的循环网络的经典方法，例如，目前谷歌翻译算法就是7个大型LSTM 层的堆叠——这个架构很大。</p>
+<p>在Keras中逐个堆叠循环层，所有中间层都应该返回完整的输出序列（一个3D张量），而不是只返回最后一个时间步的输出。这可以通过指定<code>return_sequences=True</code>来实现。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 训练并评估一个使用dropout正则化的堆叠GRU模型</span></span><br><span class="line"><span class="keyword">from</span> keras.models <span class="keyword">import</span> Sequential</span><br><span class="line"><span class="keyword">from</span> keras <span class="keyword">import</span> layers</span><br><span class="line"><span class="keyword">from</span> keras.optimizers <span class="keyword">import</span> RMSprop</span><br><span class="line">model = Sequential()</span><br><span class="line">model.add(layers.GRU(<span class="number">32</span>,</span><br><span class="line">        dropout=<span class="number">0.1</span>,</span><br><span class="line">        recurrent_dropout=<span class="number">0.5</span>,</span><br><span class="line">        return_sequences=<span class="literal">True</span>,</span><br><span class="line">        input_shape=(<span class="literal">None</span>, float_data.shape[<span class="number">-1</span>])))</span><br><span class="line">model.add(layers.GRU(<span class="number">64</span>, activation=<span class="string">'relu'</span>,</span><br><span class="line">        dropout=<span class="number">0.1</span>,</span><br><span class="line">        recurrent_dropout=<span class="number">0.5</span>))</span><br><span class="line">model.add(layers.Dense(<span class="number">1</span>))</span><br><span class="line">model.compile(optimizer=RMSprop(), loss=<span class="string">'mae'</span>)</span><br><span class="line">history = model.fit_generator(train_gen,</span><br><span class="line">                            steps_per_epoch=<span class="number">500</span>,</span><br><span class="line">                            epochs=<span class="number">1</span>,</span><br><span class="line">                            validation_data=val_gen,</span><br><span class="line">                            validation_steps=val_steps)</span><br></pre></td></tr></table></figure>
+<p>可以看到，添加一层的确对结果有所改进，但并不显著。我们可以得出两个结论:</p>
+<ul>
+<li>因为过拟合仍然不是很严重，所以可以放心地增大每层的大小，以进一步改进验证损失。但这么做的计算成本很高。</li>
+<li>添加一层后模型并没有显著改进，所以你可能发现，提高网络能力的回报在逐渐减小。</li>
+</ul>
+<h2 id="8-使用双向RNN"><a href="#8-使用双向RNN" class="headerlink" title="8. 使用双向RNN"></a>8. 使用双向RNN</h2><p>本节介绍的最后一种方法叫作双向RNN（bidirectional RNN）。双向RNN是一种常见的RNN变体，它在某些任务上的性能比普通RNN更好。它常用于自然语言处理，可谓深度学习对自然语言处理的瑞士军刀。</p>
+<p>RNN特别依赖于顺序或时间，RNN按顺序处理输入序列的时间步，而打乱时间步或反转时间步会完全改变RNN从序列中提取的表示。正是由于这个原因，如果顺序对问题很重要（比如温度预测问题），RNN的表现会很好。双向RNN利用了RNN 的顺序敏感性：它包含两个普通RNN，比如你已经学过的GRU层和LSTM层，每个RNN分别沿一个方向对输入序列进行处理（时间正序和时间逆序），然后将它们的表示合并在一起。通过沿这两个方向处理序列，双向RNN能够捕捉到可能被单向RNN忽略的模式。</p>
+<p>值得注意的是，本节的RNN 层都是按时间正序处理序列（更早的时间步在前），这可能是一个随意的决定。至少，至今我们还没有尝试质疑这个决定。如果RNN按时间逆序处理输入序列（更晚的时间步在前），能否表现得足够好呢？我们在实践中尝试一下这种方法，看一下会发生什么。你只需要编写一个数据生成器的变体，将输入序列沿着时间维度反转（即将最后一行代码替换为<code>yield samples[:, ::-1, :], targets）</code>。本节第一个实验用到了一个单GRU层的网络，我们训练一个与之相同的网络，得到的结果如图所示。</p>
+<center>
+    <img src="\Pic\DeepLearning_Pic\res1.png" width="400" height="400" alt="对于耶拿温度预测任务，GRU在逆序序列上训练得到的训练损失和验证损失" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">对于耶拿温度预测任务，GRU在逆序序列上训练得到的训练损失和验证损失</div>
+</center>
+
+
+<p>逆序GRU的效果甚至比基于常识的基准方法还要差很多，这说明在本例中，按时间正序处理对成功解决问题很重要。这非常合理：GRU层通常更善于记住最近的数据，而不是久远的数据，与更早的数据点相比，更靠后的天气数据点对问题自然具有更高的预测能力（这也是基于常识的基准方法非常强大的原因）。因此，按时间正序的模型必然会优于时间逆序的模型。重要的是，对许多其他问题（包括自然语言）而言，情况并不是这样：直觉上来看，一个单词对理解句子的重要性通常并不取决于它在句子中的位置。我们尝试对IMDB示例中的LSTM应用相同的技巧。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用逆序序列训练并评估一个LSTM</span></span><br><span class="line"><span class="keyword">from</span> keras.datasets <span class="keyword">import</span> imdb</span><br><span class="line"><span class="keyword">from</span> keras.preprocessing <span class="keyword">import</span> sequence</span><br><span class="line"><span class="keyword">from</span> keras <span class="keyword">import</span> layers</span><br><span class="line"><span class="keyword">from</span> keras.models <span class="keyword">import</span> Sequential</span><br><span class="line">max_features = <span class="number">10000</span></span><br><span class="line">maxlen = <span class="number">500</span></span><br><span class="line">(x_train, y_train), (x_test, y_test) = imdb.load_data(num_words=max_features)</span><br><span class="line">x_train = [x[::<span class="number">-1</span>] <span class="keyword">for</span> x <span class="keyword">in</span> x_train]</span><br><span class="line">x_test = [x[::<span class="number">-1</span>] <span class="keyword">for</span> x <span class="keyword">in</span> x_test]</span><br><span class="line">x_train = sequence.pad_sequences(x_train, maxlen=maxlen)</span><br><span class="line">x_test = sequence.pad_sequences(x_test, maxlen=maxlen)</span><br><span class="line">model = Sequential()</span><br><span class="line">model.add(layers.Embedding(max_features, <span class="number">128</span>))</span><br><span class="line">model.add(layers.LSTM(<span class="number">32</span>))</span><br><span class="line">model.add(layers.Dense(<span class="number">1</span>, activation=<span class="string">'sigmoid'</span>))</span><br><span class="line">model.compile(optimizer=<span class="string">'rmsprop'</span>,</span><br><span class="line">            loss=<span class="string">'binary_crossentropy'</span>,</span><br><span class="line">            metrics=[<span class="string">'acc'</span>])</span><br><span class="line">history = model.fit(x_train, y_train,</span><br><span class="line">            epochs=<span class="number">10</span>,</span><br><span class="line">            batch_size=<span class="number">128</span>,</span><br><span class="line">            validation_split=<span class="number">0.2</span>)</span><br></pre></td></tr></table></figure>
+<pre><code>Train on 20000 samples, validate on 5000 samples
+Epoch 1/10
+20000/20000 [==============================] - 83s 4ms/step - loss: 0.4988 - acc: 0.7621 - val_loss: 0.3412 - val_acc: 0.8684
+Epoch 2/10
+20000/20000 [==============================] - 85s 4ms/step - loss: 0.3184 - acc: 0.8795 - val_loss: 0.3068 - val_acc: 0.8814
+Epoch 3/10
+20000/20000 [==============================] - 86s 4ms/step - loss: 0.2544 - acc: 0.9025 - val_loss: 0.3151 - val_acc: 0.8798
+Epoch 4/10
+20000/20000 [==============================] - 78s 4ms/step - loss: 0.2133 - acc: 0.9225 - val_loss: 0.3849 - val_acc: 0.8544
+Epoch 5/10
+20000/20000 [==============================] - 83s 4ms/step - loss: 0.1877 - acc: 0.9332 - val_loss: 0.3698 - val_acc: 0.8684
+Epoch 6/10
+20000/20000 [==============================] - 73s 4ms/step - loss: 0.1675 - acc: 0.9416 - val_loss: 0.3680 - val_acc: 0.8418
+Epoch 7/10
+20000/20000 [==============================] - 76s 4ms/step - loss: 0.1474 - acc: 0.9488 - val_loss: 0.4329 - val_acc: 0.8504
+Epoch 8/10
+20000/20000 [==============================] - 70s 4ms/step - loss: 0.1316 - acc: 0.9559 - val_loss: 0.4002 - val_acc: 0.8484
+Epoch 9/10
+20000/20000 [==============================] - 77s 4ms/step - loss: 0.1163 - acc: 0.9593 - val_loss: 0.3937 - val_acc: 0.8736
+Epoch 10/10
+20000/20000 [==============================] - 73s 4ms/step - loss: 0.1023 - acc: 0.9685 - val_loss: 0.4931 - val_acc: 0.8652
+</code></pre><p>模型性能与正序LSTM几乎相同。值得注意的是，在这样一个文本数据集上，逆序处理的效果与正序处理一样好，这证实了一个假设：虽然单词顺序对理解语言很重要，但使用哪种顺序并不重要。重要的是，在逆序序列上训练的RNN学到的表示不同于在原始序列上学到的表示，正如在现实世界中，如果时间倒流（你的人生是第一天死去、最后一天出生），那么你的心智模型也会完全不同。在机器学习中，如果一种数据表示不同但有用，那么总是值得加以利用，这种表示与其他表示的差异越大越好，它们提供了查看数据的全新角度，抓住了数据中被其他方法忽略的内容，因此可以提高模型在某个任务上的性能。这是集成（ensembling）方法背后的直觉。</p>
+<p>双向RNN正是利用这个想法来提高正序RNN的性能。它从两个方向查看数据，从而得到更加丰富的表示，并捕捉到仅使用正序RNN时可能忽略的一些模式。</p>
+<center>
+    <img src="\Pic\DeepLearning_Pic\double_rnn.png" width="300" height="300" alt="双向RNN层的工作原理" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">双向RNN层的工作原理</div>
+</center>
+
+<p>在Keras中将一个双向RNN实例化，我们需要使用<code>Bidirectional</code>层，它的第一个参数是一个循环层实例。<code>Bidirectional</code>对这个循环层创建了第二个单独实例，然后使用一个实例按正序处理输入序列，另一个实例按逆序处理输入序列。我们在IMDB情感分析任务上来试一下这种方法。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 训练并评估一个双向LSTM</span></span><br><span class="line">model = Sequential()</span><br><span class="line">model.add(layers.Embedding(max_features, <span class="number">32</span>))</span><br><span class="line">model.add(layers.Bidirectional(layers.LSTM(<span class="number">32</span>)))</span><br><span class="line">model.add(layers.Dense(<span class="number">1</span>, activation=<span class="string">'sigmoid'</span>))</span><br><span class="line">model.compile(optimizer=<span class="string">'rmsprop'</span>, loss=<span class="string">'binary_crossentropy'</span>, metrics=[<span class="string">'acc'</span>])</span><br><span class="line">history = model.fit(x_train, y_train,</span><br><span class="line">                epochs=<span class="number">10</span>,</span><br><span class="line">                batch_size=<span class="number">128</span>,</span><br><span class="line">                validation_split=<span class="number">0.2</span>)</span><br></pre></td></tr></table></figure>
+<pre><code>Train on 20000 samples, validate on 5000 samples
+Epoch 1/10
+20000/20000 [==============================] - 133s 7ms/step - loss: 0.5509 - acc: 0.7215 - val_loss: 0.3725 - val_acc: 0.8560
+Epoch 2/10
+20000/20000 [==============================] - 146s 7ms/step - loss: 0.3318 - acc: 0.8729 - val_loss: 0.4149 - val_acc: 0.8526
+Epoch 3/10
+20000/20000 [==============================] - 134s 7ms/step - loss: 0.2647 - acc: 0.9024 - val_loss: 0.8188 - val_acc: 0.7226
+Epoch 4/10
+20000/20000 [==============================] - 136s 7ms/step - loss: 0.2384 - acc: 0.9178 - val_loss: 0.3252 - val_acc: 0.8760
+Epoch 5/10
+20000/20000 [==============================] - 143s 7ms/step - loss: 0.2025 - acc: 0.9269 - val_loss: 0.4345 - val_acc: 0.8728
+Epoch 6/10
+20000/20000 [==============================] - 146s 7ms/step - loss: 0.1841 - acc: 0.9362 - val_loss: 0.3524 - val_acc: 0.8728
+Epoch 7/10
+20000/20000 [==============================] - 136s 7ms/step - loss: 0.1692 - acc: 0.9416 - val_loss: 0.4050 - val_acc: 0.8450
+Epoch 8/10
+20000/20000 [==============================] - 138s 7ms/step - loss: 0.1523 - acc: 0.9474 - val_loss: 0.4994 - val_acc: 0.8456
+Epoch 9/10
+20000/20000 [==============================] - 141s 7ms/step - loss: 0.1356 - acc: 0.9538 - val_loss: 0.4161 - val_acc: 0.8792
+Epoch 10/10
+20000/20000 [==============================] - 141s 7ms/step - loss: 0.1338 - acc: 0.9547 - val_loss: 0.3581 - val_acc: 0.8648
+</code></pre><p>这个模型的表现比上一节的普通LSTM略好，这个模型似乎也很快就开始过拟合，这并不令人惊讶，因为双向层的参数个数是正序LSTM 的2倍。添加一些正则化，双向方法在这个任务上可能会有很好的表现。</p>
+<p>接下来，我们尝试将相同的方法应用于温度预测任务。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 训练一个双向GRU</span></span><br><span class="line"><span class="keyword">from</span> keras.models <span class="keyword">import</span> Sequential</span><br><span class="line"><span class="keyword">from</span> keras <span class="keyword">import</span> layers</span><br><span class="line"><span class="keyword">from</span> keras.optimizers <span class="keyword">import</span> RMSprop</span><br><span class="line">model = Sequential()</span><br><span class="line">model.add(layers.Bidirectional(layers.GRU(<span class="number">32</span>), input_shape=(<span class="literal">None</span>, float_data.shape[<span class="number">-1</span>])))</span><br><span class="line">model.add(layers.Dense(<span class="number">1</span>))</span><br><span class="line">model.compile(optimizer=RMSprop(), loss=<span class="string">'mae'</span>)</span><br><span class="line">history = model.fit_generator(train_gen,</span><br><span class="line">                            steps_per_epoch=<span class="number">500</span>,</span><br><span class="line">                            epochs=<span class="number">10</span>,</span><br><span class="line">                            validation_data=val_gen,</span><br><span class="line">                            validation_steps=val_steps)</span><br></pre></td></tr></table></figure>
+<p>这个模型的表现与普通GRU层差不多一样好。其原因很容易理解：所有的预测能力肯定都来自于正序的那一半网络，因为我们已经知道，逆序的那一半在这个任务上的表现非常糟糕（本例同样是因为最近的数据比久远的数据更加重要）。</p>
+<h2 id="9-更多尝试"><a href="#9-更多尝试" class="headerlink" title="9. 更多尝试"></a>9. 更多尝试</h2><p>为了提高温度预测问题的性能，你还可以尝试下面这些方法。</p>
+<ul>
+<li>在堆叠循环层中调节每层的单元个数，当前取值在很大程度上是任意选择的，因此可能不是最优的</li>
+<li>调节RMSprop优化器的学习率</li>
+<li>尝试使用LSTM层代替GRU层</li>
+<li>在循环层上面尝试使用更大的密集连接回归器，即更大的Dense层或Dense层的堆叠</li>
+<li>不要忘记最后在测试集上运行性能最佳的模型（即验证MAE最小的模型），否则，你开发的网络架构将会对验证集过拟合</li>
+</ul>
+<h1 id="四、用卷积神经网络处理序列"><a href="#四、用卷积神经网络处理序列" class="headerlink" title="四、用卷积神经网络处理序列"></a>四、用卷积神经网络处理序列</h1><p>前面我们学习了卷积神经网络（convnet），并知道它在计算机视觉问题上表现出色，原因在于它能够进行卷积运算，从局部输入图块中提取特征，并能够将表示模块化，同时可以高效地利用数据。这些性质让卷积神经网络在计算机视觉领域表现优异，同样也让它对序列处理特别有效。时间可以被看作一个空间维度，就像二维图像的高度或宽度。</p>
+<p>对于某些序列处理问题，这种一维卷积神经网络的效果可以媲美RNN，而且计算代价通常要小很多。最近，一维卷积神经网络［通常与空洞卷积核（dilated kernel）一起使用］已经在音频生成和机器翻译领域取得了巨大成功。除了这些具体的成就，人们还早已知道，对于文本分类和时间序列预测等简单任务，小型的一维卷积神经网络可以替代RNN，而且速度更快。</p>
+<h2 id="1-理解序列数据的一维卷积"><a href="#1-理解序列数据的一维卷积" class="headerlink" title="1. 理解序列数据的一维卷积"></a>1. 理解序列数据的一维卷积</h2><p>前面介绍的卷积层都是二维卷积，从图像张量中提取二维图块并对每个图块应用相同的变换。按照同样的方法，你也可以使用一维卷积，从序列中提取局部一维序列段（即子序列）</p>
+<p>这种一维卷积层可以识别序列中的局部模式。因为对每个序列段执行相同的输入变换，所以在句子中某个位置学到的模式稍后可以在其他位置被识别，这使得一维卷积神经网络具有平移不变性（对于时间平移而言）。举个例子，使用大小为5的卷积窗口处理字符序列的一维卷积神经网络，应该能够学习长度不大于5的单词或单词片段，并且应该能够在输入句子中的任何位置识别这些单词或单词段。因此，字符级的一维卷积神经网络能够学会单词构词法。</p>
+<center>
+    <img src="\Pic\DeepLearning_Pic\ODRNN.png" width="300" height="300" alt="一维卷积神经网络的工作原理：每个输出时间步都是利用输入序列
+在时间维度上的一小段得到的" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">一维卷积神经网络的工作原理：每个输出时间步都是利用输入序列在时间维度上的一小段得到的</div>
+</center>
+
+<h2 id="2-序列数据的一维池化"><a href="#2-序列数据的一维池化" class="headerlink" title="2. 序列数据的一维池化"></a>2. 序列数据的一维池化</h2><p>你已经学过二维池化运算，比如二维平均池化和二维最大池化，在卷积神经网络中用于对图像张量进行空间下采样。一维也可以做相同的池化运算：从输入中提取一维序列段（即子序列），然后输出其最大值（最大池化）或平均值（平均池化）。与二维卷积神经网络一样，该运算也是用于降低一维输入的长度（子采样）。</p>
+<h2 id="3-实现一维卷积神经网络"><a href="#3-实现一维卷积神经网络" class="headerlink" title="3. 实现一维卷积神经网络"></a>3. 实现一维卷积神经网络</h2><p>Keras中的一维卷积神经网络是<code>Conv1D</code>层，其接口类似于<code>Conv2D</code>。它接收的输入是形状为<code>(samples, time, features)</code>的三维张量，并返回类似形状的三维张量。卷积窗口是时间轴上的一维窗口（时间轴是输入张量的第二个轴）。</p>
+<p>我们来构建一个简单的两层一维卷积神经网络，并将其应用于我们熟悉的IMDB情感分类任务。提醒一下，获取数据并预处理的代码如下所示。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> keras.datasets <span class="keyword">import</span> imdb</span><br><span class="line"><span class="keyword">from</span> keras.preprocessing <span class="keyword">import</span> sequence</span><br><span class="line">max_features = <span class="number">10000</span></span><br><span class="line">max_len = <span class="number">500</span></span><br><span class="line">print(<span class="string">'Loading data...'</span>)</span><br><span class="line">(x_train, y_train), (x_test, y_test) = imdb.load_data(num_words=max_features)</span><br><span class="line">print(len(x_train), <span class="string">'train sequences'</span>)</span><br><span class="line">print(len(x_test), <span class="string">'test sequences'</span>)</span><br><span class="line">print(<span class="string">'Pad sequences (samples x time)'</span>)</span><br><span class="line">x_train = sequence.pad_sequences(x_train, maxlen=max_len)</span><br><span class="line">x_test = sequence.pad_sequences(x_test, maxlen=max_len)</span><br><span class="line">print(<span class="string">'x_train shape:'</span>, x_train.shape)</span><br><span class="line">print(<span class="string">'x_test shape:'</span>, x_test.shape)</span><br></pre></td></tr></table></figure>
+<p>一维卷积神经网络的架构与二维卷积神经网络相同，它是<code>Conv1D</code>层和<code>MaxPooling1D</code>层的堆叠，最后是一个全局池化层或<code>Flatten</code>层，将三维输出转换为二维输出，让你可以向模型中添加一个或多个<code>Dense</code>层，用于分类或回归。不过二者有一点不同：一维卷积神经网络可以使用更大的卷积窗口。对于二维卷积层，$3×3$的卷积窗口包含$3×3=9$个特征向量；但对于一位卷积层，大小为3的卷积窗口只包含3个卷积向量。因此，你可以轻松使用大小等于7或9 的一维卷积窗口。</p>
+<p>用于IMDB数据集的一维卷积神经网络示例如下所示。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在IMDB数据上训练并评估一个简单的一维卷积神经网络</span></span><br><span class="line"><span class="keyword">from</span> keras.models <span class="keyword">import</span> Sequential</span><br><span class="line"><span class="keyword">from</span> keras <span class="keyword">import</span> layers</span><br><span class="line"><span class="keyword">from</span> keras.optimizers <span class="keyword">import</span> RMSprop</span><br><span class="line">model = Sequential()</span><br><span class="line">model.add(layers.Embedding(max_features, <span class="number">128</span>, input_length=max_len))</span><br><span class="line">model.add(layers.Conv1D(<span class="number">32</span>, <span class="number">7</span>, activation=<span class="string">'relu'</span>))</span><br><span class="line">model.add(layers.MaxPooling1D(<span class="number">5</span>))</span><br><span class="line">model.add(layers.Conv1D(<span class="number">32</span>, <span class="number">7</span>, activation=<span class="string">'relu'</span>))</span><br><span class="line">model.add(layers.GlobalMaxPooling1D())</span><br><span class="line">model.add(layers.Dense(<span class="number">1</span>))</span><br><span class="line">model.summary()</span><br><span class="line">model.compile(optimizer=RMSprop(lr=<span class="number">1e-4</span>),</span><br><span class="line">            loss=<span class="string">'binary_crossentropy'</span>,</span><br><span class="line">            metrics=[<span class="string">'acc'</span>])</span><br><span class="line">history = model.fit(x_train, y_train,</span><br><span class="line">                epochs=<span class="number">10</span>,</span><br><span class="line">                batch_size=<span class="number">128</span>,</span><br><span class="line">                validation_split=<span class="number">0.2</span>)</span><br></pre></td></tr></table></figure>
+<p>验证精度略低于LSTM，但在CPU和GPU上的运行速度都要更快（速度提高多少取决于具体配置，会有很大差异）。现在，你可以使用正确的轮数（4 轮）重新训练这个模型，然后在测试集上运行。这个结果可以让我们确信，在单词级的情感分类任务上，一维卷积神经网络可以替代循环网络，并且速度更快、计算代价更低。</p>
+<center>
+    <img src="\Pic\DeepLearning_Pic\train_1.png" width="300" height="300" alt="简单的一维卷积神经网络在IMDB数据上的训练精度和验证精度" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">简单的一维卷积神经网络在IMDB数据上的训练损失和验证损失</div>
+</center>
+
+<center>
+    <img src="\Pic\DeepLearning_Pic\train_2.png" width="300" height="300" alt="简单的一维卷积神经网络在IMDB数据上的训练精度和验证精度" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">简单的一维卷积神经网络在IMDB数据上的训练损失和验证损失</div>
+</center>
+
+<h2 id="4-结合CNN和RNN来处理长序列"><a href="#4-结合CNN和RNN来处理长序列" class="headerlink" title="4. 结合CNN和RNN来处理长序列"></a>4. 结合CNN和RNN来处理长序列</h2><p>一维卷积神经网络分别处理每个输入序列段，所以它对时间步的顺序不敏感（这里所说顺序的范围要大于局部尺度，即大于卷积窗口的大小），这一点与RNN不同。当然，为了识别更长期的模式，你可以将许多卷积层和池化层堆叠在一起，这样上面的层能够观察到原始输入中更长的序列段，但这仍然不是一种引入顺序敏感性的好方法。想要证明这种方法的不足，一种方法是在温度预测问题上使用一维卷积神经网络，在这个问题中顺序敏感性对良好的预测结果非常关键。以下示例复用了前面定义的这些变量：float_data、train_gen、val_gen 和val_steps。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> keras.models <span class="keyword">import</span> Sequential</span><br><span class="line"><span class="keyword">from</span> keras <span class="keyword">import</span> layers</span><br><span class="line"><span class="keyword">from</span> keras.optimizers <span class="keyword">import</span> RMSprop</span><br><span class="line">model = Sequential()</span><br><span class="line">model.add(layers.Conv1D(<span class="number">32</span>, <span class="number">5</span>, activation=<span class="string">'relu'</span>,</span><br><span class="line">input_shape=(<span class="literal">None</span>, float_data.shape[<span class="number">-1</span>])))</span><br><span class="line">model.add(layers.MaxPooling1D(<span class="number">3</span>))</span><br><span class="line">model.add(layers.Conv1D(<span class="number">32</span>, <span class="number">5</span>, activation=<span class="string">'relu'</span>))</span><br><span class="line">model.add(layers.MaxPooling1D(<span class="number">3</span>))</span><br><span class="line">model.add(layers.Conv1D(<span class="number">32</span>, <span class="number">5</span>, activation=<span class="string">'relu'</span>))</span><br><span class="line">model.add(layers.GlobalMaxPooling1D())</span><br><span class="line">model.add(layers.Dense(<span class="number">1</span>))</span><br><span class="line">model.compile(optimizer=RMSprop(), loss=<span class="string">'mae'</span>)</span><br><span class="line">history = model.fit_generator(train_gen,</span><br><span class="line">                        steps_per_epoch=<span class="number">500</span>,</span><br><span class="line">                        epochs=<span class="number">10</span>,</span><br><span class="line">                        validation_data=val_gen,</span><br><span class="line">                        validation_steps=val_steps)</span><br></pre></td></tr></table></figure>
+<p>下图给出了训练和验证的MAE</p>
+<center>
+    <img src="\Pic\DeepLearning_Pic\train_3.png" width="300" height="300" alt="简单的一维卷积神经网络在温度预测任务上的训练损失和验证损失" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">简单的一维卷积神经网络在温度预测任务上的训练损失和验证损失</div>
+</center>
+
+<p>验证MAE 停留在<code>0.4~0.5</code>，使用小型卷积神经网络甚至无法击败基于常识的基准方法。同样，这是因为卷积神经网络在输入时间序列的所有位置寻找模式，它并不知道所看到某个模式的时间位置（距开始多长时间，距结束多长时间等）。对于这个具体的预测问题，对最新数据点的解释与对较早数据点的解释应该并不相同，所以卷积神经网络无法得到有意义的结果。卷积神经网络的这种限制对于IMDB 数据来说并不是问题，因为对于与正面情绪或负面情绪相关联的关键词模式，无论出现在输入句子中的什么位置，它所包含的信息量是一样的。</p>
+<p>要想结合卷积神经网络的速度和轻量与RNN 的顺序敏感性，一种方法是在RNN前面使用一维卷积神经网络作为预处理步骤。对于那些非常长，以至于RNN 无法处理的序列（比如包含上千个时间步的序列），这种方法尤其有用。卷积神经网络可以将长的输入序列转换为高级特征组成的更短序列（下采样）。然后，提取的特征组成的这些序列成为网络中RNN的输入。</p>
+<center>
+    <img src="\Pic\DeepLearning_Pic\long_term.png" width="200" height="200" alt="结合一维CNN和RNN来处理长序列" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">结合一维CNN和RNN来处理长序列</div>
+</center>
+
+<p>这种方法在研究论文和实际应用中并不多见，可能是因为很多人并不知道。这种方法非常有效，应该被更多人使用。我们尝试将其应用于温度预测数据集。因为这种方法允许操作更长的序列，所以我们可以查看更早的数据（通过增大数据生成器的<code>lookback</code>参数）或查看分辨率更高的时间序列（通过减小生成器的<code>step</code>参数）。这里我们任意地将<code>step</code>减半，得到时间序列的长度变为之前的两倍，温度数据的采样频率变为每30分钟一个数据点。本示例复用了之前定义的<code>generator</code>函数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 为耶拿数据集准备更高分辨率的数据生成器</span></span><br><span class="line">step = <span class="number">3</span></span><br><span class="line">lookback = <span class="number">720</span></span><br><span class="line">delay = <span class="number">144</span></span><br><span class="line">train_gen = generator(float_data,</span><br><span class="line">                    lookback=lookback,</span><br><span class="line">                    delay=delay,</span><br><span class="line">                    min_index=<span class="number">0</span>,</span><br><span class="line">                    max_index=<span class="number">200000</span>,</span><br><span class="line">                    shuffle=<span class="literal">True</span>,</span><br><span class="line">                    step=step)</span><br><span class="line">val_gen = generator(float_data,</span><br><span class="line">                    lookback=lookback,</span><br><span class="line">                    delay=delay,</span><br><span class="line">                    min_index=<span class="number">200001</span>,</span><br><span class="line">                    max_index=<span class="number">300000</span>,</span><br><span class="line">                    step=step)</span><br><span class="line">test_gen = generator(float_data,</span><br><span class="line">                    lookback=lookback,</span><br><span class="line">                    delay=delay,</span><br><span class="line">                    min_index=<span class="number">300001</span>,</span><br><span class="line">                    max_index=<span class="literal">None</span>,</span><br><span class="line">                    step=step)</span><br><span class="line">val_steps = (<span class="number">300000</span> - <span class="number">200001</span> - lookback) // <span class="number">128</span></span><br><span class="line">test_steps = (len(float_data) - <span class="number">300001</span> - lookback) // <span class="number">128</span></span><br></pre></td></tr></table></figure>
+<p>下面是模型，开始是两个<code>Conv1D</code>层，然后是一个<code>GRU</code>层。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 结合一维卷积基和GRU层的模型</span></span><br><span class="line"><span class="keyword">from</span> keras.models <span class="keyword">import</span> Sequential</span><br><span class="line"><span class="keyword">from</span> keras <span class="keyword">import</span> layers</span><br><span class="line"><span class="keyword">from</span> keras.optimizers <span class="keyword">import</span> RMSprop</span><br><span class="line">model = Sequential()</span><br><span class="line">model.add(layers.Conv1D(<span class="number">32</span>, <span class="number">5</span>, activation=<span class="string">'relu'</span>,input_shape=(<span class="literal">None</span>, float_data.shape[<span class="number">-1</span>])))</span><br><span class="line">model.add(layers.MaxPooling1D(<span class="number">3</span>))</span><br><span class="line">model.add(layers.Conv1D(<span class="number">32</span>, <span class="number">5</span>, activation=<span class="string">'relu'</span>))</span><br><span class="line">model.add(layers.GRU(<span class="number">32</span>, dropout=<span class="number">0.1</span>, recurrent_dropout=<span class="number">0.5</span>))</span><br><span class="line">model.add(layers.Dense(<span class="number">1</span>))</span><br><span class="line">model.summary()</span><br><span class="line">model.compile(optimizer=RMSprop(), loss=<span class="string">'mae'</span>)</span><br><span class="line">history = model.fit_generator(train_gen,</span><br><span class="line">                            steps_per_epoch=<span class="number">500</span>,</span><br><span class="line">                            epochs=<span class="number">20</span>,</span><br><span class="line">                            validation_data=val_gen,</span><br><span class="line">                            validation_steps=val_steps)</span><br></pre></td></tr></table></figure>
+<center>
+    <img src="\Pic\DeepLearning_Pic\train_4.png" width="300" height="300" alt="一维卷积神经网络+GRU在耶拿温度预测任务上的训练损失和验证损失" align="center">
+    <br>
+    <div style="color:orange; border-bottom: 1px solid #d9d9d9;
+    display: inline-block;
+    color: #999;
+    padding: 2px;">一维卷积神经网络+GRU在耶拿温度预测任务上的训练损失和验证损失</div>
+</center>
+
+<p>从验证损失来看，这种架构的效果不如只用正则化GRU，但速度要快很多。它查看了两倍的数据量，在本例中可能不是非常有用，但对于其他数据集可能非常重要。</p>
+<h2 id="5-小结"><a href="#5-小结" class="headerlink" title="5. 小结"></a>5. 小结</h2><p>下面是你应该从本节中学到的要点。</p>
+<ul>
+<li>二维卷积神经网络在二维空间中处理视觉模式时表现很好，与此相同，一维卷积神经网络在处理时间模式时表现也很好。对于某些问题，特别是自然语言处理任务，它可以替代RNN，并且速度更快。</li>
+<li>通常情况下，一维卷积神经网络的架构与计算机视觉领域的二维卷积神经网络很相似，它将Conv1D层和MaxPooling1D层堆叠在一起，最后是一个全局池化运算或展平操作。</li>
+<li>因为RNN在处理非常长的序列时计算代价很大，但一维卷积神经网络的计算代价很小，所以在RNN之前使用一维卷积神经网络作为预处理步骤是一个好主意，这样可以使序列变短，并提取出有用的表示交给RNN来处理。</li>
+</ul>
+<h1 id="五、本文总结"><a href="#五、本文总结" class="headerlink" title="五、本文总结"></a>五、本文总结</h1><ul>
+<li>你在本文学到了以下技术，它们广泛应用于序列数据（从文本到时间序列）组成的数据集。<ul>
+<li>如何对文本分词</li>
+<li>什么是词嵌入，如何使用词嵌入。</li>
+<li>什么是循环网络，如何使用循环网络。</li>
+<li>如何堆叠 RNN层和使用双向RNN，以构建更加强大的序列处理模型。</li>
+<li>如何使用一维卷积神经网络来处理序列。</li>
+<li>如何结合一维卷积神经网络和 RNN来处理长序列。</li>
+</ul>
+</li>
+<li>你可以用 RNN 进行时间序列回归（“预测未来”）、时间序列分类、时间序列异常检测和序列标记（比如找出句子中的人名或日期）。</li>
+<li>同样，你可以将一维卷积神经网络用于机器翻译（序列到序列的卷积模型，比如SliceNet）、文档分类和拼写校正。</li>
+<li>如果序列数据的整体顺序很重要，那么最好使用循环网络来处理。时间序列通常都是这样，最近的数据可能比久远的数据包含更多的信息量。</li>
+<li>如果整体顺序没有意义，那么一维卷积神经网络可以实现同样好的效果，而且计算代价更小。文本数据通常都是这样，在句首发现关键词和在句尾发现关键词一样都很有意义。</li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://chenkai66.github.io/posts/a98b7769.html" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+    
+      <a href="/posts/1fc7d624.html" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Python深度学习（二）深度学习用于计算机视觉</div>
+      </a>
+    
+  </nav>
+
+   
+<!-- valine评论 -->
+<div id="vcomments-box">
+  <div id="vcomments"></div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+<script>
+  new Valine({
+    el: "#vcomments",
+    app_id: "TQy5bHTePagP10u5BBsesx61-gzGzoHsz",
+    app_key: "O6UyJYxBFgMKQMjktBh4KGad",
+    path: window.location.pathname,
+    avatar: "monsterid",
+    placeholder: "给我的文章加点评论吧~",
+    recordIP: true,
+  });
+  const infoEle = document.querySelector("#vcomments .info");
+  if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+    infoEle.childNodes.forEach(function (item) {
+      item.parentNode.removeChild(item);
+    });
+  }
+</script>
+<style>
+  #vcomments-box {
+    padding: 5px 30px;
+  }
+
+  @media screen and (max-width: 800px) {
+    #vcomments-box {
+      padding: 5px 0px;
+    }
+  }
+
+  #vcomments-box #vcomments {
+    background-color: #fff;
+  }
+
+  .v .vlist .vcard .vh {
+    padding-right: 20px;
+  }
+
+  .v .vlist .vcard {
+    padding-left: 10px;
+  }
+</style>
+
+ 
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2020-2021
+        <i class="ri-heart-fill heart_icon"></i> chenk
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        由 帅气的CK本尊 强力驱动
+        
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></s>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="言念君子"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+
+<script src="/js/clickBoom2.js"></script>
+
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+<script src="/js/dz.js"></script>
+
+
+
+    
+  </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"live2d-widget-model-haruto"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>
