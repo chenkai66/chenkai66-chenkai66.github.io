@@ -9,7 +9,7 @@
     
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>
-    归档: 2021 |  言念君子
+    MySQL入门（七）连接查询 |  言念君子
   </title>
   <meta name="generator" content="hexo-theme-ayer">
   
@@ -46,244 +46,210 @@
       
     <main class="content on">
       <section class="outer">
-  <article class="articles">
+  <article
+  id="post-MySQL入门（七）连接查询"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
     
-    
-    <h1 class="page-type-title">2021</h1>
-    
-    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  MySQL入门（七）连接查询
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/posts/2517aedb.html" class="article-date">
+  <time datetime="2021-04-07T12:31:36.607Z" itemprop="datePublished">2021-04-07</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/MySQL/">MySQL</a>
+  </div>
   
-  
-  
-  
-  
-  
-  <div class="archives-wrap">
-    <div class="archive-year-wrap">
-      <a href="/archives/2021" class="archive-year">2021</a>
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">203</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">1 分钟</span>
+        </span>
+    </span>
+</div>
+ 
     </div>
-    <div class="archives">
       
-      <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/posts/22139870.html" class="archive-article-date">
-  <time datetime="2021-04-30T03:57:07.458Z" itemprop="datePublished">04/30</time>
-</a>
-       
-<h2 itemprop="name">
-  <a class="archive-article-title" href="/posts/22139870.html"
-    >Python爬虫（三）爬虫的基本原理</a> 
-</h2>
- 
+    <div class="tocbot"></div>
 
-    </header>
-    
-    
-  </div>
-</article>
-      
-  
-  
-      <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/posts/503970b4.html" class="archive-article-date">
-  <time datetime="2021-04-30T01:59:25.655Z" itemprop="datePublished">04/30</time>
-</a>
-       
-<h2 itemprop="name">
-  <a class="archive-article-title" href="/posts/503970b4.html"
-    >Python爬虫（二）Web网页基础</a> 
-</h2>
- 
 
-    </header>
-    
-    
-  </div>
-</article>
-      
-  
-  
-      <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/posts/8c9d019c.html" class="archive-article-date">
-  <time datetime="2021-04-29T16:22:59.706Z" itemprop="datePublished">04/30</time>
-</a>
-       
-<h2 itemprop="name">
-  <a class="archive-article-title" href="/posts/8c9d019c.html"
-    >Python爬虫（一）掌握HTTP基本原理</a> 
-</h2>
- 
 
-    </header>
-    
-    
-  </div>
-</article>
-      
-  
-  
-      <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/posts/9a307df7.html" class="archive-article-date">
-  <time datetime="2021-04-07T12:31:52.781Z" itemprop="datePublished">04/07</time>
-</a>
-       
-<h2 itemprop="name">
-  <a class="archive-article-title" href="/posts/9a307df7.html"
-    >MySQL入门（八）子查询</a> 
-</h2>
- 
 
-    </header>
-    
-    
-  </div>
-</article>
-      
   
-  
-      <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/posts/2517aedb.html" class="archive-article-date">
-  <time datetime="2021-04-07T12:31:36.607Z" itemprop="datePublished">04/07</time>
-</a>
+    <div class="article-entry" itemprop="articleBody">
        
-<h2 itemprop="name">
-  <a class="archive-article-title" href="/posts/2517aedb.html"
-    >MySQL入门（七）连接查询</a> 
-</h2>
+  <h1 id="一、连接查询基础"><a href="#一、连接查询基础" class="headerlink" title="一、连接查询基础"></a>一、连接查询基础</h1><p>我们已经学会了如何在一张表中读取数据，这是相对简单的，但是在真正的应用中经常需要从多个数据表中读取数据。现在将向大家介绍如何使用 <code>MySQL</code> 的<code>JOIN</code> 在两个或多个表中查询数据。</p>
+<p>你可以在 <code>SELECT</code>, <code>UPDATE</code> 和 <code>DELETE</code> 语句中使用 Mysql 的 <code>JOIN</code> 来联合多表查询。<code>JOIN</code> 按照功能大致分为如下三类：</p>
+<ul>
+<li><strong>INNER JOIN（内连接,或等值连接）</strong>：获取两个表中字段匹配关系的记录。</li>
+<li><strong>LEFT JOIN（左连接）：</strong>获取左表所有记录，即使右表没有对应匹配的记录。</li>
+<li><strong>RIGHT JOIN（右连接）：</strong> 与 LEFT JOIN 相反，用于获取右表所有记录，即使左表没有对应匹配的记录。</li>
+</ul>
  
-
-    </header>
-    
-    
-  </div>
-</article>
-      
-  
-  
-      <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/posts/dda6bdb1.html" class="archive-article-date">
-  <time datetime="2021-04-06T12:31:24.423Z" itemprop="datePublished">04/06</time>
-</a>
-       
-<h2 itemprop="name">
-  <a class="archive-article-title" href="/posts/dda6bdb1.html"
-    >MySQL入门（九）DML语言</a> 
-</h2>
- 
-
-    </header>
-    
-    
-  </div>
-</article>
-      
-  
-  
-      <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/posts/a98b7769.html" class="archive-article-date">
-  <time datetime="2021-04-06T08:27:01.204Z" itemprop="datePublished">04/06</time>
-</a>
-       
-<h2 itemprop="name">
-  <a class="archive-article-title" href="/posts/a98b7769.html"
-    >Python深度学习（三）深度学习用于文本和序列</a> 
-</h2>
- 
-
-    </header>
-    
-    
-  </div>
-</article>
-      
-  
-  
-      <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/posts/1fc7d624.html" class="archive-article-date">
-  <time datetime="2021-04-05T15:27:25.089Z" itemprop="datePublished">04/05</time>
-</a>
-       
-<h2 itemprop="name">
-  <a class="archive-article-title" href="/posts/1fc7d624.html"
-    >Python深度学习（二）深度学习用于计算机视觉</a> 
-</h2>
- 
-
-    </header>
-    
-    
-  </div>
-</article>
-      
-  
-  
-      <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/posts/d8ee3b71.html" class="archive-article-date">
-  <time datetime="2021-04-05T15:15:14.509Z" itemprop="datePublished">04/05</time>
-</a>
-       
-<h2 itemprop="name">
-  <a class="archive-article-title" href="/posts/d8ee3b71.html"
-    >Python深度学习（一）神经网络入门</a> 
-</h2>
- 
-
-    </header>
-    
-    
-  </div>
-</article>
-      
-  
-  
-      <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      <a href="/posts/8c5e1ebd.html" class="archive-article-date">
-  <time datetime="2021-04-05T15:04:54.395Z" itemprop="datePublished">04/05</time>
-</a>
-       
-<h2 itemprop="name">
-  <a class="archive-article-title" href="/posts/8c5e1ebd.html"
-    >XGBoost（二）解决二分类和多分类问题</a> 
-</h2>
- 
-
-    </header>
-    
-    
-  </div>
-</article>
-      
+      <!-- reward -->
       
     </div>
-  </div>
-  
-  
-
-  
-  <nav class="page-nav">
     
-    <span class="page-number current">1</span><a class="page-number" href="/archives/2021/page/2/">2</a><a class="page-number" href="/archives/2021/page/3/">3</a><a class="extend next" rel="next" href="/archives/2021/page/2/">下一页</a>
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://chenkai66.github.io/posts/2517aedb.html" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/posts/9a307df7.html" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            MySQL入门（八）子查询
+          
+        </div>
+      </a>
+    
+    
+      <a href="/posts/dda6bdb1.html" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">MySQL入门（九）DML语言</div>
+      </a>
+    
   </nav>
-  
+
+   
+<!-- valine评论 -->
+<div id="vcomments-box">
+  <div id="vcomments"></div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+<script>
+  new Valine({
+    el: "#vcomments",
+    app_id: "TQy5bHTePagP10u5BBsesx61-gzGzoHsz",
+    app_key: "O6UyJYxBFgMKQMjktBh4KGad",
+    path: window.location.pathname,
+    avatar: "monsterid",
+    placeholder: "给我的文章加点评论吧~",
+    recordIP: true,
+  });
+  const infoEle = document.querySelector("#vcomments .info");
+  if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+    infoEle.childNodes.forEach(function (item) {
+      item.parentNode.removeChild(item);
+    });
+  }
+</script>
+<style>
+  #vcomments-box {
+    padding: 5px 30px;
+  }
+
+  @media screen and (max-width: 800px) {
+    #vcomments-box {
+      padding: 5px 0px;
+    }
+  }
+
+  #vcomments-box #vcomments {
+    background-color: #fff;
+  }
+
+  .v .vlist .vcard .vh {
+    padding-right: 20px;
+  }
+
+  .v .vlist .vcard {
+    padding-left: 10px;
+  }
+</style>
+
+ 
+     
+</article>
+
 </section>
       <footer class="footer">
   <div class="outer">
@@ -423,6 +389,23 @@
 <script src="/js/lazyload.min.js"></script>
 
 <!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
