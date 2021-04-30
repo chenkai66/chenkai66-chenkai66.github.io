@@ -1,6 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Python爬虫（五）多线程基本原理</title>
+    <url>/posts/503970b4.html</url>
+    <content><![CDATA[<p>我们知道，在一台计算机中，我们可以同时打开许多软件，比如同时浏览网页、听音乐、打字等等，看似非常正常。但仔细想想，为什么计算机可以做到这么多软件同时运行呢？这就涉及到计算机中的两个重要概念：多进程和多线程了。</p>
+<p>同样，在编写爬虫程序的时候，为了提高爬取效率，我们可能想同时运行多个爬虫任务。这里同样需要涉及多进程和多线程的知识。</p>
+<p>本课时，我们就先来了解一下多线程的基本原理，以及在 Python 中如何实现多线程。</p>
+<h3 id="多线程的含义"><a href="#多线程的含义" class="headerlink" title="多线程的含义"></a>多线程的含义</h3><p>说起多线程，就不得不先说什么是线程。然而想要弄明白什么是线程，又不得不先说什么是进程。</p>
+<p>进程我们可以理解为是一个可以独立运行的程序单位，比如打开一个浏览器，这就开启了一个浏览器进程；打开一个文本编辑器，这就开启了一个文本编辑器进程。但一个进程中是可以同时处理很多事情的，比如在浏览器中，我们可以在多个选项卡中打开多个页面，有的页面在播放音乐，有的页面在播放视频，有的网页在播放动画，它们可以同时运行，互不干扰。为什么能同时做到同时运行这么多的任务呢？这里就需要引出线程的概念了，其实这一个个任务，实际上就对应着一个个线程的执行。</p>
+<p>而进程呢？它就是线程的集合，进程就是由一个或多个线程构成的，线程是操作系统进行运算调度的最小单位，是进程中的一个最小运行单元。比如上面所说的浏览器进程，其中的播放音乐就是一个线程，播放视频也是一个线程，当然其中还有很多其他的线程在同时运行，这些线程的并发或并行执行最后使得整个浏览器可以同时运行这么多的任务。</p>
+<p>了解了线程的概念，多线程就很容易理解了，多线程就是一个进程中同时执行多个线程，前面所说的浏览器的情景就是典型的多线程执行。</p>
+<h3 id="并发和并行"><a href="#并发和并行" class="headerlink" title="并发和并行"></a>并发和并行</h3><p>说到多进程和多线程，这里就需要再讲解两个概念，那就是并发和并行。我们知道，一个程序在计算机中运行，其底层是处理器通过运行一条条的指令来实现的。</p>
+<p><strong>并发</strong>，英文叫作 concurrency。它是指同一时刻只能有一条指令执行，但是多个线程的对应的指令被快速轮换地执行。比如一个处理器，它先执行线程 A 的指令一段时间，再执行线程 B 的指令一段时间，再切回到线程 A 执行一段时间。</p>
+<p>由于处理器执行指令的速度和切换的速度非常非常快，人完全感知不到计算机在这个过程中有多个线程切换上下文执行的操作，这就使得宏观上看起来多个线程在同时运行。但微观上只是这个处理器在连续不断地在多个线程之间切换和执行，每个线程的执行一定会占用这个处理器一个时间片段，同一时刻，其实只有一个线程在执行。</p>
+<p><strong>并行</strong>，英文叫作 parallel。它是指同一时刻，有多条指令在多个处理器上同时执行，并行必须要依赖于多个处理器。不论是从宏观上还是微观上，多个线程都是在同一时刻一起执行的。</p>
+<p>并行只能在多处理器系统中存在，如果我们的计算机处理器只有一个核，那就不可能实现并行。而并发在单处理器和多处理器系统中都是可以存在的，因为仅靠一个核，就可以实现并发。</p>
+<p>举个例子，比如系统处理器需要同时运行多个线程。如果系统处理器只有一个核，那它只能通过并发的方式来运行这些线程。如果系统处理器有多个核，当一个核在执行一个线程时，另一个核可以执行另一个线程，这样这两个线程就实现了并行执行，当然其他的线程也可能和另外的线程处在同一个核上执行，它们之间就是并发执行。具体的执行方式，就取决于操作系统的调度了。</p>
+<h3 id="多线程适用场景"><a href="#多线程适用场景" class="headerlink" title="多线程适用场景"></a>多线程适用场景</h3><p>在一个程序进程中，有一些操作是比较耗时或者需要等待的，比如等待数据库的查询结果的返回，等待网页结果的响应。如果使用单线程，处理器必须要等到这些操作完成之后才能继续往下执行其他操作，而这个线程在等待的过程中，处理器明显是可以来执行其他的操作的。如果使用多线程，处理器就可以在某个线程等待的时候，去执行其他的线程，从而从整体上提高执行效率。</p>
+<p>像上述场景，线程在执行过程中很多情况下是需要等待的。比如网络爬虫就是一个非常典型的例子，爬虫在向服务器发起请求之后，有一段时间必须要等待服务器的响应返回，这种任务就属于 IO 密集型任务。对于这种任务，如果我们启用多线程，处理器就可以在某个线程等待的过程中去处理其他的任务，从而提高整体的爬取效率。</p>
+<p>但并不是所有的任务都是 IO 密集型任务，还有一种任务叫作计算密集型任务，也可以称之为 CPU 密集型任务。顾名思义，就是任务的运行一直需要处理器的参与。此时如果我们开启了多线程，一个处理器从一个计算密集型任务切换到切换到另一个计算密集型任务上去，处理器依然不会停下来，始终会忙于计算，这样并不会节省总体的时间，因为需要处理的任务的计算总量是不变的。如果线程数目过多，反而还会在线程切换的过程中多耗费一些时间，整体效率会变低。</p>
+<p>所以，如果任务不全是计算密集型任务，我们可以使用多线程来提高程序整体的执行效率。尤其对于网络爬虫这种 IO 密集型任务来说，使用多线程会大大提高程序整体的爬取效率。</p>
+<h3 id="Python-实现多线程"><a href="#Python-实现多线程" class="headerlink" title="Python 实现多线程"></a>Python 实现多线程</h3><p>在 Python 中，实现多线程的模块叫作 threading，是 Python 自带的模块。下面我们来了解下使用 threading 实现多线程的方法。</p>
+<h4 id="Thread-直接创建子线程"><a href="#Thread-直接创建子线程" class="headerlink" title="Thread 直接创建子线程"></a>Thread 直接创建子线程</h4><p>首先，我们可以使用 Thread 类来创建一个线程，创建时需要指定 target 参数为运行的方法名称，如果被调用的方法需要传入额外的参数，则可以通过 Thread 的 args 参数来指定。示例如下：</p>
+]]></content>
+      <categories>
+        <category>Spider</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Python爬虫（四）Session 与 Cookies</title>
+    <url>/posts/8c4e03b4.html</url>
+    <content><![CDATA[<p>我们在浏览网站的过程中，经常会遇到需要登录的情况，而有些网页只有登录之后才可以访问，而且登录之后可以连续访问很多次网站，但是有时候过一段时间就需要重新登录。</p>
+<p>还有一些网站，在打开浏览器时就自动登录了，而且很长时间都不会失效，这种情况又是为什么？其实这里面涉及 <code>Session</code> 和 <code>Cookies</code> 的相关知识，本节就来揭开它们的神秘面纱。</p>
+<h1 id="静态网页和动态网页"><a href="#静态网页和动态网页" class="headerlink" title="静态网页和动态网页"></a>静态网页和动态网页</h1><p>在开始介绍它们之前，我们需要先了解一下静态网页和动态网页的概念。这里还是前面的示例代码，内容如下：</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE <span class="meta-keyword">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">title</span>&gt;</span>This is a Demo<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"container"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"wrapper"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">h2</span> <span class="attr">class</span>=<span class="string">"title"</span>&gt;</span>Hello World<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">class</span>=<span class="string">"text"</span>&gt;</span>Hello, this is a paragraph.<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这是最基本的 <code>HTML</code> 代码，我们将其保存为一个 .html 文件，然后把它放在某台具有固定公网 IP 的主机上，主机上装上 Apache 或 Nginx 等服务器，这样这台主机就可以作为服务器了，其他人便可以通过访问服务器看到这个页面，这就搭建了一个最简单的网站。</p>
+<p>这种网页的内容是 <code>HTML</code> 代码编写的，文字、图片等内容均通过写好的 <code>HTML</code> 代码来指定，这种页面叫作静态网页。它加载速度快，编写简单，但是存在很大的缺陷，如可维护性差，不能根据 <code>URL</code> 灵活多变地显示内容等。例如，我们想要给这个网页的 <code>URL</code> 传入一个 <code>name</code> 参数，让其在网页中显示出来，是无法做到的。</p>
+<p>因此，动态网页应运而生，它可以动态解析 <code>URL</code> 中参数的变化，<strong>关联数据库并动态呈现不同的页面内容</strong>，非常灵活多变。我们现在遇到的大多数网站都是动态网站，它们不再是一个简单的 HTML，而是可能由 JSP、PHP、Python 等语言编写的，其功能比静态网页强大和丰富太多了。</p>
+<p>此外，<strong>动态网站还可以实现用户登录和注册的功能</strong>。再回到开头来看提到的问题，很多页面是需要登录之后才可以查看的。按照一般的逻辑来说，输入用户名和密码登录之后，肯定是拿到了一种类似凭证的东西，有了它，我们才能保持登录状态，才能访问登录之后才能看到的页面。</p>
+<p>那么，这种神秘的凭证到底是什么呢？其实它就是 <code>Session</code> 和 <code>Cookies</code> 共同产生的结果，下面我们来一探究竟。</p>
+<h1 id="无状态-HTTP"><a href="#无状态-HTTP" class="headerlink" title="无状态 HTTP"></a>无状态 HTTP</h1><p>在了解<code>Session</code> 和 <code>Cookies</code>之前，我们还需要了解 HTTP 的一个特点，叫作无状态。</p>
+<p>HTTP 的无状态是指 HTTP 协议对事务处理是没有记忆能力的，也就是说服务器不知道客户端是什么状态。</p>
+<p>当我们向服务器发送请求后，服务器解析此请求，然后返回对应的响应，服务器负责完成这个过程，而且这个过程是完全独立的，服务器不会记录前后状态的变化，也就是缺少状态记录。</p>
+<p>这意味着如果后续需要处理前面的信息，则必须重传，这也导致需要额外传递一些前面的重复请求，才能获取后续响应，然而这种效果显然不是我们想要的。为了保持前后状态，我们肯定不能将前面的请求全部重传一次，这太浪费资源了，对于这种需要用户登录的页面来说，更是棘手。</p>
+<p>这时两个用于保持 HTTP 连接状态的技术就出现了，它们分别是 <code>Session</code> 和 <code>Cookies</code>。<strong><code>Session</code> 在服务端，也就是网站的服务器，用来保存用户的 <code>Session</code> 信息；<code>Cookies</code> 在客户端，也可以理解为浏览器端</strong>，有了 Cookies，浏览器在下次访问网页时会自动附带上它发送给服务器，服务器通过识别 <code>Cookies</code> 并鉴定出是哪个用户，然后再判断用户是否是登录状态，进而返回对应的响应。</p>
+<p>我们可以理解为 <code>Cookies</code> 里面保存了登录的凭证，有了它，只需要在下次请求携带 <code>Cookies</code> 发送请求而不必重新输入用户名、密码等信息重新登录了。</p>
+<p>因此在爬虫中，有时候处理需要登录才能访问的页面时，我们一般会直接将登录成功后获取的 <code>Cookies</code> 放在请求头里面直接请求，而不必重新模拟登录。</p>
+<p>好了，了解 <code>Session</code> 和 <code>Cookies</code> 的概念之后，我们在来详细剖析它们的原理。</p>
+<h1 id="Session"><a href="#Session" class="headerlink" title="Session"></a><code>Session</code></h1><p><code>Session</code>，中文称之为会话，其本身的含义是指有始有终的一系列动作 / 消息。比如，打电话时，从拿起电话拨号到挂断电话这中间的一系列过程可以称为一个 <code>Session</code>。</p>
+<p>而在 Web 中，<code>Session</code> 对象用来存储特定用户 <code>Session</code> 所需的属性及配置信息。这样，当用户在应用程序的 Web 页之间跳转时，存储在 <code>Session</code> 对象中的变量将不会丢失，而是在整个用户 <code>Session</code> 中一直存在下去。当用户请求来自应用程序的 Web 页时，如果该用户还没有 <code>Session</code>，则 Web 服务器将自动创建一个 <code>Session</code> 对象。当 <code>Session</code> 过期或被放弃后，服务器将终止该 <code>Session</code>。</p>
+<h1 id="Cookies"><a href="#Cookies" class="headerlink" title="Cookies"></a><code>Cookies</code></h1><p><code>Cookies</code> 指某些网站为了辨别用户身份、进行 <code>Session</code> 跟踪而存储在用户本地终端上的数据。</p>
+<h2 id="Session-维持"><a href="#Session-维持" class="headerlink" title="Session 维持"></a>Session 维持</h2><p>那么，我们怎样利用 <code>Cookies</code>  保持状态呢？当客户端第一次请求服务器时，服务器会返回一个响应头中带有 Set-Cookie 字段的响应给客户端，用来标记是哪一个用户，客户端浏览器会把 <code>Cookies</code> 保存起来。当浏览器下一次再请求该网站时，浏览器会把此 <code>Cookies</code> 放到请求头一起提交给服务器，<code>Cookies</code>  携带了 <code>Session</code> ID 信息，服务器检查该 <code>Cookies</code> 即可找到对应的 <code>Session</code> 是什么，然后再判断 <code>Session</code> 来以此来辨认用户状态。</p>
+<p>在成功登录某个网站时，服务器会告诉客户端设置哪些 <code>Cookies</code> 信息，在后续访问页面时客户端会把 <code>Cookies</code> 发送给服务器，服务器再找到对应的 <code>Session</code> 加以判断。如果 <code>Session</code> 中的某些设置登录状态的变量是有效的，那就证明用户处于登录状态，此时返回登录之后才可以查看的网页内容，浏览器再进行解析便可以看到了。</p>
+<p>反之，如果传给服务器的 <code>Cookies</code> 是无效的，或者 <code>Session</code> 已经过期了，我们将不能继续访问页面，此时可能会收到错误的响应或者跳转到登录页面重新登录。</p>
+<p>所以，<code>Cookies</code>和 <code>Session</code> 需要配合，一个处于客户端，一个处于服务端，二者共同协作，就实现了登录 <code>Session</code> 控制。</p>
+<p><img src="/../Pic/Spider/cookie.jpg" style="zoom:57%;"></p>
+<h2 id="属性结构"><a href="#属性结构" class="headerlink" title="属性结构"></a>属性结构</h2><p>接下来，我们来看看 <code>Cookies</code> 都有哪些内容。这里以知乎为例，在浏览器开发者工具中打开 <code>Application</code> 选项卡，然后在左侧会有一个<code>Storage</code> 部分，最后一项即为 <code>Cookies</code>，将其点开，如图所示，这些就是 <code>Cookies</code>。</p>
+<p><img src="/../Pic/Spider/storage.jpg" style="zoom:80%;"></p>
+<p>可以看到，这里有很多条目，其中每个条目可以称为 <code>Cookie</code>。它有如下几个属性。</p>
+<ul>
+<li><code>Name</code>，即该<code>Cookie</code>的名称。Cookie 一旦创建，名称便不可更改。</li>
+<li><code>Value</code>，即该<code>Cookie</code>的值。如果值为 Unicode 字符，需要为字符编码。如果值为二进制数据，则需要使用 BASE64 编码。</li>
+<li><code>Max Age</code>，即该<code>Cookie</code>失效的时间，单位秒，也常和 Expires 一起使用，通过它可以计算出其有效时间。Max Age 如果为正数，则该<code>Cookie</code>在 Max Age 秒之后失效。如果为负数，则关闭浏览器时<code>Cookie</code>即失效，浏览器也不会以任何形式保存该 <code>Cookie</code>。</li>
+<li><code>Path</code>，即该<code>Cookie</code>的使用路径。如果设置为 /path/，则只有路径为 /path/ 的页面可以访问该 <code>Cookie</code>。如果设置为 /，则本域名下的所有页面都可以访问该 <code>Cookie</code>。</li>
+<li><code>Domain</code>，即可以访问该<code>Cookie</code>的域名。例如如果设置为 .zhihu.com，则所有以 zhihu.com，结尾的域名都可以访问该 <code>Cookie</code>。</li>
+<li><code>Size</code> 字段，即此<code>Cookie</code>的大小。</li>
+<li><code>Http</code> 字段，即<code>Cookie</code>的 <code>httponly</code> 属性。若此属性为 true，则只有在 HTTP Headers 中会带有此<code>Cookie</code>的信息，而不能通过 <code>document.cookie</code> 来访问此 <code>Cookie</code>。</li>
+<li><code>Secure</code>，即该<code>Cookie</code>是否仅被使用安全协议传输。安全协议。安全协议有 HTTPS、SSL 等，在网络上传输数据之前先将数据加密。默认为 <code>false</code>。</li>
+</ul>
+<h2 id="会话Cookie和持久-Cookie"><a href="#会话Cookie和持久-Cookie" class="headerlink" title="会话Cookie和持久 Cookie"></a>会话<code>Cookie</code>和持久 Cookie</h2><p>从表面意思来说，会话<code>Cookie</code>就是把<code>Cookie</code>放在浏览器内存里，浏览器在关闭之后该<code>Cookie</code>即失效；持久<code>Cookie</code>则会保存到客户端的硬盘中，下次还可以继续使用，用于长久保持用户登录状态。</p>
+<p>其实严格来说，没有会话<code>Cookie</code>和持久<code>Cookie</code>之 分，只是由<code>Cookie</code>的 <code>Max Age</code> 或 <code>Expires</code> 字段决定了过期的时间。</p>
+<p>因此，一些持久化登录的网站其实就是把<code>Cookie</code>的有效时间和<code>Session</code>有效期设置得比较长，下次我们再访问页面时仍然携带之前的 <code>Cookie</code>，就可以直接保持登录状态。</p>
+<h1 id="常见误区"><a href="#常见误区" class="headerlink" title="常见误区"></a>常见误区</h1><p>在谈论<code>Session</code>机制的时候，常常听到这样一种误解 ——“只要关闭浏览器，<code>Session</code> 就消失了”。可以想象一下会员卡的例子，除非顾客主动对店家提出销卡，否则店家绝对不会轻易删除顾客的资料。对<code>Session</code>来说，也是一样，除非程序通知服务器删除一个 <code>Session</code>，否则服务器会一直保留。比如，程序一般都是在我们做注销操作时才去删除 <code>Session</code>。</p>
+<p>但是当我们关闭浏览器时，浏览器不会主动在关闭之前通知服务器它将要关闭，所以服务器根本不会有机会知道浏览器已经关闭。之所以会有这种错觉，是因为大部分网站都使用会话<code>Cookie</code>来保存<code>Session ID</code> 信息，而关闭浏览器后 <code>Cookies</code> 就消失了，再次连接服务器时，也就无法找到原来的<code>Session</code>了。如果服务器设置的 <code>Cookies</code> 保存到硬盘上，或者使用某种手段改写浏览器发出的 <code>HTTP</code> 请求头，把原来的 <code>Cookies</code> 发送给服务器，则再次打开浏览器，仍然能够找到原来的<code>Session ID</code>，依旧还是可以保持登录状态的。</p>
+<p>而且恰恰是由于关闭浏览器不会导致<code>Session</code>被删除，这就需要服务器为<code>Session</code>设置一个失效时间，当距离客户端上一次使用<code>Session</code>的时间超过这个失效时间时，服务器就可以认为客户端已经停止了活动，才会把<code>Session</code>删除以节省存储空间。</p>
+]]></content>
+      <categories>
+        <category>Spider</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Python爬虫（三）爬虫的基本原理</title>
     <url>/posts/22139870.html</url>
     <content><![CDATA[<p>我们可以把互联网比作一张大网，而爬虫（即网络爬虫）便是在网上爬行的蜘蛛。如果把网的节点比作一个个网页，爬虫爬到这就相当于访问了该页面，获取了其信息。可以把节点间的连线比作网页与网页之间的链接关系，这样蜘蛛通过一个节点后，可以顺着节点连线继续爬行到达下一个节点，即通过一个网页继续获取后续的网页，这样整个网的节点便可以被蜘蛛全部爬行到，网站的数据就可以被抓取下来了。</p>
