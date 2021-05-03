@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    Python爬虫（七）requests库基本使用 |  言念君子
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      
+      <canvas width="1777" height="841"
+        style="position: fixed; left: 0px; top: 0px; z-index: 99999; pointer-events: none;"></canvas>
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-Python爬虫（七）requests库基本使用"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  Python爬虫（七）requests库基本使用
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/posts/c6945e46.html" class="article-date">
+  <time datetime="2021-05-03T10:07:47.216Z" itemprop="datePublished">2021-05-03</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Spider/">Spider</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">7.9k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">33 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>从本节开始，我们正式步入Python 爬虫的大门。</p>
+<p>学习爬虫，最基础的便是模拟浏览器向服务器发出请求，那么我们需要从什么地方做起呢？请求需要我们自己来构造吗？需要关心请求这个数据结构的实现吗？需要了解 HTTP、TCP、IP 层的网络传输通信吗？需要知道服务器的响应和应答原理吗？</p>
+<p>可能你无从下手，不过不用担心，Python 的强大之处就是提供了功能齐全的类库来帮助我们完成这些请求。利用<code>Python</code>现有的库我们可以非常方便地实现网络请求的模拟，常见的库有 <code>urllib</code>、<code>requests</code> 等。</p>
+<p>拿<code>requests</code>这个库来说，有了它，我们只需要关心请求的链接是什么，需要传的参数是什么，以及如何设置可选的参数就好了，不用深入到底层去了解它到底是怎样传输和通信的。有了它，两行代码就可以完成一个请求和响应的处理过程，非常方便地得到网页内容。</p>
+<p>接下来，就让我们用<code>Python</code>的<code>requests</code>库开始我们的爬虫之旅吧。</p>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>首先，<code>requests</code>库是<code>Python</code>的一个第三方库，不是自带的。所以我们需要额外安装。</p>
+<p>在这之前需要你先安装好<code>Python3</code> 环境，如<code>Python</code>3.6 版本，如若没有安装可以参考：<a href="https://cuiqingcai.com/5059.html。" target="_blank" rel="noopener">https://cuiqingcai.com/5059.html。</a></p>
+<p>安装好<code>Python3</code> 之后，我们使用 pip3 即可轻松地安装好<code>requests</code>库：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install requests</span><br></pre></td></tr></table></figure>
+<p>更详细的安装方式可以参考：<a href="https://cuiqingcai.com/5132.html。" target="_blank" rel="noopener">https://cuiqingcai.com/5132.html。</a></p>
+<p>安装完成之后，我们就可以开始我们的网络爬虫之旅了。</p>
+<h1 id="实例引入"><a href="#实例引入" class="headerlink" title="实例引入"></a>实例引入</h1><p>用<code>Python</code>写爬虫的第一步就是模拟发起一个请求，把网页的源代码获取下来。</p>
+<p>当我们在浏览器中输入一个<code>URL</code>并回车，实际上就是让浏览器帮我们发起一个<code>GET</code>类型的<code>HTTP</code>请求，浏览器得到源代码后，把它渲染出来就可以看到网页内容了。</p>
+<p>那如果我们想用<code>requests</code>来获取源代码，应该怎么办呢？很简单，<code>requests</code>这个库提供了一个<code>GET</code>方法，我们调用这个方法，并传入对应的<code>URL</code>就能得到网页的源代码。</p>
+<p>比如这里有一个示例网站：<a href="https://static1.scrape.center/，其内容如下：" target="_blank" rel="noopener">https://static1.scrape.center/，其内容如下：</a></p>
+<p><img src="/posts/Pic/Spider/scrape.png" style="zoom:50%;"></p>
+<p>这个网站展示了一些电影数据，如果我们想要把这个网页里面的数据爬下来，比如获取各个电影的名称、上映时间等信息，然后把它存下来的话，该怎么做呢？</p>
+<p>第一步当然就是获取它的网页源代码了。</p>
+<p>我们可以用<code>requests</code>这个库轻松地完成这个过程，代码的写法是这样的：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">r = requests.get(<span class="string">'https://static1.scrape.center/'</span>)</span><br><span class="line">print(r.text)</span><br></pre></td></tr></table></figure>
+<p>运行结果如下：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"en"</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"utf-8"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">http-equiv</span>=<span class="string">"X-UA-Compatible"</span> <span class="attr">content</span>=<span class="string">"IE=edge"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"viewport"</span> <span class="attr">content</span>=<span class="string">"width=device-width,initial-scale=1"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">link</span> <span class="attr">rel</span>=<span class="string">"icon"</span> <span class="attr">href</span>=<span class="string">"/static/img/favicon.ico"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">title</span>&gt;</span>Scrape | Movie<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">link</span> <span class="attr">href</span>=<span class="string">"/static/css/app.css"</span> <span class="attr">type</span>=<span class="string">"text/css"</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">link</span> <span class="attr">href</span>=<span class="string">"/static/css/index.css"</span> <span class="attr">type</span>=<span class="string">"text/css"</span> <span class="attr">rel</span>=<span class="string">"stylesheet"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"app"</span>&gt;</span></span><br><span class="line">...</span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">data-v-7f856186</span>=<span class="string">""</span> <span class="attr">id</span>=<span class="string">"index"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">div</span> <span class="attr">data-v-7f856186</span>=<span class="string">""</span> <span class="attr">class</span>=<span class="string">"el-row"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">data-v-7f856186</span>=<span class="string">""</span> <span class="attr">class</span>=<span class="string">"el-col el-col-18 el-col-offset-3"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">div</span> <span class="attr">data-v-7f856186</span>=<span class="string">""</span> <span class="attr">class</span>=<span class="string">"el-card item m-t is-hover-shadow"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"el-card__body"</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">div</span> <span class="attr">data-v-7f856186</span>=<span class="string">""</span> <span class="attr">class</span>=<span class="string">"el-row"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">div</span> <span class="attr">data-v-7f856186</span>=<span class="string">""</span> <span class="attr">class</span>=<span class="string">"el-col el-col-24 el-col-xs-8 el-col-sm-6 el-col-md-4"</span>&gt;</span></span><br><span class="line">              <span class="tag">&lt;<span class="name">a</span> <span class="attr">data-v-7f856186</span>=<span class="string">""</span></span></span><br><span class="line"><span class="tag">                 <span class="attr">href</span>=<span class="string">"/detail/1"</span></span></span><br><span class="line"><span class="tag">                 <span class="attr">class</span>=<span class="string">""</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">img</span></span></span><br><span class="line"><span class="tag">                    <span class="attr">data-v-7f856186</span>=<span class="string">""</span> <span class="attr">src</span>=<span class="string">"https://p0.meituan.net/movie/283292171619cdfd5b240c8fd093f1eb255670.jpg@464w_644h_1e_1c"</span></span></span><br><span class="line"><span class="tag">                    <span class="attr">class</span>=<span class="string">"cover"</span>&gt;</span></span><br><span class="line">              <span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">div</span> <span class="attr">data-v-7f856186</span>=<span class="string">""</span> <span class="attr">class</span>=<span class="string">"p-h el-col el-col-24 el-col-xs-9 el-col-sm-13 el-col-md-16"</span>&gt;</span></span><br><span class="line">              <span class="tag">&lt;<span class="name">a</span> <span class="attr">data-v-7f856186</span>=<span class="string">""</span> <span class="attr">href</span>=<span class="string">"/detail/1"</span> <span class="attr">class</span>=<span class="string">""</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">h2</span> <span class="attr">data-v-7f856186</span>=<span class="string">""</span> <span class="attr">class</span>=<span class="string">"m-b-sm"</span>&gt;</span>肖申克的救赎 - The Shawshank Redemption<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line">              <span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line">              <span class="tag">&lt;<span class="name">div</span> <span class="attr">data-v-7f856186</span>=<span class="string">""</span> <span class="attr">class</span>=<span class="string">"categories"</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">button</span> <span class="attr">data-v-7f856186</span>=<span class="string">""</span> <span class="attr">type</span>=<span class="string">"button"</span></span></span><br><span class="line"><span class="tag">                        <span class="attr">class</span>=<span class="string">"el-button category el-button--primary el-button--mini"</span>&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">span</span>&gt;</span>剧情<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">button</span> <span class="attr">data-v-7f856186</span>=<span class="string">""</span> <span class="attr">type</span>=<span class="string">"button"</span></span></span><br><span class="line"><span class="tag">                        <span class="attr">class</span>=<span class="string">"el-button category el-button--primary el-button--mini"</span>&gt;</span></span><br><span class="line">                  <span class="tag">&lt;<span class="name">span</span>&gt;</span>犯罪<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">              <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">              <span class="tag">&lt;<span class="name">div</span> <span class="attr">data-v-7f856186</span>=<span class="string">""</span> <span class="attr">class</span>=<span class="string">"m-v-sm info"</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">span</span> <span class="attr">data-v-7f856186</span>=<span class="string">""</span>&gt;</span>美国<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">span</span> <span class="attr">data-v-7f856186</span>=<span class="string">""</span>&gt;</span> / <span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">span</span> <span class="attr">data-v-7f856186</span>=<span class="string">""</span>&gt;</span>142 分钟<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">              <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">              <span class="tag">&lt;<span class="name">div</span> <span class="attr">data-v-7f856186</span>=<span class="string">""</span> <span class="attr">class</span>=<span class="string">"m-v-sm info"</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">span</span> <span class="attr">data-v-7f856186</span>=<span class="string">""</span>&gt;</span>1994-09-10 上映<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">              <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">  ...</span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>由于网页内容比较多，这里省略了大部分内容。</p>
+<p>不过看运行结果，我们已经成功获取网页的<code>HTML</code>源代码，里面包含了电影的标题、类型、上映时间，等等。把网页源代码获取下来之后，下一步我们把想要的数据提取出来，数据的爬取就完成了。</p>
+<p>这个实例的目的是让你体会一下<code>requests</code>这个库能帮我们实现什么功能。我们仅仅用<code>requests</code>的<code>GET</code>方法就成功发起了一个<code>GET</code>请求，把网页源代码获取下来了，是不是很方便呢？</p>
+<h1 id="请求"><a href="#请求" class="headerlink" title="请求"></a>请求</h1><p><code>HTTP</code> 中最常见的请求之一就是<code>GET</code>请求，下面我们来详细了解利用<code>requests</code>库构建<code>GET</code>请求的方法。</p>
+<h2 id="GET-请求"><a href="#GET-请求" class="headerlink" title="GET 请求"></a><code>GET</code> 请求</h2><p>我们换一个示例网站，其<code>URL</code>为 <a href="http://httpbin.org/get，如果客户端发起的是`GET`请求的话，该网站会判断并返回相应的请求信息，包括" target="_blank" rel="noopener">http://httpbin.org/get，如果客户端发起的是`GET`请求的话，该网站会判断并返回相应的请求信息，包括</a> <code>Headers</code>、<code>IP</code> 等。</p>
+<p>我们还是用相同的方法来发起一个<code>GET</code>请求，代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">r = requests.get(<span class="string">'http://httpbin.org/get'</span>)</span><br><span class="line">print(r.text)</span><br></pre></td></tr></table></figure>
+<p>运行结果如下：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;"args": &#123;&#125;,</span><br><span class="line">  "headers": &#123;</span><br><span class="line">    "Accept": "*/*",</span><br><span class="line">    "Accept-Encoding": "gzip, deflate",</span><br><span class="line">    "Host": "httpbin.org",</span><br><span class="line">    "User-Agent": "python-requests/2.10.0"</span><br><span class="line">  &#125;,</span><br><span class="line">  "origin": "122.4.215.33",</span><br><span class="line">  "url": "http://httpbin.org/get"</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以发现，我们成功发起了<code>GET</code>请求，也通过这个网站的返回结果得到了请求所携带的信息，包括 <code>Headers</code>、<code>URL</code>、<code>IP</code>，等等。</p>
+<p>对于<code>GET</code>请求，我们知道<code>URL</code>后面是可以跟上一些参数的，如果我们现在想添加两个参数，其中 <code>name</code> 是 <code>germey</code>，<code>age</code> 是 25，<code>URL</code>就可以写成如下内容：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://httpbin.org/get?name=germey&amp;age=25</span><br></pre></td></tr></table></figure>
+<p>要构造这个请求链接，是不是要直接写成这样呢？</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">r = requests.get(<span class="string">'http://httpbin.org/get?name=germey&amp;age=25'</span>)</span><br></pre></td></tr></table></figure>
+<p>这样也可以，但如果这些参数还需要我们手动拼接，未免有点不人性化。</p>
+<p>一般情况下，这种信息我们利用 <code>params</code> 这个参数就可以直接传递了，示例如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">data = &#123;</span><br><span class="line">    <span class="string">'name'</span>: <span class="string">'germey'</span>,</span><br><span class="line">    <span class="string">'age'</span>: <span class="number">25</span></span><br><span class="line">&#125;</span><br><span class="line">r = requests.get(<span class="string">'http://httpbin.org/get'</span>, params=data)</span><br><span class="line">print(r.text)</span><br></pre></td></tr></table></figure>
+<p>运行结果如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">"args"</span>: &#123;</span><br><span class="line">    <span class="string">"age"</span>: <span class="string">"25"</span>,</span><br><span class="line">    <span class="string">"name"</span>: <span class="string">"germey"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="string">"headers"</span>: &#123;</span><br><span class="line">    <span class="string">"Accept"</span>: <span class="string">"*/*"</span>,</span><br><span class="line">    <span class="string">"Accept-Encoding"</span>: <span class="string">"gzip, deflate"</span>,</span><br><span class="line">    <span class="string">"Host"</span>: <span class="string">"httpbin.org"</span>,</span><br><span class="line">    <span class="string">"User-Agent"</span>: <span class="string">"python-requests/2.10.0"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="string">"origin"</span>: <span class="string">"122.4.215.33"</span>,</span><br><span class="line">  <span class="string">"url"</span>: <span class="string">"http://httpbin.org/get?age=22&amp;name=germey"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在这里我们把<code>URL</code>参数通过字典的形式传给<code>GET</code>方法的<code>params</code>参数，通过返回信息我们可以判断，请求的链接自动被构造成了：<a href="http://httpbin.org/get?age=22&amp;name=germey，这样我们就不用再去自己构造`URL`了，非常方便。" target="_blank" rel="noopener">http://httpbin.org/get?age=22&amp;name=germey，这样我们就不用再去自己构造`URL`了，非常方便。</a></p>
+<p>另外，网页的返回类型实际上是<code>str</code> 类型，但是它很特殊，是<code>json</code> 格式的。所以，如果想直接解析返回结果，得到一个<code>json</code> 格式的数据的话，可以直接调用<code>json</code> 方法。</p>
+<p>示例如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">r = requests.get(<span class="string">'http://httpbin.org/get'</span>)</span><br><span class="line">print(type(r.text))</span><br><span class="line">print(r.json())</span><br><span class="line">print(type(r.json()))</span><br></pre></td></tr></table></figure>
+<p>运行结果如下：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">class'str'</span>&gt;</span></span><br><span class="line">&#123;'headers': &#123;'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Host': 'httpbin.org', 'User-Agent': 'python-requests/2.10.0'&#125;, 'url': 'http://httpbin.org/get', 'args': &#123;&#125;, 'origin': '182.33.248.131'&#125;</span><br><span class="line"><span class="tag">&lt;<span class="name">class</span> '<span class="attr">dict</span>'&gt;</span></span><br></pre></td></tr></table></figure>
+<p>可以发现，调用 <code>json</code> 方法，就可以将返回结果是<code>json</code> 格式的字符串转化为字典。</p>
+<p>但需要注意的是，如果返回结果不是<code>json</code> 格式，便会出现解析错误，抛出 <code>json.decoder.JSONDecodeError</code> 异常。</p>
+<h3 id="1-抓取网页"><a href="#1-抓取网页" class="headerlink" title="1. 抓取网页"></a>1. 抓取网页</h3><p>上面的请求链接返回的是<code>json</code> 形式的字符串，那么如果请求普通的网页，则肯定能获得相应的内容了。下面以最初的实例页面为例，我们再加上一点提取信息的逻辑，将代码完善成如下的样子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line">r = requests.get(<span class="string">'https://static1.scrape.center/'</span>)</span><br><span class="line">pattern = re.compile(<span class="string">'&lt;h2.*?&gt;(.*?)&lt;/h2&gt;'</span>, re.S)</span><br><span class="line">titles = re.findall(pattern, r.text)</span><br><span class="line">print(titles)</span><br></pre></td></tr></table></figure>
+<p>在这个例子中我们用到了最基础的正则表达式来匹配出所有的标题。关于正则表达式的相关内容，我们会在后面详细介绍，这里作为实例来配合讲解。</p>
+<p>运行结果如下：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">['肖申克的救赎 - The Shawshank Redemption', '霸王别姬 - Farewell My Concubine', '泰坦尼克号 - Titanic', '罗马假日 - Roman Holiday', '这个杀手不太冷 - Léon', '魂断蓝桥 - Waterloo Bridge', '唐伯虎点秋香 - Flirting Scholar', '喜剧之王 - The King of Comedy', '楚门的世界 - The Truman Show', '活着 - To Live']</span><br></pre></td></tr></table></figure>
+<p>我们发现，这里成功提取出了所有的电影标题。一个最基本的抓取和提取流程就完成了。</p>
+<h3 id="2-抓取二进制数据"><a href="#2-抓取二进制数据" class="headerlink" title="2. 抓取二进制数据"></a>2. 抓取二进制数据</h3><p>在上面的例子中，我们抓取的是网站的一个页面，实际上它返回的是一个<code>HTML</code>文档。如果想抓取图片、音频、视频等文件，应该怎么办呢？</p>
+<p>图片、音频、视频这些文件本质上都是由二进制码组成的，由于有特定的保存格式和对应的解析方式，我们才可以看到这些形形色色的多媒体。所以，想要抓取它们，就要拿到它们的二进制数据。</p>
+<p>下面以<code>GitHub</code>的站点图标为例来看一下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">r = requests.get(<span class="string">'https://github.com/favicon.ico'</span>)</span><br><span class="line">print(r.text)</span><br><span class="line">print(r.content)</span><br></pre></td></tr></table></figure>
+<p>这里抓取的内容是站点图标，也就是在浏览器每一个标签上显示的小图标，如图所示：</p>
+<p><img src="/posts/Pic/Spider/github.png" alt></p>
+<p>这里打印了 <code>Response</code> 对象的两个属性，一个是 <code>text</code>，另一个是 <code>content</code>。</p>
+<p>运行结果如图所示，其中前两行是 <code>r.text</code>的结果，最后一行是 <code>r.content</code> 的结果。</p>
+<p><img src="/posts/Pic/Spider/ico.png" alt="image-20210503214522111"></p>
+<p>可以注意到，前者出现了乱码，后者结果前带有一个 <code>b</code>，这代表是 <code>bytes</code> 类型的数据。</p>
+<p>由于图片是二进制数据，所以前者在打印时转化为<code>str</code> 类型，也就是图片直接转化为字符串，这当然会出现乱码。</p>
+<p>上面返回的结果我们并不能看懂，它实际上是图片的二进制数据，没关系，我们将刚才提取到的信息保存下来就好了，代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">r = requests.get(<span class="string">'https://github.com/favicon.ico'</span>)</span><br><span class="line"><span class="keyword">with</span> open(<span class="string">'favicon.ico'</span>, <span class="string">'wb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.write(r.content)</span><br></pre></td></tr></table></figure>
+<p>这里用了 <code>open</code> 方法，它的第一个参数是文件名称，第二个参数代表以二进制的形式打开，可以向文件里写入二进制数据。</p>
+<p>运行结束之后，可以发现在文件夹中出现了名为 <code>favicon.ico</code>的图标。这样，我们就把二进制数据成功保存成一张图片了，这个小图标就被我们成功爬取下来了。同样地，音频和视频文件我们也可以用这种方法获取。</p>
+<h3 id="3-添加-headers"><a href="#3-添加-headers" class="headerlink" title="3. 添加 headers"></a>3. 添加 <code>headers</code></h3><p>我们知道，在发起一个<code>HTTP</code>请求的时候，会有一个请求头 <code>Request Headers</code>，那么这个怎么来设置呢？</p>
+<p>很简单，我们使用 <code>headers</code> 参数就可以完成了。</p>
+<p>在刚才的实例中，实际上我们是没有设置 <code>Request Headers</code> 信息的，如果不设置，某些网站会发现这不是一个正常的浏览器发起的请求，网站可能会返回异常的结果，导致网页抓取失败。</p>
+<p>要添加 <code>Headers</code> 信息，比如我们这里想添加一个 <code>User-Agent</code> 字段，我们可以这么来写：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">'User-Agent'</span>: <span class="string">'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36'</span></span><br><span class="line">&#125;</span><br><span class="line">r = requests.get(<span class="string">'https://static1.scrape.center/'</span>, headers=headers)</span><br><span class="line">print(r.text)</span><br></pre></td></tr></table></figure>
+<p>当然，我们可以在 <code>headers</code> 这个参数中任意添加其他的字段信息。</p>
+<h2 id="POST-请求"><a href="#POST-请求" class="headerlink" title="POST 请求"></a><code>POST</code> 请求</h2><p>前面我们了解了最基本的<code>GET</code>请求，另外一种比较常见的请求方式是 POST。使用<code>requests</code>实现<code>POST</code> 请求同样非常简单，示例如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">data = &#123;<span class="string">'name'</span>: <span class="string">'germey'</span>, <span class="string">'age'</span>: <span class="string">'25'</span>&#125;</span><br><span class="line">r = requests.post(<span class="string">"http://httpbin.org/post"</span>, data=data)</span><br><span class="line">print(r.text)</span><br></pre></td></tr></table></figure>
+<p>这里还是请求 <a href="http://httpbin.org/post，该网站可以判断如果请求是`POST`" target="_blank" rel="noopener">http://httpbin.org/post，该网站可以判断如果请求是`POST`</a> 方式，就把相关请求信息返回。</p>
+<p>运行结果如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">"args"</span>: &#123;&#125;, </span><br><span class="line">  <span class="string">"data"</span>: <span class="string">""</span>, </span><br><span class="line">  <span class="string">"files"</span>: &#123;&#125;, </span><br><span class="line">  <span class="string">"form"</span>: &#123;</span><br><span class="line">    <span class="string">"age"</span>: <span class="string">"25"</span>, </span><br><span class="line">    <span class="string">"name"</span>: <span class="string">"germey"</span></span><br><span class="line">  &#125;, </span><br><span class="line">  <span class="string">"headers"</span>: &#123;</span><br><span class="line">    <span class="string">"Accept"</span>: <span class="string">"*/*"</span>, </span><br><span class="line">    <span class="string">"Accept-Encoding"</span>: <span class="string">"gzip, deflate"</span>, </span><br><span class="line">    <span class="string">"Content-Length"</span>: <span class="string">"18"</span>, </span><br><span class="line">    <span class="string">"Content-Type"</span>: <span class="string">"application/x-www-form-urlencoded"</span>, </span><br><span class="line">    <span class="string">"Host"</span>: <span class="string">"httpbin.org"</span>, </span><br><span class="line">    <span class="string">"User-Agent"</span>: <span class="string">"python-requests/2.22.0"</span>, </span><br><span class="line">    <span class="string">"X-Amzn-Trace-Id"</span>: <span class="string">"Root=1-5e5bdc26-b40d7e9862e3715f689cb5e6"</span></span><br><span class="line">  &#125;, </span><br><span class="line">  <span class="string">"json"</span>: null, </span><br><span class="line">  <span class="string">"origin"</span>: <span class="string">"167.220.232.237"</span>, </span><br><span class="line">  <span class="string">"url"</span>: <span class="string">"http://httpbin.org/post"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以发现，我们成功获得了返回结果，其中 <code>form</code> 部分就是提交的数据，这就证明<code>POST</code> 请求成功发送了。</p>
+<h2 id="响应"><a href="#响应" class="headerlink" title="响应"></a>响应</h2><p>发送请求后，得到的自然就是响应，即 <code>Response</code>。</p>
+<p>在上面的实例中，我们使用<code>text</code> 和<code>content</code> 获取了响应的内容。此外，还有很多属性和方法可以用来获取其他信息，比如状态码、响应头、<code>Cookies</code> 等。示例如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">r = requests.get(<span class="string">'https://static1.scrape.center/'</span>)</span><br><span class="line">print(type(r.status_code), r.status_code)</span><br><span class="line">print(type(r.headers), r.headers)</span><br><span class="line">print(type(r.cookies), r.cookies)</span><br><span class="line">print(type(r.url), r.url)</span><br><span class="line">print(type(r.history), r.history)</span><br></pre></td></tr></table></figure>
+<p>这里分别打印输出<code>status_code</code> 属性得到状态码，输出<code>headers</code> 属性得到响应头，输出<code>cookies</code> 属性得到 <code>Cookies</code>，输出<code>URL</code>属性得到 <code>URL</code>，输出<code>history</code> 属性得到请求历史。</p>
+<p>运行结果如下：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">class</span> '<span class="attr">int</span>'&gt;</span> 200</span><br><span class="line"><span class="tag">&lt;<span class="name">class</span> '<span class="attr">requests.structures.CaseInsensitiveDict</span>'&gt;</span> &#123;'Server': 'nginx/1.17.8', 'Date': 'Sun, 01 Mar 2020 13:31:54 GMT', 'Content-Type': 'text/html; charset=utf-8', 'Transfer-Encoding': 'chunked', 'Connection': 'keep-alive', 'Vary': 'Accept-Encoding', 'X-Frame-Options': 'SAMEORIGIN', 'Strict-Transport-Security': 'max-age=15724800; includeSubDomains', 'Content-Encoding': 'gzip'&#125;</span><br><span class="line"><span class="tag">&lt;<span class="name">class</span> '<span class="attr">requests.cookies.RequestsCookieJar</span>'&gt;</span> <span class="tag">&lt;<span class="name">RequestsCookieJar[]</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">class</span> '<span class="attr">str</span>'&gt;</span> https://static1.scrape.center/</span><br><span class="line"><span class="tag">&lt;<span class="name">class</span> '<span class="attr">list</span>'&gt;</span> []</span><br></pre></td></tr></table></figure>
+<p>可以看到，<code>headers</code> 和<code>cookies</code> 这两个属性得到的结果分别是 <code>CaseInsensitiveDict</code> 和 <code>RequestsCookieJar</code>类型。</p>
+<p>前面的学习我们知道，状态码是用来表示响应状态的，比如返回 200 代表我们得到的响应是没问题的，上面的例子正好输出的结果也是 200，所以我们可以通过判断<code>Response</code> 的状态码来确认是否爬取成功。</p>
+<p><code>requests</code> 还提供了一个内置的状态码查询对象 <code>requests.codes</code>，用法示例如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">r = requests.get(<span class="string">'https://static1.scrape.center/'</span>)</span><br><span class="line">exit() <span class="keyword">if</span> <span class="keyword">not</span> r.status_code == requests.codes.ok <span class="keyword">else</span> print(<span class="string">'Request Successfully'</span>)</span><br></pre></td></tr></table></figure>
+<p>这里通过比较返回码和内置的成功的返回码，来保证请求得到了正常响应，输出成功请求的消息，否则程序终止，这里我们用 <code>requests.codes.ok</code> 得到的是成功的状态码 200。</p>
+<p>这样的话，我们就不用再在程序里面写状态码对应的数字了，用字符串表示状态码会显得更加直观。当然，肯定不能只有 <code>ok</code> 这个条件码。下面列出了返回码和相应的查询条件：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 信息性状态码</span></span><br><span class="line"></span><br><span class="line"><span class="number">100</span>: (<span class="string">'continue'</span>,),</span><br><span class="line"><span class="number">101</span>: (<span class="string">'switching_protocols'</span>,),</span><br><span class="line"><span class="number">102</span>: (<span class="string">'processing'</span>,),</span><br><span class="line"><span class="number">103</span>: (<span class="string">'checkpoint'</span>,),</span><br><span class="line"><span class="number">122</span>: (<span class="string">'uri_too_long'</span>, <span class="string">'request_uri_too_long'</span>),</span><br><span class="line"></span><br><span class="line"><span class="comment"># 成功状态码</span></span><br><span class="line"></span><br><span class="line"><span class="number">200</span>: (<span class="string">'ok'</span>, <span class="string">'okay'</span>, <span class="string">'all_ok'</span>, <span class="string">'all_okay'</span>, <span class="string">'all_good'</span>, <span class="string">'\\o/'</span>, <span class="string">'✓'</span>),</span><br><span class="line"><span class="number">201</span>: (<span class="string">'created'</span>,),</span><br><span class="line"><span class="number">202</span>: (<span class="string">'accepted'</span>,),</span><br><span class="line"><span class="number">203</span>: (<span class="string">'non_authoritative_info'</span>, <span class="string">'non_authoritative_information'</span>),</span><br><span class="line"><span class="number">204</span>: (<span class="string">'no_content'</span>,),</span><br><span class="line"><span class="number">205</span>: (<span class="string">'reset_content'</span>, <span class="string">'reset'</span>),</span><br><span class="line"><span class="number">206</span>: (<span class="string">'partial_content'</span>, <span class="string">'partial'</span>),</span><br><span class="line"><span class="number">207</span>: (<span class="string">'multi_status'</span>, <span class="string">'multiple_status'</span>, <span class="string">'multi_stati'</span>, <span class="string">'multiple_stati'</span>),</span><br><span class="line"><span class="number">208</span>: (<span class="string">'already_reported'</span>,),</span><br><span class="line"><span class="number">226</span>: (<span class="string">'im_used'</span>,),</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重定向状态码</span></span><br><span class="line"></span><br><span class="line"><span class="number">300</span>: (<span class="string">'multiple_choices'</span>,),</span><br><span class="line"><span class="number">301</span>: (<span class="string">'moved_permanently'</span>, <span class="string">'moved'</span>, <span class="string">'\\o-'</span>),</span><br><span class="line"><span class="number">302</span>: (<span class="string">'found'</span>,),</span><br><span class="line"><span class="number">303</span>: (<span class="string">'see_other'</span>, <span class="string">'other'</span>),</span><br><span class="line"><span class="number">304</span>: (<span class="string">'not_modified'</span>,),</span><br><span class="line"><span class="number">305</span>: (<span class="string">'use_proxy'</span>,),</span><br><span class="line"><span class="number">306</span>: (<span class="string">'switch_proxy'</span>,),</span><br><span class="line"><span class="number">307</span>: (<span class="string">'temporary_redirect'</span>, <span class="string">'temporary_moved'</span>, <span class="string">'temporary'</span>),</span><br><span class="line"><span class="number">308</span>: (<span class="string">'permanent_redirect'</span>,</span><br><span class="line">      <span class="string">'resume_incomplete'</span>, <span class="string">'resume'</span>,), <span class="comment"># These 2 to be removed in 3.0</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 客户端错误状态码</span></span><br><span class="line"></span><br><span class="line"><span class="number">400</span>: (<span class="string">'bad_request'</span>, <span class="string">'bad'</span>),</span><br><span class="line"><span class="number">401</span>: (<span class="string">'unauthorized'</span>,),</span><br><span class="line"><span class="number">402</span>: (<span class="string">'payment_required'</span>, <span class="string">'payment'</span>),</span><br><span class="line"><span class="number">403</span>: (<span class="string">'forbidden'</span>,),</span><br><span class="line"><span class="number">404</span>: (<span class="string">'not_found'</span>, <span class="string">'-o-'</span>),</span><br><span class="line"><span class="number">405</span>: (<span class="string">'method_not_allowed'</span>, <span class="string">'not_allowed'</span>),</span><br><span class="line"><span class="number">406</span>: (<span class="string">'not_acceptable'</span>,),</span><br><span class="line"><span class="number">407</span>: (<span class="string">'proxy_authentication_required'</span>, <span class="string">'proxy_auth'</span>, <span class="string">'proxy_authentication'</span>),</span><br><span class="line"><span class="number">408</span>: (<span class="string">'request_timeout'</span>, <span class="string">'timeout'</span>),</span><br><span class="line"><span class="number">409</span>: (<span class="string">'conflict'</span>,),</span><br><span class="line"><span class="number">410</span>: (<span class="string">'gone'</span>,),</span><br><span class="line"><span class="number">411</span>: (<span class="string">'length_required'</span>,),</span><br><span class="line"><span class="number">412</span>: (<span class="string">'precondition_failed'</span>, <span class="string">'precondition'</span>),</span><br><span class="line"><span class="number">413</span>: (<span class="string">'request_entity_too_large'</span>,),</span><br><span class="line"><span class="number">414</span>: (<span class="string">'request_uri_too_large'</span>,),</span><br><span class="line"><span class="number">415</span>: (<span class="string">'unsupported_media_type'</span>, <span class="string">'unsupported_media'</span>, <span class="string">'media_type'</span>),</span><br><span class="line"><span class="number">416</span>: (<span class="string">'requested_range_not_satisfiable'</span>, <span class="string">'requested_range'</span>, <span class="string">'range_not_satisfiable'</span>),</span><br><span class="line"><span class="number">417</span>: (<span class="string">'expectation_failed'</span>,),</span><br><span class="line"><span class="number">418</span>: (<span class="string">'im_a_teapot'</span>, <span class="string">'teapot'</span>, <span class="string">'i_am_a_teapot'</span>),</span><br><span class="line"><span class="number">421</span>: (<span class="string">'misdirected_request'</span>,),</span><br><span class="line"><span class="number">422</span>: (<span class="string">'unprocessable_entity'</span>, <span class="string">'unprocessable'</span>),</span><br><span class="line"><span class="number">423</span>: (<span class="string">'locked'</span>,),</span><br><span class="line"><span class="number">424</span>: (<span class="string">'failed_dependency'</span>, <span class="string">'dependency'</span>),</span><br><span class="line"><span class="number">425</span>: (<span class="string">'unordered_collection'</span>, <span class="string">'unordered'</span>),</span><br><span class="line"><span class="number">426</span>: (<span class="string">'upgrade_required'</span>, <span class="string">'upgrade'</span>),</span><br><span class="line"><span class="number">428</span>: (<span class="string">'precondition_required'</span>, <span class="string">'precondition'</span>),</span><br><span class="line"><span class="number">429</span>: (<span class="string">'too_many_requests'</span>, <span class="string">'too_many'</span>),</span><br><span class="line"><span class="number">431</span>: (<span class="string">'header_fields_too_large'</span>, <span class="string">'fields_too_large'</span>),</span><br><span class="line"><span class="number">444</span>: (<span class="string">'no_response'</span>, <span class="string">'none'</span>),</span><br><span class="line"><span class="number">449</span>: (<span class="string">'retry_with'</span>, <span class="string">'retry'</span>),</span><br><span class="line"><span class="number">450</span>: (<span class="string">'blocked_by_windows_parental_controls'</span>, <span class="string">'parental_controls'</span>),</span><br><span class="line"><span class="number">451</span>: (<span class="string">'unavailable_for_legal_reasons'</span>, <span class="string">'legal_reasons'</span>),</span><br><span class="line"><span class="number">499</span>: (<span class="string">'client_closed_request'</span>,),</span><br><span class="line"></span><br><span class="line"><span class="comment"># 服务端错误状态码</span></span><br><span class="line"></span><br><span class="line"><span class="number">500</span>: (<span class="string">'internal_server_error'</span>, <span class="string">'server_error'</span>, <span class="string">'/o\\'</span>, <span class="string">'✗'</span>),</span><br><span class="line"><span class="number">501</span>: (<span class="string">'not_implemented'</span>,),</span><br><span class="line"><span class="number">502</span>: (<span class="string">'bad_gateway'</span>,),</span><br><span class="line"><span class="number">503</span>: (<span class="string">'service_unavailable'</span>, <span class="string">'unavailable'</span>),</span><br><span class="line"><span class="number">504</span>: (<span class="string">'gateway_timeout'</span>,),</span><br><span class="line"><span class="number">505</span>: (<span class="string">'http_version_not_supported'</span>, <span class="string">'http_version'</span>),</span><br><span class="line"><span class="number">506</span>: (<span class="string">'variant_also_negotiates'</span>,),</span><br><span class="line"><span class="number">507</span>: (<span class="string">'insufficient_storage'</span>,),</span><br><span class="line"><span class="number">509</span>: (<span class="string">'bandwidth_limit_exceeded'</span>, <span class="string">'bandwidth'</span>),</span><br><span class="line"><span class="number">510</span>: (<span class="string">'not_extended'</span>,),</span><br><span class="line"><span class="number">511</span>: (<span class="string">'network_authentication_required'</span>, <span class="string">'network_auth'</span>, <span class="string">'network_authentication'</span>)</span><br></pre></td></tr></table></figure>
+<p>比如，如果想判断结果是不是 404 状态，可以用 <code>requests.codes.not_found</code> 来比对。</p>
+<h1 id="高级用法"><a href="#高级用法" class="headerlink" title="高级用法"></a>高级用法</h1><p>刚才，我们了解了<code>requests</code>的基本用法，如基本的 <code>GET</code>、<code>POST</code> 请求以及<code>Response</code> 对象。当然<code>requests</code>能做到的不仅这些，它几乎可以帮我们完成<code>HTTP</code>的所有操作。</p>
+<p>下面我们再来了解下<code>requests</code>的一些高级用法，如文件上传、<code>Cookies</code> 设置、代理设置等。</p>
+<h2 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h2><p>我们知道<code>requests</code>可以模拟提交一些数据。假如有的网站需要上传文件，我们也可以用它来实现，示例如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">files = &#123;<span class="string">'file'</span>: open(<span class="string">'favicon.ico'</span>, <span class="string">'rb'</span>)&#125;</span><br><span class="line">r = requests.post(<span class="string">'http://httpbin.org/post'</span>, files=files)</span><br><span class="line">print(r.text)</span><br></pre></td></tr></table></figure>
+<p>在前面我们保存了一个文件 <code>favicon.ico</code>，这次用它来模拟文件上传的过程。需要注意的是，<code>favicon.ico</code> 需要和当前脚本在同一目录下。如果有其他文件，当然也可以使用其他文件来上传，更改下代码即可。</p>
+<p>运行结果如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="attr">"args"</span>: &#123;&#125;, </span><br><span class="line"><span class="attr">"data"</span>: <span class="string">""</span>,<span class="attr">"files"</span>: &#123;<span class="attr">"file"</span>:<span class="string">"data:application/octet-stream;base64,AAAAAA...="</span>&#125;,<span class="attr">"form"</span>: &#123;&#125;,<span class="attr">"headers"</span>: &#123;<span class="attr">"Accept"</span>:<span class="string">"*/*"</span>,<span class="attr">"Accept-Encoding"</span>:<span class="string">"gzip, deflate"</span>,<span class="attr">"Content-Length"</span>:<span class="string">"6665"</span>,<span class="attr">"Content-Type"</span>:<span class="string">"multipart/form-data; boundary=809f80b1a2974132b133ade1a8e8e058"</span>,<span class="attr">"Host"</span>:<span class="string">"httpbin.org"</span>,<span class="attr">"User-Agent"</span>:<span class="string">"python-requests/2.10.0"</span>&#125;,<span class="attr">"json"</span>: <span class="literal">null</span>,<span class="attr">"origin"</span>:<span class="string">"60.207.237.16"</span>,<span class="attr">"url"</span>:<span class="string">"http://httpbin.org/post"</span>&#125;</span><br></pre></td></tr></table></figure>
+<p>以上省略部分内容，这个网站会返回响应，里面包含 <code>files</code> 这个字段，而 <code>form</code> 字段是空的，这证明文件上传部分会单独有一个 <code>files</code>字段来标识。</p>
+<h2 id="Cookies"><a href="#Cookies" class="headerlink" title="Cookies"></a><code>Cookies</code></h2><p>我们如果想用<code>requests</code>获取和设置<code>cookies</code> 也非常方便，只需一步即可完成。</p>
+<p>我们先用一个实例看一下获取<code>cookies</code> 的过程：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">r = requests.get(<span class="string">'http://www.baidu.com'</span>)</span><br><span class="line">print(r.cookies)</span><br><span class="line"><span class="keyword">for</span> key, value <span class="keyword">in</span> r.cookies.items():</span><br><span class="line">    print(key + <span class="string">'='</span> + value)</span><br></pre></td></tr></table></figure>
+<p>运行结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;RequestsCookieJar[&lt;Cookie BDORZ&#x3D;27315 for .baidu.com&#x2F;&gt;]&gt;</span><br><span class="line">BDORZ&#x3D;27315</span><br></pre></td></tr></table></figure>
+<p>这里我们首先调用<code>cookies</code> 属性即可成功得到 <code>Cookies</code>，可以发现它是 <code>RequestCookieJar</code> 类型。然后用 <code>items</code> 方法将其转化为元组组成的列表，遍历输出每一个<code>Cookie</code> 的名称和值，实现<code>Cookie</code> 的遍历解析。</p>
+<p>当然，我们也可以直接用<code>Cookie</code> 来维持登录状态，下面我们以<code>GitHub</code>为例来说明一下，首先我们登录 <code>GitHub</code>，然后将<code>headers</code> 中的<code>Cookie</code> 内容复制下来，如图所示：</p>
+<p>这里可以替换成你自己的 <code>Cookie</code>，将其设置到<code>headers</code> 里面，然后发送请求，示例如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">'Cookie'</span>: <span class="string">'_octo=GH1.1.1849343058.1576602081; _ga=GA1.2.90460451.1576602111; __Host-user_session_same_site=nbDv62kHNjp4N5KyQNYZ208waeqsmNgxFnFC88rnV7gTYQw_; _device_id=a7ca73be0e8f1a81d1e2ebb5349f9075; user_session=nbDv62kHNjp4N5KyQNYZ208waeqsmNgxFnFC88rnV7gTYQw_; logged_in=yes; dotcom_user=Germey; tz=Asia%2FShanghai; has_recent_activity=1; _gat=1; _gh_sess=your_session_info'</span>,</span><br><span class="line">    <span class="string">'User-Agent'</span>: <span class="string">'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36'</span>,</span><br><span class="line">&#125;</span><br><span class="line">r = requests.get(<span class="string">'https://github.com/'</span>, headers=headers)</span><br><span class="line">print(r.text)</span><br></pre></td></tr></table></figure>
+<p>我们发现，结果中包含了登录后才能显示的结果，如图所示：</p>
+<p>可以看到这里包含了我的<code>GitHub</code>用户名信息，你如果尝试同样可以得到你的用户信息。</p>
+<p>得到这样类似的结果，说明我们用<code>cookies</code> 成功模拟了登录状态，这样我们就能爬取登录之后才能看到的页面了。</p>
+<p>当然，我们也可以通过<code>cookies</code> 参数来设置<code>cookies</code> 的信息，这里我们可以构造一个 <code>RequestsCookieJar</code> 对象，然后把刚才复制的<code>Cookie</code> 处理下并赋值，示例如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">cookies = <span class="string">'_octo=GH1.1.1849343058.1576602081; _ga=GA1.2.90460451.1576602111; __Host-user_session_same_site=nbDv62kHNjp4N5KyQNYZ208waeqsmNgxFnFC88rnV7gTYQw_; _device_id=a7ca73be0e8f1a81d1e2ebb5349f9075; user_session=nbDv62kHNjp4N5KyQNYZ208waeqsmNgxFnFC88rnV7gTYQw_; logged_in=yes; dotcom_user=Germey; tz=Asia%2FShanghai; has_recent_activity=1; _gat=1; _gh_sess=your_session_info'</span></span><br><span class="line">jar = requests.cookies.RequestsCookieJar()</span><br><span class="line">headers = &#123;</span><br><span class="line">    <span class="string">'User-Agent'</span>: <span class="string">'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36'</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">for</span>`Cookie` <span class="keyword">in</span> cookies.split(<span class="string">';'</span>):</span><br><span class="line">    key, value = cookie.split(<span class="string">'='</span>, <span class="number">1</span>)</span><br><span class="line">    jar.set(key, value)</span><br><span class="line">r = requests.get(<span class="string">'https://github.com/'</span>, cookies=jar, headers=headers)</span><br><span class="line">print(r.text)</span><br></pre></td></tr></table></figure>
+<p>这里我们首先新建一个 <code>RequestCookieJar</code> 对象，然后将复制下来的<code>cookies</code> 利用 <code>split</code> 方法分割，接着利用 <code>set</code> 方法设置好每个<code>Cookie</code> 的 <code>key</code> 和 <code>value</code>，最后通过调用<code>requests</code>的<code>GET</code>方法并传递给<code>cookies</code> 参数即可。</p>
+<p>测试后，发现同样可以正常登录。</p>
+<h2 id="Session-维持"><a href="#Session-维持" class="headerlink" title="Session 维持"></a><code>Session</code> 维持</h2><p>在<code>requests</code>中，如果直接利用<code>GET</code>或<code>POST</code> 等方法的确可以做到模拟网页的请求，但是这实际上是相当于不同的 <code>Session</code>，相当于你用两个浏览器打开了不同的页面。</p>
+<p>设想这样一个场景，第一个请求利用<code>POST</code> 方法登录了某个网站，第二次想获取成功登录后的自己的个人信息，你又用了一次<code>GET</code>方法去请求个人信息页面。实际上，这相当于打开了两个浏览器，是两个完全不相关的 <code>Session</code>，能成功获取个人信息吗？当然不能。</p>
+<p>有人会问，我在两次请求时设置一样的<code>cookies</code> 不就行了？可以，但这样做起来很烦琐，我们有更简单的解决方法。</p>
+<p>解决这个问题的主要方法就是维持同一个 <code>Session</code>，相当于打开一个新的浏览器选项卡而不是新开一个浏览器。但我又不想每次设置 <code>Cookies</code>，那该怎么办呢？这时候就有了新的利器 ——<code>Session</code> 对象。</p>
+<p>利用它，我们可以方便地维护一个 <code>Session</code>，而且不用担心<code>cookies</code> 的问题，它会帮我们自动处理好。示例如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">requests.get(<span class="string">'http://httpbin.org/cookies/set/number/123456789'</span>)</span><br><span class="line">r = requests.get(<span class="string">'http://httpbin.org/cookies'</span>)</span><br><span class="line">print(r.text)</span><br></pre></td></tr></table></figure>
+<p>这里我们请求了一个测试网址 <a href="http://httpbin.org/cookies/set/number/123456789。请求这个网址时，可以设置一个" target="_blank" rel="noopener">http://httpbin.org/cookies/set/number/123456789。请求这个网址时，可以设置一个</a> <code>cookie</code>，名称叫作 <code>number</code>，内容是 123456789，随后又请求了 <a href="http://httpbin.org/cookies，此网址可以获取当前的" target="_blank" rel="noopener">http://httpbin.org/cookies，此网址可以获取当前的</a> <code>Cookies</code>。</p>
+<p>这样能成功获取到设置的<code>cookies</code> 吗？试试看。</p>
+<p>运行结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;cookies&quot;: &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这并不行。我们再用 <code>Session</code> 试试看：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">s = requests.Session()</span><br><span class="line">s.get(<span class="string">'http://httpbin.org/cookies/set/number/123456789'</span>)</span><br><span class="line">r = s.get(<span class="string">'http://httpbin.org/cookies'</span>)</span><br><span class="line">print(r.text)</span><br></pre></td></tr></table></figure>
+<p>再看下运行结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;cookies&quot;: &#123;&quot;number&quot;: &quot;123456789&quot;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>成功获取！这下能体会到同一个<code>Session</code>和不同<code>Session</code>的区别了吧！</p>
+<p>所以，利用 <code>Session</code>，可以做到模拟同一个 <code>Session</code> 而不用担心<code>cookies</code> 的问题。它通常用于模拟登录成功之后再进行下一步的操作。</p>
+<h2 id="SSL-证书验证"><a href="#SSL-证书验证" class="headerlink" title="SSL 证书验证"></a><code>SSL</code> 证书验证</h2><p>现在很多网站都要求使用 <code>HTTPS</code> 协议，但是有些网站可能并没有设置好 <code>HTTPS</code> 证书，或者网站的 <code>HTTPS</code> 证书不被 <code>CA</code> 机构认可，这时候，这些网站可能就会出现 <code>SSL</code> 证书错误的提示。</p>
+<p>比如这个示例网站：<a href="https://static2.scrape.center/。" target="_blank" rel="noopener">https://static2.scrape.center/。</a></p>
+<p>如果我们用 Chrome 浏览器打开这个 <code>URL</code>，则会提示「您的连接不是私密连接」这样的错误，如图所示：</p>
+<p><img src="../Pic/Spider/https.png" style="zoom:70%;"></p>
+<p>我们可以在浏览器中通过一些设置来忽略证书的验证。</p>
+<p>但是如果我们想用<code>requests</code>来请求这类网站，会遇到什么问题呢？我们用代码来试一下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">response = requests.get(<span class="string">'https://static2.scrape.center/'</span>)</span><br><span class="line">print(response.status_code)</span><br></pre></td></tr></table></figure>
+<p>运行结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">requests.exceptions.SSLError: HTTPSConnectionPool(host&#x3D;&#39;static2.scrape.center&#39;, port&#x3D;443): Max retries exceeded with url: &#x2F; (Caused by SSLError(SSLError(&quot;bad handshake: Error([(&#39;SSL routines&#39;, &#39;tls_process_server_certificate&#39;, &#39;certificate verify failed&#39;)])&quot;)))</span><br></pre></td></tr></table></figure>
+<p>可以看到，这里直接抛出了 <code>SSLError</code> 错误，原因就是因为我们请求的<code>URL</code>的证书是无效的。</p>
+<p>那如果我们一定要爬取这个网站怎么办呢？我们可以使用 <code>verify</code> 参数控制是否验证证书，如果将其设置为 <code>False</code>，在请求时就不会再验证证书是否有效。如果不加 <code>verify</code> 参数的话，默认值是 <code>True</code>，会自动验证。</p>
+<p>我们改写代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">response = requests.get(<span class="string">'https://static2.scrape.center/'</span>, verify=<span class="literal">False</span>)</span><br><span class="line">print(response.status_code)</span><br></pre></td></tr></table></figure>
+<p>这样就会打印出请求成功的状态码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;usr&#x2F;local&#x2F;lib&#x2F;python3.7&#x2F;site-packages&#x2F;urllib3&#x2F;connectionpool.py:857: InsecureRequestWarning: Unverified HTTPS request is being made. Adding certificate verification is strongly advised. See: https:&#x2F;&#x2F;urllib3.readthedocs.io&#x2F;en&#x2F;latest&#x2F;advanced-usage.html#ssl-warnings</span><br><span class="line">  InsecureRequestWarning)</span><br><span class="line">200</span><br></pre></td></tr></table></figure>
+<p>不过我们发现报了一个警告，它建议我们给它指定证书。我们可以通过设置忽略警告的方式来屏蔽这个警告：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> requests.packages <span class="keyword">import</span> urllib3</span><br><span class="line">urllib3.disable_warnings()</span><br><span class="line">response = requests.get(<span class="string">'https://static2.scrape.center'</span>, verify=<span class="literal">False</span>)</span><br><span class="line">print(response.status_code)</span><br></pre></td></tr></table></figure>
+<p>或者通过捕获警告到日志的方式忽略警告：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> logging</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">logging.captureWarnings(<span class="literal">True</span>)</span><br><span class="line">response = requests.get(<span class="string">'https://static2.scrape.center/'</span>, verify=<span class="literal">False</span>)</span><br><span class="line">print(response.status_code)</span><br></pre></td></tr></table></figure>
+<p>当然，我们也可以指定一个本地证书用作客户端证书，这可以是单个文件（包含密钥和证书）或一个包含两个文件路径的元组：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">response = requests.get(<span class="string">'https://static2.scrape.center/'</span>, cert=(<span class="string">'/path/server.crt'</span>, <span class="string">'/path/server.key'</span>))</span><br><span class="line">print(response.status_code)</span><br></pre></td></tr></table></figure>
+<p>当然，上面的代码是演示实例，我们需要有 <code>crt</code> 和 <code>key</code> 文件，并且指定它们的路径。另外注意，本地私有证书的 <code>key</code> 必须是解密状态，加密状态的 <code>key</code> 是不支持的。</p>
+<h2 id="超时设置"><a href="#超时设置" class="headerlink" title="超时设置"></a>超时设置</h2><p>在本机网络状况不好或者服务器网络响应延迟甚至无响应时，我们可能会等待很久才能收到响应，甚至到最后收不到响应而报错。为了防止服务器不能及时响应，应该设置一个超时时间，即超过了这个时间还没有得到响应，那就报错。这需要用到 <code>timeout</code> 参数。这个时间的计算是发出请求到服务器返回响应的时间。示例如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">r = requests.get(<span class="string">'https://httpbin.org/get'</span>, timeout=<span class="number">1</span>)</span><br><span class="line">print(r.status_code)</span><br></pre></td></tr></table></figure>
+<p>通过这样的方式，我们可以将超时时间设置为 1 秒，如果 1 秒内没有响应，那就抛出异常。</p>
+<p>实际上，请求分为两个阶段，即连接（connect）和读取（read）。上面设置的 <code>timeout</code> 将用作连接和读取这二者的 <code>timeout</code> 总和。</p>
+<p>如果要分别指定，就可以传入一个元组：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">r = requests.get(<span class="string">'https://httpbin.org/get'</span>, timeout=(<span class="number">5</span>, <span class="number">30</span>))</span><br></pre></td></tr></table></figure>
+<p>如果想永久等待，可以直接将 <code>timeout</code> 设置为 None，或者不设置直接留空，因为默认是 <code>None</code>。这样的话，如果服务器还在运行，但是响应特别慢，那就慢慢等吧，它永远不会返回超时错误的。其用法如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">r = requests.get(<span class="string">'https://httpbin.org/get'</span>, timeout=<span class="literal">None</span>)</span><br></pre></td></tr></table></figure>
+<p>或直接不加参数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">r = requests.get(<span class="string">'https://httpbin.org/get'</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="身份认证"><a href="#身份认证" class="headerlink" title="身份认证"></a>身份认证</h2><p>在访问某些设置了身份认证的网站时，例如：<a href="https://static3.scrape.center/，我们可能会遇到这样的认证窗口，如图所示：" target="_blank" rel="noopener">https://static3.scrape.center/，我们可能会遇到这样的认证窗口，如图所示：</a></p>
+<p><img src="/posts/Pic/Spider/identifier.png" style="zoom:80%;"></p>
+<p>如果遇到了这种情况，那就是这个网站启用了基本身份认证，英文叫作<code>HTTP Basic Access Authentication</code>，它是一种用来允许网页浏览器或其他客户端程序在请求时提供用户名和口令形式的身份凭证的一种登录验证方式。</p>
+<p>如果遇到了这种情况，怎么用 <code>reqeusts</code> 来爬取呢，当然也有办法。</p>
+<p>我们可以使用<code>requests</code>自带的身份认证功能，通过 <code>auth</code> 参数即可设置，示例如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> requests.auth <span class="keyword">import</span> HTTPBasicAuth</span><br><span class="line">r = requests.get(<span class="string">'https://static3.scrape.center/'</span>, auth=HTTPBasicAuth(<span class="string">'admin'</span>, <span class="string">'admin'</span>))</span><br><span class="line">print(r.status_code)</span><br></pre></td></tr></table></figure>
+<p>这个示例网站的用户名和密码都是 <code>admin</code>，在这里我们可以直接设置。</p>
+<p>如果用户名和密码正确的话，请求时会自动认证成功，返回 200 状态码；如果认证失败，则返回 401 状态码。</p>
+<p>当然，如果参数都传一个 <code>HTTPBasicAuth</code> 类，就显得有点烦琐了，所以<code>requests</code>提供了一个更简单的写法，可以直接传一个元组，它会默认使用 <code>HTTPBasicAuth</code> 这个类来认证。</p>
+<p>所以上面的代码可以直接简写如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">r = requests.get(<span class="string">'https://static3.scrape.center/'</span>, auth=(<span class="string">'admin'</span>, <span class="string">'admin'</span>))</span><br><span class="line">print(r.status_code)</span><br></pre></td></tr></table></figure>
+<p>此外，<code>requests</code>还提供了其他认证方式，如 <code>OAuth</code> 认证，不过此时需要安装 <code>oauth</code> 包，安装命令如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip3 install requests_oauthlib</span><br></pre></td></tr></table></figure>
+<p>使用 <code>OAuth1</code> 认证的方法如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> requests_oauthlib <span class="keyword">import</span> OAuth1</span><br><span class="line">url = <span class="string">'https://api.twitter.com/1.1/account/verify_credentials.json'</span></span><br><span class="line">auth = OAuth1(<span class="string">'YOUR_APP_KEY'</span>, <span class="string">'YOUR_APP_SECRET'</span>,</span><br><span class="line">              <span class="string">'USER_OAUTH_TOKEN'</span>, <span class="string">'USER_OAUTH_TOKEN_SECRET'</span>)</span><br><span class="line">requests.get(url, auth=auth)</span><br></pre></td></tr></table></figure>
+<p>更多详细的功能就可以参考 <code>requests_oauthlib</code> 的官方文档：<a href="https://requests-oauthlib.readthedocs.org/，在此就不再赘述了。" target="_blank" rel="noopener">https://requests-oauthlib.readthedocs.org/，在此就不再赘述了。</a></p>
+<p>代理设置<br>某些网站在测试的时候请求几次，能正常获取内容。但是对于大规模且频繁的请求，网站可能会弹出验证码，或者跳转到登录认证页面，更甚者可能会直接封禁客户端的 IP，导致一定时间段内无法访问。</p>
+<p>为了防止这种情况发生，我们需要设置代理来解决这个问题，这就需要用到 <code>proxies</code> 参数。可以用这样的方式设置：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">proxies = &#123;</span><br><span class="line">  <span class="string">'http'</span>: <span class="string">'http://10.10.10.10:1080'</span>,</span><br><span class="line">  <span class="string">'https'</span>: <span class="string">'http://10.10.10.10:1080'</span>,</span><br><span class="line">&#125;</span><br><span class="line">requests.get(<span class="string">'https://httpbin.org/get'</span>, proxies=proxies)</span><br></pre></td></tr></table></figure>
+<p>当然，直接运行这个实例或许行不通，因为这个代理可能是无效的，可以直接搜索寻找有效的代理并替换试验一下。</p>
+<p>若代理需要使用上文所述的身份认证，可以使用类似 <a href="http://user:password@host:port">http://user:password@host:port</a> 这样的语法来设置代理，示例如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">proxies = &#123;<span class="string">'https'</span>: <span class="string">'http://user:password@10.10.10.10:1080/'</span>,&#125;</span><br><span class="line">requests.get(<span class="string">'https://httpbin.org/get'</span>, proxies=proxies)</span><br></pre></td></tr></table></figure>
+<p>除了基本的<code>HTTP</code>代理外，<code>requests</code>还支持 <code>SOCKS</code> 协议的代理。</p>
+<p>首先，需要安装 <code>socks</code> 这个库：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip3 install <span class="string">"requests[socks]"</span></span><br></pre></td></tr></table></figure>
+<p>然后就可以使用 <code>SOCKS</code> 协议代理了，示例如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">proxies = &#123;</span><br><span class="line">    <span class="string">'http'</span>: <span class="string">'socks5://user:password@host:port'</span>,</span><br><span class="line">    <span class="string">'https'</span>: <span class="string">'socks5://user:password@host:port'</span></span><br><span class="line">&#125;</span><br><span class="line">requests.get(<span class="string">'https://httpbin.org/get'</span>, proxies=proxies)</span><br></pre></td></tr></table></figure>
+<h2 id="Prepared-Request"><a href="#Prepared-Request" class="headerlink" title="Prepared Request"></a><code>Prepared Request</code></h2><p>我们使用<code>requests</code>库的<code>GET</code>和<code>POST</code> 方法可以直接发送请求，但你有没有想过，这个请求在<code>requests</code>内部是怎么实现的呢？</p>
+<p>实际上，<code>requests</code>在发送请求的时候在内部构造了一个 <code>Request</code> 对象，并给这个对象赋予了各种参数，包括 url、headers、data ，等等。然后直接把这个 Request 对象发送出去，请求成功后会再得到一个<code>Response</code> 对象，再解析即可。</p>
+<p>那么这个 <code>Request</code> 是什么类型呢？实际上它就是 <code>Prepared Request</code>。</p>
+<p>我们深入一下，不用<code>GET</code>方法，直接构造一个 <code>Prepared Request</code> 对象来试试，代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> requests <span class="keyword">import</span> Request, Session</span><br><span class="line">url = <span class="string">'http://httpbin.org/post'</span></span><br><span class="line">data = &#123;<span class="string">'name'</span>: <span class="string">'germey'</span>&#125;</span><br><span class="line">headers = &#123;<span class="string">'User-Agent'</span>: <span class="string">'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36'</span></span><br><span class="line">&#125;</span><br><span class="line">s = Session()</span><br><span class="line">req = Request(<span class="string">'POST'</span>, url, data=data, headers=headers)</span><br><span class="line">prepped = s.prepare_request(req)</span><br><span class="line">r = s.send(prepped)</span><br><span class="line">print(r.text)</span><br></pre></td></tr></table></figure>
+<p>这里我们引入了 <code>Request</code>，然后用 <code>url</code>、<code>data</code> 和<code>headers</code> 参数构造了一个 <code>Request</code> 对象，这时需要再调用 <code>Session</code> 的 <code>prepare_request</code> 方法将其转换为一个 <code>Prepared Request</code> 对象，然后调用 <code>send</code> 方法发送，运行结果如下：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"args"</span>: &#123;&#125;, </span><br><span class="line">  <span class="attr">"data"</span>: <span class="string">""</span>, </span><br><span class="line">  <span class="attr">"files"</span>: &#123;&#125;, </span><br><span class="line">  <span class="attr">"form"</span>: &#123;</span><br><span class="line">    <span class="attr">"name"</span>: <span class="string">"germey"</span></span><br><span class="line">  &#125;, </span><br><span class="line">  <span class="attr">"headers"</span>: &#123;</span><br><span class="line">    <span class="attr">"Accept"</span>: <span class="string">"*/*"</span>, </span><br><span class="line">    <span class="attr">"Accept-Encoding"</span>: <span class="string">"gzip, deflate"</span>, </span><br><span class="line">    <span class="attr">"Content-Length"</span>: <span class="string">"11"</span>, </span><br><span class="line">    <span class="attr">"Content-Type"</span>: <span class="string">"application/x-www-form-urlencoded"</span>, </span><br><span class="line">    <span class="attr">"Host"</span>: <span class="string">"httpbin.org"</span>, </span><br><span class="line">    <span class="attr">"User-Agent"</span>: <span class="string">"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36"</span>, </span><br><span class="line">    <span class="attr">"X-Amzn-Trace-Id"</span>: <span class="string">"Root=1-5e5bd6a9-6513c838f35b06a0751606d8"</span></span><br><span class="line">  &#125;, </span><br><span class="line">  <span class="attr">"json"</span>: <span class="literal">null</span>, </span><br><span class="line">  <span class="attr">"origin"</span>: <span class="string">"167.220.232.237"</span>, </span><br><span class="line">  <span class="attr">"url"</span>: <span class="string">"http://httpbin.org/post"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，我们达到了同样的<code>POST</code> 请求效果。</p>
+<p>有了 <code>Request</code> 这个对象，就可以将请求当作独立的对象来看待，这样在一些场景中我们可以直接操作这个 <code>Request</code> 对象，更灵活地实现请求的调度和各种操作。</p>
+<p>更多的用法可以参考<code>requests</code>的官方文档：<a href="http://docs.python-requests.org/。" target="_blank" rel="noopener">http://docs.python-requests.org/。</a></p>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://chenkai66.github.io/posts/c6945e46.html" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/posts/7c424d25.html" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Python爬虫（八）正则表达式
+          
+        </div>
+      </a>
+    
+    
+      <a href="/posts/2a78ce87.html" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">Python爬虫（六）多进程基本原理</div>
+      </a>
+    
+  </nav>
+
+   
+<!-- valine评论 -->
+<div id="vcomments-box">
+  <div id="vcomments"></div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+<script>
+  new Valine({
+    el: "#vcomments",
+    app_id: "TQy5bHTePagP10u5BBsesx61-gzGzoHsz",
+    app_key: "O6UyJYxBFgMKQMjktBh4KGad",
+    path: window.location.pathname,
+    avatar: "monsterid",
+    placeholder: "给我的文章加点评论吧~",
+    recordIP: true,
+  });
+  const infoEle = document.querySelector("#vcomments .info");
+  if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+    infoEle.childNodes.forEach(function (item) {
+      item.parentNode.removeChild(item);
+    });
+  }
+</script>
+<style>
+  #vcomments-box {
+    padding: 5px 30px;
+  }
+
+  @media screen and (max-width: 800px) {
+    #vcomments-box {
+      padding: 5px 0px;
+    }
+  }
+
+  #vcomments-box #vcomments {
+    background-color: #fff;
+  }
+
+  .v .vlist .vcard .vh {
+    padding-right: 20px;
+  }
+
+  .v .vlist .vcard {
+    padding-left: 10px;
+  }
+</style>
+
+ 
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2020-2021
+        <i class="ri-heart-fill heart_icon"></i> chenk
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        由 帅气的CK本尊 强力驱动
+        
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></s>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="言念君子"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+
+<script src="/js/clickBoom2.js"></script>
+
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+<script src="/js/dz.js"></script>
+
+
+
+    
+  </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"live2d-widget-model-haruto"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>
