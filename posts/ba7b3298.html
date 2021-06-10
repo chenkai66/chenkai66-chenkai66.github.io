@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    金融量化分析基础（四）—— 回测报告分析 |  言念君子
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      
+      <canvas width="1777" height="841"
+        style="position: fixed; left: 0px; top: 0px; z-index: 99999; pointer-events: none;"></canvas>
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-金融量化分析基础（四）—— 回测报告分析"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  金融量化分析基础（四）—— 回测报告分析
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/posts/ba7b3298.html" class="article-date">
+  <time datetime="2021-06-10T00:51:36.281Z" itemprop="datePublished">2021-06-10</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Quantitative-Investment/">Quantitative Investment</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">6</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">1 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <div id="hexo-blog-encrypt" data-wpm="Oh, this is an invalid password. Check and try again, please." data-whm="OOPS, these decrypted content may changed, but you can still have a look.">
+  <div class="hbe-input-container">
+  <input type="password" id="hbePass" placeholder="" />
+    <label for="hbePass">Hey, password is required here.</label>
+    <div class="bottom-line"></div>
+  </div>
+  <script id="hbeData" type="hbeData" data-hmacdigest="e5538000ba79ac948228a0365cce75173f94a48dd1a65c30f78718eccfeca1ac">0937da03cdf3ff9743a051e8656989c46115a6fbf9e6c8db1887c5254926bf15b6cda390a29c235d800cb880f99077730a1e4fcdf790c946c95eee860d4d934d263cd403539c0025123a382d7eb0e7804e7bc4fcc808801a565f0a45b4ed88e72af5de930df54233bf45c99f3bba62ddf00eeffad51bfe2fb01e3597196010c82bd65beae97745cb3242578bb48e4213b4297e8dd79541c2a81b6b3528c44dc738f8d9e227fb347210995f872402bf4dd914ba728f4d3bf0592e6550d54be4dfc719dd3d2f44a0535ee505389219e9d4fbd3980bb475d891d8de775ff4d38369b7591128fa06e8ba69e4fd86234c4418016d6be6974472ab6521c1a919c43a6be0dbff228d8a3f1e19c7f7f7cefacf0aa5941b2526020ac6cd62ba6302994c657c1c0cfda03816f01119a836a132d8b28b349a42f84523c10e22eeb0ecc7336f448bd97613f29c1debd0c14bdd2a77e7174645663aac344d86594d1f7a031809977e6444ea802d3db85e8733398b3a639353dce4dba1c9a57eefe3aa1ead188946bfb6ffb784f324229fc163066e35b887fd48ad3957687e18281d7f5a0986fec69eadeb2c22fe431b4445e53b76ffce87dcaa966376cc29f91e97f4aec9a3cbeb71e7a7900fc4854a5e4b656fedf629c47787447748948c446c9d7cf169240ab02a7b03aa316bc4d6b44fa38affcd4455844cf0c1366f4a5aea6b60ea035c8cfb464b2bee76a896fa349bf26838738333dbf044e3a5c078bf2cb9aa6b4963115c0154685940bd185fd74bceec198c1b9742752e2a56f632280b7469028aefcd1484c840e3b8b66c11ed3997e4aff67c6eee12830cd4c33a060ea0409e283586710c630d9c48fc921edc4eef23dd65b8cf5a1e96f71422b41eef3e1366cbebf50b08da3ae2bd304f6829a054f566813049b80356dfe88e249355e3de80e6128b83893b0943285b7f9af9fdbb3c92864e97b6cb6a34456961930c1d8f6f4db081373fbb3a94dc89b898728dba7f75c33d532883d1160035811fbb57f167a1fd27bda313c59779d4eb608aba3132114b9bef958ecf5e276498cb3eeda0f62193e129e1b7419d214759cde8c982f899b45c980abe49e83e4acad6ace375aecc362bcd599e6f16c44c5fe6424ed998681af1b216633edd2e48937af71d678cc7a279c5c47a1a8c6cb70fcd4214d134c8b4cb3dcea00be92b6763a7e531b63c26d530027d77e83a37868c56c4d7dcdb7d310d6653bb6dc74737586753abf1c374c962549a24b618cd323bf865a276471c9f6b7fc360bdd6679a8b666f2b247597ef52e8c7e91553b5efec14cca7542e1faa93700d22e5cf2d05f08a358b4f4cf768b15e458177e67ac0c4330c5cbc6741029c6bd1c04489929917cac64e071cae396c75a74b8be0ca347f615ba9acfe5f775cd3e5ab6bc78870ec09190532744b3a5b4695ed693c0f71ae44fe6179bcac8bbffc3c93b19b5862e41353f486c6f8ee6229c6a91c8f36838e9ca39ba85746b96000f14b46e868801ed2ca97535e8b4bf000c368b1f287e99d50544ee4378f5386c20ee6a2eda48c8f58b33b253630fc74bb3dd9ebe01235d7c48068aff0e6419d5e5501def29b555d034e648acb7cc53e8348be0f841a7b08310bb73bbabf2a58a1a15fc56a3dd04adfa64bf38da3c60245b308f9c071ba6db31d6a7e59a451b729d55dc8e50b0088b74ff6415c77af8c4db58fc6b4f61446ca76c8c01a2c9b4c9e8c48b9c0e2821f422a63b2b9bca27834c5fab9148c49d0b7d4776421757b24133856f9999c093116ffbb4dc33a291dea4445494785d96c27308a46fa3a5aecb5f16326624703785adb02be0039842636936e692d6372b40bb9cc93d524c46680074584c64b535ef4c4bc1bf23917aa06bcf42844b10a162eb28fb29bb4a4ee5c5559050d3ebb71f0800480655507a5597c0237a6c9a22a41ebfb6495ee347d901a961f135d63f5892731c36039eb4d3428dee2d2a3fa0f52b87dd5eda6eec5fb1c08b6bd9ef9fb54b6c9b5f1c78b41630952ac818713f6940715bbebf1f97a3d6238649eaaee970332294abd86f42c26ca180fbd8c5349fff688830ca97688abac36e627604b7315acf3f1e1dae337975d31606a784695956b4a396021376ec3265b717058a5e01e4689ba47352d5cc126cc6538c0e2422befa5a797fb13b466dc72c17283940ddf2eb72e48eef5e7a5b90d3f44cc15462306f7cbf1a2afe328ef1486966dc16e1d562ec05c22313ba5c1cbbcad71418c5ba04d2c192e2c06640c4e93b8072b5c7d1dea9adcb95dea9ef59e4f7fdc0c372110ad04f3efa9e4b27ac97812f0a605e37047412843c07acf39f141b5a568b8f3e7a17d686ebc63693098d4653bf0e836bf3e64de24df0e8622a32043c1ea307747e317acdf0845dfb165cbf1b0a4dc19a9e945b3589965c21645718db7561cb7aa446c1453f8345c2b100fb4c2c8e74e6f63455d29ebf343f9abd8ebcb69b7c0ca196df73af4c98712955f4af4f30edd0b94a79b57846e143046d014698bfc573ef82c59c9e626b1f53f0e4d81e19281f5bd4a10e4ff1f42d3d699218a908b1b7e5b22850576e32103c1a53263bbe52d7bc0369c13bb6b44c6cb4733763838532e4d92a5bbe3f348ba1f49d0ae4376df51f7f5805dd5e175acd0e2d503557964fc7a8f77eea02a3e95347a1b62749b6b36f54fec2a433f07c59f78add1824a315ff87202e4a98d48ddde071156f3975f7c44b5132a1fd5eec1a4d4b6c2137a759a877d8c35d159a1fcb7f5f9c6fc3ba781c96ae42b173e8855e1427730dc73f71086443c345f14ada500306e982c65625666b3298ddc219ae01ce47576b904feb491375a5e3b660fe2cc68fe46895e870591e5fabc33b0eb3eae3e4924e0b72201bd38d7c3706a10e9f9bbc0c555078fc6c31c92a79fc6e7141fa9c15c7b6bcd5e5f0a6af96f859c1bf275aba200d1070fa2477ea2a4e7cb0f8cc5b3d5dee6d79b5476199fdc053e9e21a2b228ba748e531766260f02df4d950b50f6d44f5e9c9adef1cc2a31ae14682ec942bf13405182e99be68fd21ec9899d87aed639ee01cad005502fe1906ea52e6621069dc5eb39dab2c2f491145b0a672339f2d1e18ed40619a2ff789845c1133a9103459712789bcf7699dad779e2b7c788430e453596c9f8d64d309b331f7be2028d7500bf4382578942d526a0576853df3d923b4a524824803076851d77128eff928568636fed4b32246cadad9744dab7b91a72f2d255aa700c9b34aa9cf07946728ee1a87aa2fdc406afa419d027e16207f11eee28871e50e368f86d40bde2a5dd1d2ec3e4772877196feefcb2becac639a9a44ca79c9369b7ec6e345e26d0eaf22322670ac64f41f6657511d75e55b4924a44298f1912b32064e34231523e8f4536cd34befd4ddea50d4337c41ab43a14febcaa3630444bd038d9a2341e25e8d704282f2d8639ab548f821af3f1f42aeecb1c2f29610318d0bb24c1be8d9cb8eacf824cfb0b734d09850f9bd5da458a7630a8e816eb88a378cfd176fb874fb433ad59bc9bff537f75078adae1b722fec019f4b887ddd3bea93e7f1219b700885b1b82f3aec212a2be748c02576941ae447569413ac4006fc28ff68c339809dec71623ac900119382e8f3458d278dd05e42306b24619e537d22310aa1b36db303301eb62f5f6065ee74f86f64bca95c59c2b015f936f9330fed369c38b0ff8180f893d0cd1a146fd99daff3ce4e8031c715113d88678b7a08c9746</script>
+</div>
+<script src="/lib/blog-encrypt.js"></script><link href="/css/blog-encrypt.css" rel="stylesheet" type="text/css"> 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://chenkai66.github.io/posts/ba7b3298.html" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/posts/3d4d876a.html" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            金融量化分析基础（五）—— 策略优化的方法与陷阱
+          
+        </div>
+      </a>
+    
+    
+      <a href="/posts/f41ee879.html" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">金融量化分析基础（十一）—— 大小周期双频率策略</div>
+      </a>
+    
+  </nav>
+
+   
+<!-- valine评论 -->
+<div id="vcomments-box">
+  <div id="vcomments"></div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+<script>
+  new Valine({
+    el: "#vcomments",
+    app_id: "TQy5bHTePagP10u5BBsesx61-gzGzoHsz",
+    app_key: "O6UyJYxBFgMKQMjktBh4KGad",
+    path: window.location.pathname,
+    avatar: "monsterid",
+    placeholder: "给我的文章加点评论吧~",
+    recordIP: true,
+  });
+  const infoEle = document.querySelector("#vcomments .info");
+  if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+    infoEle.childNodes.forEach(function (item) {
+      item.parentNode.removeChild(item);
+    });
+  }
+</script>
+<style>
+  #vcomments-box {
+    padding: 5px 30px;
+  }
+
+  @media screen and (max-width: 800px) {
+    #vcomments-box {
+      padding: 5px 0px;
+    }
+  }
+
+  #vcomments-box #vcomments {
+    background-color: #fff;
+  }
+
+  .v .vlist .vcard .vh {
+    padding-right: 20px;
+  }
+
+  .v .vlist .vcard {
+    padding-left: 10px;
+  }
+</style>
+
+ 
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2020-2021
+        <i class="ri-heart-fill heart_icon"></i> chenk
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        由 帅气的CK本尊 强力驱动
+        
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></s>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="言念君子"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+
+<script src="/js/clickBoom2.js"></script>
+
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+<script src="/js/dz.js"></script>
+
+
+
+    
+  </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"live2d-widget-model-haruto"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

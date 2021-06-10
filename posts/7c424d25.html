@@ -67,13 +67,17 @@
     <div class="article-meta">
       <a href="/posts/7c424d25.html" class="article-date">
   <time datetime="2021-05-03T15:40:35.844Z" itemprop="datePublished">2021-05-03</time>
-</a>   
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Spider/">Spider</a>
+  </div>
+  
 <div class="word_count">
     <span class="post-time">
         <span class="post-meta-item-icon">
             <i class="ri-quill-pen-line"></i>
             <span class="post-meta-item-text"> 字数统计:</span>
-            <span class="post-count">0</span>
+            <span class="post-count">4.8k</span>
         </span>
     </span>
 
@@ -82,20 +86,420 @@
         <span class="post-meta-item-icon">
             <i class="ri-book-open-line"></i>
             <span class="post-meta-item-text"> 阅读时长≈</span>
-            <span class="post-count">1 分钟</span>
+            <span class="post-count">19 分钟</span>
         </span>
     </span>
 </div>
  
     </div>
       
+    <div class="tocbot"></div>
+
 
 
 
   
     <div class="article-entry" itemprop="articleBody">
        
-   
+  <p>正则表达式，即 RE，是 regular expression 的简称，是用来简洁表达一组字符串的表达式。前面我们学会了如何用 Requests 来获取网页的源代码，得到 <code>HTML</code> 代码。但我们如何从 <code>HTML</code> 代码中获取真正想要的数据呢？正则表达式就是一个有效的方法。</p>
+<p>本节我们将学习正则表达式的相关用法。正则表达式是处理字符串的强大工具，它有自己特定的语法结构。有了它，我们就能实现字符串的检索、替换、匹配验证。当然，对于爬虫来说，有了它，要从<code>HTML</code>里提取想要的信息就非常方便了。</p>
+<h1 id="实例引入"><a href="#实例引入" class="headerlink" title="实例引入"></a>实例引入</h1><p>说了这么多，可能我们对正则表达式的概念还是比较模糊，下面就用几个实例来看一下正则表达式的用法。</p>
+<p>打开开源中国提供的正则表达式测试工具 <a href="http://tool.oschina.net/regex/，输入待匹配的文本，然后选择常用的正则表达式，就可以得出相应的匹配结果了。" target="_blank" rel="noopener">http://tool.oschina.net/regex/，输入待匹配的文本，然后选择常用的正则表达式，就可以得出相应的匹配结果了。</a></p>
+<p>例如，输入下面这段待匹配的文本：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Hello, my phone number is 010-86432100 and email is cqc@cuiqingcai.com, and my website is https:&#x2F;&#x2F;cuiqingcai.com.</span><br></pre></td></tr></table></figure>
+<p>这段字符串中包含了一个电话号码和一个电子邮件，接下来就尝试用正则表达式提取出来，如图所示</p>
+<p><img src="/../Pic/Spider/re_.png" style="zoom:67%;"></p>
+<h1 id="正则表达式的语法"><a href="#正则表达式的语法" class="headerlink" title="正则表达式的语法"></a>正则表达式的语法</h1><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>操 作 符</th>
+<th>说 明</th>
+<th>正 则 表 达 式 样 例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>.</td>
+<td>匹配任何字符（换行符除外）</td>
+<td>b.b</td>
+</tr>
+<tr>
+<td>[…]</td>
+<td>匹配字符组里出现的任意一个字符</td>
+<td>[abcd]</td>
+</tr>
+<tr>
+<td>*</td>
+<td>匹配前面出现的正则表达式零次或多次</td>
+<td>abc*</td>
+</tr>
+<tr>
+<td>+</td>
+<td>匹配前面出现的正则表达式一次或多次</td>
+<td>abc+</td>
+</tr>
+<tr>
+<td>？</td>
+<td>匹配前面出现的正则表达式零次或一次</td>
+<td>abc?</td>
+</tr>
+<tr>
+<td>\</td>
+<td></td>
+<td>匹配左或右任意一个正则表达式</td>
+<td>re1</td>
+</tr>
+<tr>
+<td>{A}</td>
+<td>匹配前面出现的正则表达式A次</td>
+<td>[0-9]{5}</td>
+</tr>
+<tr>
+<td>{A, B}</td>
+<td>匹配前面出现的正则表达式A-B次（含B）</td>
+<td>[0-9]{1, 5}</td>
+</tr>
+<tr>
+<td>^</td>
+<td>匹配字符串的开始</td>
+<td>^abc</td>
+</tr>
+<tr>
+<td>$</td>
+<td>匹配字符串的结束</td>
+<td>abc$</td>
+</tr>
+<tr>
+<td>[…a-b…]</td>
+<td>匹配从字符a-b中的任意一个字符</td>
+<td>[0-9],[A-Za-z]</td>
+</tr>
+<tr>
+<td><sup><a href="#fn_..." id="reffn_...">...</a></sup></td>
+<td>不匹配此字符集中出现的任何一个字符， 包括某一范围的字符</td>
+<td><sup><a href="#fn_abc" id="reffn_abc">abc</a></sup>, <sup><a href="#fn_a-z" id="reffn_a-z">a-z</a></sup></td>
+</tr>
+<tr>
+<td>(…)</td>
+<td>匹配封闭括号中的正则表达式，并保存为子组</td>
+<td>（[1-3]{2})</td>
+</tr>
+<tr>
+<td>\d</td>
+<td>匹配任何数字</td>
+<td>\d.txt</td>
+</tr>
+<tr>
+<td>\w</td>
+<td>匹配任何数字字母字符（包括_),\W与\w作用相反</td>
+<td>\w?</td>
+</tr>
+<tr>
+<td>\s</td>
+<td>匹配任何空白符，等价于[\n\s\r\v\f]，\S与\s作用相反</td>
+<td>\s?</td>
+</tr>
+<tr>
+<td>\b</td>
+<td>匹配单词边界，\B与\b作用相反</td>
+<td>\bMonkey\b</td>
+</tr>
+<tr>
+<td>\nn</td>
+<td>匹配已保存的子组</td>
+<td></td>
+</tr>
+<tr>
+<td>\c</td>
+<td>逐一匹配特殊字符c</td>
+<td></td>
+</tr>
+<tr>
+<td>\A(\Z)</td>
+<td>匹配字符串的起始（结束）</td>
+<td>\ATest</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>我们可以举一些其他常用例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">^[A - Z a - z]+$ 表示由26个字母组成的字符串</span><br><span class="line">^[A - Z a - z 0 - 9]+$ 表示由26个字母和数字组成的字符串</span><br><span class="line">^-?\d+$ 表示整数形式的字符串（有正负）</span><br><span class="line">[1-9]\d&#123;5&#125; 表示中国境内邮政编码，6位</span><br><span class="line">[\u4e00 - \u9fa5] 匹配中文字符</span><br><span class="line">\d&#123;3&#125; - \d&#123;8&#125; | \d&#123;4&#125; - \d&#123;7&#125; 匹配国外电话号码</span><br></pre></td></tr></table></figure>
+<p>我们思考一下，我们应该怎么匹配 IP 地址呢？<br>我们知道，IP 地址分为4段，每段取值范围是 0-255，那么我们会考虑到根据这256个数字的特殊性进行划分，比如：<br>1、当取值为 0-99 时，我们可以记为 [1-9] ? \d<br>2、当取值为 100-199 时，我们可以记为 1\d{2}<br>3、当取值为 200-249 时，我们可以记为 2[0-4]\d<br>4、当取值为 250-255 时，我们可以记为 25[0-5]<br>我们只需要将每个区间按 | 预算符进行划分即可获得每段 IP 地址的正确表达式。</p>
+<h1 id="Re-库的基本使用"><a href="#Re-库的基本使用" class="headerlink" title="Re 库的基本使用"></a>Re 库的基本使用</h1><p>我们先介绍 Re 库的主要功能函数：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>re.search()</td>
+<td>在一个字符串中搜索匹配正则表达式的第一个位置，返回 match 对象</td>
+</tr>
+<tr>
+<td>re.match()</td>
+<td>从一个字符串的开始位置起匹配正则表达式，返回 match 对象</td>
+</tr>
+<tr>
+<td>re.findall()</td>
+<td>搜索字符串，以列表类型返回全部能匹配的子串</td>
+</tr>
+<tr>
+<td>re.split()</td>
+<td>将一个字符串按照正则表达式匹配结果进行分割，返回列表类型</td>
+</tr>
+<tr>
+<td>re.finditer()</td>
+<td>搜索字符串，返回一个匹配结果的迭代类型，每个迭代元素是 match 对象</td>
+</tr>
+<tr>
+<td>re.sub()</td>
+<td>在一个字符串中替换所有匹配正则表达式的子串，返回替换后的字符串</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>下面一一介绍这六个函数：</p>
+<h3 id="re-search-pattern-string-flags-0"><a href="#re-search-pattern-string-flags-0" class="headerlink" title="re.search(pattern, string, flags=0)"></a>re.search(pattern, string, flags=0)</h3><p>其中 pattern 是正则表达式的字符串或原生字符串表示，string 是待匹配字符串，flags 是正则表达式使用时的控制标记。<br>flags 的控制常用标记如下：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>常用标记</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>re.I re.IGNORECASE</td>
+<td>忽略正则表达式的大小写，[A-Z] 能够匹配小写字符</td>
+</tr>
+<tr>
+<td>re.M re.MULTILINE</td>
+<td>正则表达式中的 ^ 操作符能够将给定字符串的每行当作匹配开始</td>
+</tr>
+<tr>
+<td>re.S re.DOTAIL</td>
+<td>正则表达式中的 . 操作能够匹配所有字符，默认匹配除换行外的所有字符</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>下面是一个例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> re</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>match = re.search(<span class="string">r'[1-9]\d&#123;5&#125;'</span>,<span class="string">'BIT 100081'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">if</span> match:</span><br><span class="line">		print(match.group(<span class="number">0</span>))</span><br><span class="line"></span><br><span class="line"><span class="number">100081</span></span><br></pre></td></tr></table></figure>
+<h3 id="re-match-pattern-string-flags-0"><a href="#re-match-pattern-string-flags-0" class="headerlink" title="re.match(pattern, string, flags=0)"></a>re.match(pattern, string, flags=0)</h3><p>match 对象的三个参数和标记都与 search 对象相同，我们直接看一个例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> re</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>match = re.match(<span class="string">r'[0-9]\d&#123;5&#125;'</span>, <span class="string">'BIT 100081'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">if</span> match:</span><br><span class="line">	match.group(<span class="number">0</span>)</span><br><span class="line"><span class="comment"># 无结果</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>match.group(<span class="number">0</span>)</span><br><span class="line">Traceback (most recent call last):</span><br><span class="line">  File <span class="string">"&lt;pyshell#15&gt;"</span>, line <span class="number">1</span>, <span class="keyword">in</span> &lt;module&gt;</span><br><span class="line">    match.group(<span class="number">0</span>)</span><br><span class="line">AttributeError: <span class="string">'NoneType'</span> object has no attribute <span class="string">'group'</span></span><br></pre></td></tr></table></figure>
+<p>我们发现上述代码的 match 对象并没有任何结果返回，也就是说这个对象是空的，因为我们知道 match 是从头开始匹配，而字符串的头为 ‘BIT’，自然匹配错误。我们换一下字符串的表示，看看是否能匹配出相关结果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> re</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>match = re.match(<span class="string">r'[1-9]\d&#123;5&#125;'</span>,<span class="string">'100081 BIT'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">if</span> match:</span><br><span class="line">	match.group(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="string">'100081'</span></span><br></pre></td></tr></table></figure>
+<p>这印证了我们上面的讨论</p>
+<h3 id="re-findall-pattern-string-flags-0"><a href="#re-findall-pattern-string-flags-0" class="headerlink" title="re.findall(pattern, string, flags=0)"></a>re.findall(pattern, string, flags=0)</h3><p>我们直接看例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> re</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>ls = re.findall(<span class="string">r'[1-9]\d&#123;5&#125;'</span>, <span class="string">'BIT100081 TSU100084'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>ls</span><br><span class="line">[<span class="string">'100081'</span>, <span class="string">'100084'</span>]</span><br></pre></td></tr></table></figure>
+<h3 id="re-split-pattern-string-maxsplit-0-flags-0"><a href="#re-split-pattern-string-maxsplit-0-flags-0" class="headerlink" title="re.split(pattern, string, maxsplit=0, flags=0)"></a>re.split(pattern, string, maxsplit=0, flags=0)</h3><p>split 函数的三个参数我们都已经熟知，中间新增加的参数 maxsplit 表示最大分割数，剩余部分作为最后一个元素输出，下面看看例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> re</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>ls = re.findall(<span class="string">r'[1-9]\d&#123;5&#125;'</span>, <span class="string">'BIT100081 TSU100084'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>ls</span><br><span class="line">[<span class="string">'100081'</span>, <span class="string">'100084'</span>]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> re</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>re.split(<span class="string">r'[1-9]\d&#123;5&#125;'</span>, <span class="string">'BIT100081 TSU100084'</span>)</span><br><span class="line">[<span class="string">'BIT'</span>, <span class="string">' TSU'</span>, <span class="string">''</span>]</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>re.split(<span class="string">r'[1-9]\d&#123;5&#125;'</span>, <span class="string">'BIT100081 TSU100084'</span>, maxsplit=<span class="number">1</span>)</span><br><span class="line">[<span class="string">'BIT'</span>, <span class="string">' TSU100084'</span>]</span><br></pre></td></tr></table></figure>
+<h3 id="re-finditer-pattern-string-flags-0"><a href="#re-finditer-pattern-string-flags-0" class="headerlink" title="re.finditer(pattern, string, flags=0)"></a>re.finditer(pattern, string, flags=0)</h3><p>我们直接看代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">for</span> m <span class="keyword">in</span> re.finditer(<span class="string">r'[1-9]\d&#123;5&#125;'</span>, <span class="string">'BIT100081 TSU100084'</span>):</span><br><span class="line">	<span class="keyword">if</span> m:</span><br><span class="line">		print(m.group(<span class="number">0</span>))</span><br><span class="line"><span class="number">100081</span></span><br><span class="line"><span class="number">100084</span></span><br></pre></td></tr></table></figure>
+<h3 id="re-sub-pattern-repl-string-count-0-flags-0"><a href="#re-sub-pattern-repl-string-count-0-flags-0" class="headerlink" title="re.sub(pattern, repl, string, count=0, flags=0)"></a>re.sub(pattern, repl, string, count=0, flags=0)</h3><p>我们可以看到所有参数中新增了两个参数，repl 是指替换匹配字符串的字符串，而 count 是匹配的最大替换次数，下面我们看一个例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> re</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>re.sub(<span class="string">r'[1-9]\d&#123;5&#125;'</span>, <span class="string">'zipcode'</span>, <span class="string">'BIT100081 TSU100084'</span>)</span><br><span class="line"><span class="string">'BITzipcode TSUzipcode'</span></span><br></pre></td></tr></table></figure>
+<h3 id="Re-库的另一种等价用法"><a href="#Re-库的另一种等价用法" class="headerlink" title="Re 库的另一种等价用法"></a>Re 库的另一种等价用法</h3><p>我们上面给出的函数例子都是函数使用法，也就是仅支持一次性操作的用法，这是什么意思呢，我们对比一下下面的面向对象用法就知道了：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pat = re.compile(<span class="string">r'[1-9]\d&#123;5&#125;'</span>)</span><br><span class="line">rst = pat.search(<span class="string">'BIT 100081'</span>)</span><br></pre></td></tr></table></figure>
+<p>re.compile 函数的完整形式是：re.compile(pattern, flags=0)，该函数将正则表达式的字符串形式编译成正则表达式对象。编译后才是一个正则表达式，表示一组字符串。</p>
+<h1 id="Re-库的-Match-对象"><a href="#Re-库的-Match-对象" class="headerlink" title="Re 库的 Match 对象"></a>Re 库的 Match 对象</h1><p>Match 就是一次匹配的结果，它返回了匹配的相关信息，我们直接看前面的一个代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> re</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>match = re.match(<span class="string">r'[1-9]\d&#123;5&#125;'</span>,<span class="string">'100081 BIT'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">if</span> match:</span><br><span class="line">	match.group(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="string">'100081'</span></span><br></pre></td></tr></table></figure>
+<p>在这里我们想看一下 match 的类型：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>type(match)</span><br><span class="line">&lt;<span class="class"><span class="keyword">class</span> '<span class="title">re</span>.<span class="title">Match</span>'&gt;</span></span><br></pre></td></tr></table></figure>
+<p>Match 对象有很多属性，下面我们重点介绍4个属性：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>.string</td>
+<td>待匹配的文本</td>
+</tr>
+<tr>
+<td>.re</td>
+<td>匹配时使用的 pattern 对象（正则表达式）</td>
+</tr>
+<tr>
+<td>.pos</td>
+<td>正则表达式搜索文本的开始位置</td>
+</tr>
+<tr>
+<td>.endpos</td>
+<td>正则表达式搜索文本的结束位置</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Match 对象有很多方法，下面列举4个常用对象：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>.group(0)</td>
+<td>获得匹配后的字符串</td>
+</tr>
+<tr>
+<td>.start()</td>
+<td>匹配字符串在原始字符串的开始位置</td>
+</tr>
+<tr>
+<td>.end()</td>
+<td>匹配字符串在原始字符串的结束位置</td>
+</tr>
+<tr>
+<td>.span()</td>
+<td>返回 (.start(), .end())</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>我们看一下相关例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">import</span> re</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>m = re.search(<span class="string">r'[1-9]\d&#123;5&#125;'</span>, <span class="string">'BIT100081 TSU100084'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>m.string</span><br><span class="line"><span class="string">'BIT100081 TSU100084'</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>m.re</span><br><span class="line">re.compile(<span class="string">'[1-9]\\d&#123;5&#125;'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>m.pos</span><br><span class="line"><span class="number">0</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>m.endpos</span><br><span class="line"><span class="number">19</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>m.group(<span class="number">0</span>)</span><br><span class="line"><span class="string">'100081'</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>m.start()</span><br><span class="line"><span class="number">3</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>m.end()</span><br><span class="line"><span class="number">9</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>m.span()</span><br><span class="line">(<span class="number">3</span>, <span class="number">9</span>)</span><br></pre></td></tr></table></figure>
+<h1 id="Re-库的贪婪匹配和最小匹配"><a href="#Re-库的贪婪匹配和最小匹配" class="headerlink" title="Re 库的贪婪匹配和最小匹配"></a>Re 库的贪婪匹配和最小匹配</h1><p>首先我们看一个例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>match = re.search(<span class="string">r'PY.*N'</span>, <span class="string">'PYANBNCNDN'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>match.group(<span class="number">0</span>)</span><br><span class="line"><span class="string">'PYANBNCNDN'</span></span><br></pre></td></tr></table></figure>
+<p>其中的 ‘.*‘ 表示匹配任意字符串，这里我们应该留意到， Re 库默认采用贪婪匹配，即输出匹配最长的子串。那么我们应该如何实现输出最短的子串呢？</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>match = re.search(<span class="string">r'PY.*?N'</span>, <span class="string">'PYANBNCNDN'</span>)</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>match.group(<span class="number">0</span>)</span><br><span class="line"><span class="string">'PYAN'</span></span><br></pre></td></tr></table></figure>
+<p>最小匹配操作符有下面四种：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>操作符</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>*?</td>
+<td>前一个字符0次或无限次扩展</td>
+</tr>
+<tr>
+<td>+?</td>
+<td>前一个字符1次或无限次扩展</td>
+</tr>
+<tr>
+<td>??</td>
+<td>前一个字符0次或1次扩展</td>
+</tr>
+<tr>
+<td>{m,n}?</td>
+<td>扩展前一个字符 m 至 n 次（含 n）</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>所以，在做匹配的时候，字符串中间尽量使用非贪婪匹配，也就是用 <code>.*?</code> 来代替 <code>.*</code>，以免出现匹配结果缺失的情况。</p>
+<p>但需要注意的是，如果匹配的结果在字符串结尾，<code>.*?</code> 就有可能匹配不到任何内容了，因为它会匹配尽可能少的字符。例如：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line">content = <span class="string">'http://weibo.com/comment/kEraCN'</span></span><br><span class="line">result1 = re.match(<span class="string">'http.*?comment/(.*?)'</span>, content)</span><br><span class="line">result2 = re.match(<span class="string">'http.*?comment/(.*)'</span>, content)</span><br><span class="line">print(<span class="string">'result1'</span>, result1.group(<span class="number">1</span>))</span><br><span class="line">print(<span class="string">'result2'</span>, result2.group(<span class="number">1</span>))</span><br></pre></td></tr></table></figure>
+<p>运行结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">result1 </span><br><span class="line">result2 kEraCN</span><br></pre></td></tr></table></figure>
+<h1 id="修饰符"><a href="#修饰符" class="headerlink" title="修饰符"></a>修饰符</h1><p>正则表达式可以包含一些可选标志修饰符来控制匹配的模式。修饰符被指定为一个可选的标志。</p>
+<p>我们用实例来看一下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line">content = <span class="string">'''Hello 1234567 World_This</span></span><br><span class="line"><span class="string">is a Regex Demo</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">result = re.match(<span class="string">'^He.*?(\d+).*?Demo$'</span>, content)</span><br><span class="line">print(result.group(<span class="number">1</span>))</span><br></pre></td></tr></table></figure>
+<p>和上面的例子相仿，我们在字符串中加了换行符，正则表达式还是一样的，用来匹配其中的数字。看一下运行结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">AttributeError Traceback (most recent call last)</span><br><span class="line">&lt;ipython-input-18-c7d232b39645&gt; in &lt;module&gt;()</span><br><span class="line">      5 &#39;&#39;&#39;</span><br><span class="line">      6 result &#x3D; re.match(&#39;^He.*?(\d+).*?Demo$&#39;, content)</span><br><span class="line">----&gt; 7 print(result.group(1))</span><br><span class="line"></span><br><span class="line">AttributeError: &#39;NoneType&#39; object has no attribute &#39;group&#39;</span><br></pre></td></tr></table></figure>
+<p>运行直接报错，也就是说正则表达式没有匹配到这个字符串，返回结果为 <code>None</code>，而我们又调用了 <code>group</code> 方法导致 <code>AttributeError</code>。</p>
+<p>为什么加了一个换行符，就匹配不到了呢？</p>
+<p>这是因为我们匹配的是除换行符之外的任意字符，当遇到换行符时，<code>.*?</code> 就不能匹配了，导致匹配失败。</p>
+<p>这里只需加一个修饰符 <code>re.S</code>，即可修正这个错误：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">result = re.match(<span class="string">'^He.*?(\d+).*?Demo$'</span>, content, re.S)</span><br></pre></td></tr></table></figure>
+<p><strong>这个修饰符的作用是匹配包括换行符在内的所有字符</strong>。此时运行结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1234567</span><br></pre></td></tr></table></figure>
+<p>这个 re.S 在网页匹配中经常用到。因为 <code>HTML</code> 节点经常会有换行，加上它，就可以匹配节点与节点之间的换行了。</p>
+<p>另外，还有一些修饰符，在必要的情况下也可以使用，如表所示：</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>修饰符</th>
+<th>描　　述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>re.I</code></td>
+<td>使匹配对大小写不敏感</td>
+</tr>
+<tr>
+<td><code>re.L</code></td>
+<td>做本地化识别（locale-aware）匹配</td>
+</tr>
+<tr>
+<td><code>re.M</code></td>
+<td>多行匹配，影响 ^ 和 $</td>
+</tr>
+<tr>
+<td><code>re.S</code></td>
+<td>使匹配包括换行在内的所有字符</td>
+</tr>
+<tr>
+<td><code>re.U</code></td>
+<td>根据 Unicode 字符集解析字符。这个标志影响 <code>\w</code>、<code>\W</code>、<code>\b</code> 和 <code>\B</code></td>
+</tr>
+<tr>
+<td><code>re.X</code></td>
+<td>该标志通过给予你更灵活的格式以便你将正则表达式写得更易于理解</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>在网页匹配中，较为常用的修饰符有 <code>re.S</code> 和 <code>re.I</code>。</p>
+<h1 id="实例结束"><a href="#实例结束" class="headerlink" title="实例结束"></a>实例结束</h1><p>这里有一段待匹配的<code>HTML</code>文本，接下来我们写几个正则表达式实例来实现相应信息的提取：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">html = '''<span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"songs-list"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">h2</span> <span class="attr">class</span>=<span class="string">"title"</span>&gt;</span>经典老歌<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">p</span> <span class="attr">class</span>=<span class="string">"introduction"</span>&gt;</span></span><br><span class="line">经典老歌列表</span><br><span class="line"><span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">ul</span> <span class="attr">id</span>=<span class="string">"list"</span> <span class="attr">class</span>=<span class="string">"list-group"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">li</span> <span class="attr">data-view</span>=<span class="string">"2"</span>&gt;</span>一路上有你<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">li</span> <span class="attr">data-view</span>=<span class="string">"7"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"/2.mp3"</span> <span class="attr">singer</span>=<span class="string">"任贤齐"</span>&gt;</span>沧海一声笑<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">li</span> <span class="attr">data-view</span>=<span class="string">"4"</span> <span class="attr">class</span>=<span class="string">"active"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"/3.mp3"</span> <span class="attr">singer</span>=<span class="string">"齐秦"</span>&gt;</span>往事随风<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">li</span> <span class="attr">data-view</span>=<span class="string">"6"</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"/4.mp3"</span> <span class="attr">singer</span>=<span class="string">"beyond"</span>&gt;</span>光辉岁月<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">li</span> <span class="attr">data-view</span>=<span class="string">"5"</span>&gt;</span><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"/5.mp3"</span> <span class="attr">singer</span>=<span class="string">"陈慧琳"</span>&gt;</span>记事本<span class="tag">&lt;/<span class="name">a</span>&gt;</span><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">li</span> <span class="attr">data-view</span>=<span class="string">"5"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">"/6.mp3"</span> <span class="attr">singer</span>=<span class="string">"邓丽君"</span>&gt;</span>但愿人长久<span class="tag">&lt;/<span class="name">a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">li</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span>'''</span><br></pre></td></tr></table></figure>
+<p>可以观察到，<code>ul</code> 节点里有许多 <code>li</code> 节点，其中 <code>li</code> 节点中有的包含 <code>a</code> 节点，有的不包含 <code>a</code> 节点，<code>a</code> 节点还有一些相应的属性 —— 超链接和歌手名。</p>
+<h2 id="search"><a href="#search" class="headerlink" title="search"></a><code>search</code></h2><p>首先，我们尝试提取 <code>class</code>为 <code>active</code> 的 <code>li</code> 节点内部超链接包含的歌手名和歌名，此时需要提取第三个 <code>li</code>节点下 <code>a</code> 节点的 <code>singer</code> 属性和文本。</p>
+<p>此时，正则表达式可以用 <code>li</code> 开头，然后寻找一个标志符 <code>active</code>，中间的部分可以用 <code>.*?</code> 来匹配。</p>
+<p>接下来，要提取 <code>singer</code> 这个属性值，所以还需要写入 <code>singer=&quot;(.*?)&quot;</code>，这里需要提取的部分用小括号括起来，以便用 <code>group</code> 方法提取出来，它的两侧边界是双引号。</p>
+<p>然后还需要匹配 <code>a</code> 节点的文本，其中它的左边界是 <code>&gt;</code>，右边界是 <code>&lt;/a&gt;</code>。目标内容依然用 <code>(.*?)</code> 来匹配，所以最后的正则表达式就变成了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;li.*?active.*?singer&#x3D;&quot;(.*?)&quot;&gt;(.*?)&lt;&#x2F;a&gt;</span><br></pre></td></tr></table></figure>
+<p>然后再调用 <code>search</code> 方法，它会搜索整个 <code>HTML</code>文本，找到符合正则表达式的第一个内容返回。</p>
+<p>另外，由于代码有换行，所以这里第三个参数需要传入 <code>re.S</code>。整个匹配代码如下：</p>
+<p>复制代码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">result = re.search(<span class="string">'&lt;li.*?active.*?singer="(.*?)"&gt;(.*?)&lt;/a&gt;'</span>, html, re.S) </span><br><span class="line"><span class="keyword">if</span> result:</span><br><span class="line">    print(result.group(<span class="number">1</span>), result.group(<span class="number">2</span>))</span><br></pre></td></tr></table></figure>
+<p>由于需要获取的歌手和歌名都已经用小括号包围，所以可以用 <code>group</code> 方法获取。</p>
+<p>运行结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">齐秦 往事随风</span><br></pre></td></tr></table></figure>
+<p>可以看到，这正是 <code>class</code> 为 <code>active</code> 的 <code>li</code> 节点内部的超链接包含的歌手名和歌名。</p>
+<p>如果正则表达式不加 <code>active</code>（也就是匹配不带 <code>class</code> 为 <code>active</code> 的节点内容），那会怎样呢？我们将正则表达式中的 <code>active</code> 去掉。</p>
+<p>代码改写如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">result = re.search(<span class="string">'&lt;li.*?singer="(.*?)"&gt;(.*?)&lt;/a&gt;'</span>, html, re.S)</span><br><span class="line"><span class="keyword">if</span> result:</span><br><span class="line">    print(result.group(<span class="number">1</span>), result.group(<span class="number">2</span>))</span><br></pre></td></tr></table></figure>
+<p>由于 <code>search</code> 方法会返回第一个符合条件的匹配目标，这里结果就变了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">任贤齐 沧海一声笑</span><br></pre></td></tr></table></figure>
+<p>把 <code>active</code> 标签去掉后，从字符串开头开始搜索，此时符合条件的节点就变成了第二个 <code>li</code> 节点，后面的不再匹配，所以运行结果变成第二个 <code>li</code> 节点中的内容。</p>
+<p>注意，在上面的两次匹配中，<code>search</code> 方法的第三个参数都加了 <code>re.S</code>，这使得<code>.*?</code>可以匹配换行，所以含有换行的 <code>li</code> 节点被匹配到了。如果我们将其去掉，结果会是什么？</p>
+<p>代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">result = re.search(<span class="string">'&lt;li.*?singer="(.*?)"&gt;(.*?)&lt;/a&gt;'</span>, html)</span><br><span class="line"><span class="keyword">if</span> result:</span><br><span class="line">    print(result.group(<span class="number">1</span>), result.group(<span class="number">2</span>))</span><br></pre></td></tr></table></figure>
+<p>运行结果如下：</p>
+<p>复制代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">beyond 光辉岁月</span><br></pre></td></tr></table></figure>
+<p>可以看到，结果变成了第四个<code>li</code>节点的内容。这是因为第二个和第三个<code>li</code>节点都包含了换行符，去掉 <code>re.S</code> 之后，<code>.*?</code> 已经不能匹配换行符，所以正则表达式不会匹配到第二个和第三个<code>li</code>节点，而第四个<code>li</code>节点中不包含换行符，所以成功匹配。</p>
+<p>由于绝大部分的<code>HTML</code>文本都包含了换行符，所以尽量都需要加上 <code>re.S</code> 修饰符，以免出现匹配不到的问题。</p>
+<h2 id="findall"><a href="#findall" class="headerlink" title="findall"></a><code>findall</code></h2><p><code>search</code> 方法可以返回匹配正则表达式的第一个内容，但是如果想要获取匹配正则表达式的所有内容，那该怎么办呢？这时就要借助 <code>findall</code> 方法了。</p>
+<p>该方法会搜索整个字符串，然后返回匹配正则表达式的所有内容。</p>
+<p>还是上面的 <code>HTML</code> 文本，如果想获取所有 <code>a</code> 节点的超链接、歌手和歌名，就可以将 <code>search</code> 方法换成 <code>findall</code> 方法。如果有返回结果的话，就是列表类型，所以需要遍历一下来依次获取每组内容。</p>
+<p>代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">results = re.findall(<span class="string">'&lt;li.*?href="(.*?)".*?singer="(.*?)"&gt;(.*?)&lt;/a&gt;'</span>, html, re.S)</span><br><span class="line">print(results)</span><br><span class="line">print(type(results))</span><br><span class="line"><span class="keyword">for</span> result <span class="keyword">in</span> results:</span><br><span class="line">    print(result)</span><br><span class="line">    print(result[<span class="number">0</span>], result[<span class="number">1</span>], result[<span class="number">2</span>])</span><br></pre></td></tr></table></figure>
+<p>运行结果如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[(&#39;&#x2F;2.mp3&#39;, &#39; 任贤齐 &#39;, &#39; 沧海一声笑 &#39;), (&#39;&#x2F;3.mp3&#39;, &#39; 齐秦 &#39;, &#39; 往事随风 &#39;), (&#39;&#x2F;4.mp3&#39;, &#39;beyond&#39;, &#39; 光辉岁月 &#39;), (&#39;&#x2F;5.mp3&#39;, &#39; 陈慧琳 &#39;, &#39; 记事本 &#39;), (&#39;&#x2F;6.mp3&#39;, &#39; 邓丽君 &#39;, &#39; 但愿人长久 &#39;)]</span><br><span class="line">&lt;class &#39;list&#39;&gt;</span><br><span class="line">(&#39;&#x2F;2.mp3&#39;, &#39; 任贤齐 &#39;, &#39; 沧海一声笑 &#39;)</span><br><span class="line">&#x2F;2.mp3 任贤齐 沧海一声笑</span><br><span class="line">(&#39;&#x2F;3.mp3&#39;, &#39; 齐秦 &#39;, &#39; 往事随风 &#39;)</span><br><span class="line">&#x2F;3.mp3 齐秦 往事随风</span><br><span class="line">(&#39;&#x2F;4.mp3&#39;, &#39;beyond&#39;, &#39; 光辉岁月 &#39;)</span><br><span class="line">&#x2F;4.mp3 beyond 光辉岁月</span><br><span class="line">(&#39;&#x2F;5.mp3&#39;, &#39; 陈慧琳 &#39;, &#39; 记事本 &#39;)</span><br><span class="line">&#x2F;5.mp3 陈慧琳 记事本</span><br><span class="line">(&#39;&#x2F;6.mp3&#39;, &#39; 邓丽君 &#39;, &#39; 但愿人长久 &#39;)</span><br><span class="line">&#x2F;6.mp3 邓丽君 但愿人长久</span><br></pre></td></tr></table></figure>
+<p>可以看到，返回的列表中的每个元素都是元组类型，我们用对应的索引依次取出即可。</p>
+<p>如果只是获取第一个内容，可以用 <code>search</code> 方法。当需要提取多个内容时，可以用 <code>findall</code>方法。</p>
+ 
       <!-- reward -->
       
     </div>
@@ -167,6 +571,15 @@
 
    
   <nav class="article-nav">
+    
+      <a href="/posts/fdc592bf.html" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Python爬虫（九）爬虫解析利器 PyQuery 的使用
+          
+        </div>
+      </a>
     
     
       <a href="/posts/c6945e46.html" class="article-nav-link">

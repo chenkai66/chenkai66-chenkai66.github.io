@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    matlab/Matlab问题求解 |  言念君子
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      
+      <canvas width="1777" height="841"
+        style="position: fixed; left: 0px; top: 0px; z-index: 99999; pointer-events: none;"></canvas>
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-matlab/Matlab问题求解"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  matlab/Matlab问题求解
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/posts/49938fa3.html" class="article-date">
+  <time datetime="2021-06-10T00:51:33.480Z" itemprop="datePublished">2021-06-10</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Matlab/">Matlab</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">3.4k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">14 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <h1 id="函数和子函数"><a href="#函数和子函数" class="headerlink" title="函数和子函数"></a>函数和子函数</h1><p><strong>一个M文件中，可能会有多个函数，其中第一个称为主函数，后面的所有函数称为子函数</strong></p>
+<ul>
+<li><p>脚本文件中，也可以直接在脚本的最后添加子函数，在当前文件夹内，如果有同名函数，按照子函数$\rightarrow$MATLAB内建函数$\rightarrow$其他$\rightarrow$M文件主函数的顺序访问。子函数最后的<code>end</code>不能省略</p>
+</li>
+<li><p>一个M文件的主函数通常和M文件名相同（否则MATLAB仍以文件名主名作为识别标准），一个M包含多个函数时，每个函数最后的<code>end</code>或者都省略掉，或者都不省略。</p>
+</li>
+<li><p>所有的子函数都可以被M文件内的脚本或主函数调用，但无法被其他M文件或命令行直接调用。因此，子函数是一种减少M文件数量，封装外部脚本不直接调用的函数的好方法。</p>
+</li>
+</ul>
+<h3 id="子函数"><a href="#子函数" class="headerlink" title="子函数"></a>子函数</h3><p><strong>编写一个内含子函数的M函数绘图文件</strong></p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">HC = Draw_d(<span class="string">'circle'</span>);</span><br><span class="line">HL = Draw_d(<span class="string">'line'</span>);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Hr</span> = <span class="title">Draw_d</span><span class="params">(flag)</span></span></span><br><span class="line">    <span class="comment">% exm060301.m  	Demo for handles of primary functions and subfunctions</span></span><br><span class="line">    <span class="comment">%       	flag   				%允许使用字符串’line’或’circle’     </span></span><br><span class="line">    <span class="comment">%			Hr					%返回子函数cirline的句柄	</span></span><br><span class="line">    t = (<span class="number">0</span>:<span class="number">50</span>)/<span class="number">50</span>*<span class="number">2</span>*<span class="built_in">pi</span>;				<span class="comment">%0~2pi等分了50个区间</span></span><br><span class="line">    x = <span class="built_in">sin</span>(t);</span><br><span class="line">    y = <span class="built_in">cos</span>(t);</span><br><span class="line">    Hr = @cirline;					<span class="comment">%创建cirline的句柄（一种函数名的不同解读，类似于C++的指针）</span></span><br><span class="line">    feval(Hr, flag, x, y, t);		<span class="comment">%feval结合句柄调用，等价于cirline(flag,x,y,t)</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">cirline</span><span class="params">(wd, x, y, t)</span></span></span><br><span class="line">    <span class="comment">%           wd       		%主函数传递来的flag，可能为’line’或’circle’    </span></span><br><span class="line">    <span class="comment">%           t,x,y		%分别为绘图参数、横坐标与纵坐标    </span></span><br><span class="line">    <span class="keyword">switch</span> wd</span><br><span class="line">        <span class="keyword">case</span> <span class="string">'line'</span></span><br><span class="line">            <span class="built_in">plot</span>(t, x, <span class="string">'b'</span>, t, y, <span class="string">'r'</span>, <span class="string">'LineWidth'</span>, <span class="number">2</span>);</span><br><span class="line">        <span class="keyword">case</span> <span class="string">'circle'</span></span><br><span class="line">            <span class="built_in">plot</span>(x, y, <span class="string">'-g'</span>, <span class="string">'LineWidth'</span>, <span class="number">8</span>);</span><br><span class="line">            axis square off;</span><br><span class="line">        <span class="keyword">otherwise</span></span><br><span class="line">            error(<span class="string">'输入变量只能取“line”或“circle”！'</span>)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    shg</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p><code>HC</code>的输出结果为：</p>
+<p><img src="/Pic/Matlab%E9%97%AE%E9%A2%98%E6%B1%82%E8%A7%A3/circle.png" style="zoom:50%;"></p>
+<p><code>HL</code>的输出结果为：</p>
+<p><img src="/Pic/Matlab%E9%97%AE%E9%A2%98%E6%B1%82%E8%A7%A3/line.png" style="zoom:50%;"></p>
+<p>另外我们可以将<code>t</code>的采样距离缩小，比如绘制正五边形采样点分布：</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">t=<span class="number">0</span>:<span class="number">2</span>*<span class="built_in">pi</span>/<span class="number">5</span>:<span class="number">2</span>*<span class="built_in">pi</span>;x=<span class="built_in">cos</span>(t);y=<span class="built_in">sin</span>(t);</span><br><span class="line">HH(<span class="string">'circle'</span>,x,y,t)</span><br><span class="line"><span class="comment">%利用m文件主函数返回的句柄可以间接调用到子函数。</span></span><br><span class="line"><span class="comment">%如果没有返回的句柄，则子函数cirline无法被外部调用</span></span><br></pre></td></tr></table></figure>
+<p><img src="/Pic/Matlab%E9%97%AE%E9%A2%98%E6%B1%82%E8%A7%A3/s5.png" style="zoom:50%;"></p>
+<h3 id="匿名函数"><a href="#匿名函数" class="headerlink" title="匿名函数"></a>匿名函数</h3><ul>
+<li>适用于结构简单、无需创建m文件或子函数体来定义的“一句话函数”</li>
+<li>例如：<code>F=@(x) sin(x).*x</code>,就定义了一个自变量为<code>x</code>，函数值<code>F(x)=sin(x).*x</code>的匿名函数。命名上，<code>F</code>称为函数句柄，括号内的<code>x</code>称为参数（参数可以由多个变量构成参数列表），<code>sin(x).*x</code>称为函数主体表达式。</li>
+<li>匿名函数可以通过如<code>F(3)</code>或<code>F(x)</code>直接调用，也可以通过<code>feval(F,x)</code>间接调用,有时，函数句柄<code>F</code>还可以作为参数代入一些更为复杂的函数体。</li>
+</ul>
+<h3 id="函数句柄"><a href="#函数句柄" class="headerlink" title="函数句柄"></a>函数句柄</h3><p>函数的句柄类似于指针，除<code>plot</code>绘图返回值，匿名函数定义外，还可对MATLAB内建函数或用户已定义函数创建句柄。</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">hm = @<span class="built_in">magic</span>;</span><br><span class="line">class(hm)           <span class="comment">% ans = 'function_handle'</span></span><br><span class="line">functions(hm)       <span class="comment">% 查询句柄对应函数信息，包含function（函数名）, type（函数类型sinple）, file（文件位置）</span></span><br><span class="line">hm(<span class="number">4</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">16     2     3    13</span><br><span class="line">5    11    10     8</span><br><span class="line">9     7     6    12</span><br><span class="line">4    14    15     1</span><br></pre></td></tr></table></figure>
+<p>调用子函数时，函数句柄可以“完全的代替”本身子函数的函数名，格式与子函数直接调用相同。但利用函数句柄多次调用可以大大节省调用的时间（不必重复搜索路径）。</p>
+<h1 id="函数极值的数学方法"><a href="#函数极值的数学方法" class="headerlink" title="函数极值的数学方法"></a>函数极值的数学方法</h1><ul>
+<li><p><code>[x,fval,exitflag]=fminbnd(fun,x1,x2)</code>可以求一元函数<code>fun</code>在<code>[x1,x2]</code>的一个极小值，<code>fun</code>可使用字符串，匿名函数或函数句柄。返回值列表$x$为极小值点，<code>fval</code>为函数极小值，<code>exitflag&gt;0</code>代表此函数成功找到了一个极值点。其余功能<code>output</code>，<code>option</code>可以通过帮助系统了解用法，它们主要可以让MATLAB显示迭代过程中的各种运算指标。</p>
+</li>
+<li><p><code>[x,fval,exitflag]=fminsearch(fun,x0)</code>可以利用无导数方法（如单纯形法），从$x_0$点出发，求多元函数<code>fun</code>在在多维空间中的一个极小值，<code>fun</code>建议使用多元匿名函数或多元函数句柄（输入值为向量）。返回值列表$x$为极小值点向量，<code>fval</code>为函数极小值，其余功能与<code>fminbnd</code>类似。</p>
+</li>
+<li>注意到两个函数均为找一个极小值，有时也称为局部最小值，并不一定是定义域内的全局最小值。希望获取全局最小值，需要设立较好的区间或起始点，或反复遍历所有极值点。</li>
+</ul>
+<h3 id="划分区间求极值"><a href="#划分区间求极值" class="headerlink" title="划分区间求极值"></a>划分区间求极值</h3><p>例：求$y=e^{-0.1x}\text{sin}^2x-0.5(x+0.1)\text{sin}x$ 在 $-50\le x\le 50$的极小值</p>
+<p><img src="/../Pic/matlab/min_sin_exp" alt="image-20201117170312325" style="zoom:50%;"></p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">x1=<span class="number">-50</span>;x2=<span class="number">5</span>;		</span><br><span class="line">yx=@(x)(<span class="built_in">sin</span>(x).^<span class="number">2.</span>*<span class="built_in">exp</span>(<span class="number">-0.1</span>*x)<span class="number">-0.5</span>*<span class="built_in">sin</span>(x).*(x+<span class="number">0.1</span>));    <span class="comment">%定义函数句柄</span></span><br><span class="line">[xc0,fc0,exitflag]=fminbnd(yx,x1,x2)	<span class="comment">%找到的其中一个极小值 </span></span><br><span class="line"></span><br><span class="line">ezplot(yx,[<span class="number">-50</span>,<span class="number">5</span>]);                     <span class="comment">%ezplot同样可用于函数句柄，只需指定x的范围即可</span></span><br><span class="line">xlabel(<span class="string">'x'</span>),grid on </span><br><span class="line"></span><br><span class="line">xx=[<span class="number">-23</span>,<span class="number">-20</span>,<span class="number">-18</span>];                       <span class="comment">%观察最小值疑似存在的两个区段</span></span><br><span class="line">fc=fc0;xc=xc0;                          <span class="comment">%暂时设立最小值点和最小值为初始搜索的结果</span></span><br><span class="line"><span class="keyword">for</span> k=<span class="number">1</span>:<span class="number">2</span></span><br><span class="line">	[xw,fw]=fminbnd(yx,xx(k),xx(k+<span class="number">1</span>));  <span class="comment">%分别计算两个区段的极小值</span></span><br><span class="line">	<span class="keyword">if</span> fw&lt;fc, xc=xw;fc=fw;<span class="keyword">end</span>           <span class="comment">%若有更小的极小值则更换最小值</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line">fprintf(<span class="string">'函数最小值%6.5f发生在x=%6.5f处'</span>,fc,xc)</span><br></pre></td></tr></table></figure>
+<h3 id="单峰函数求极值之黄金分割法"><a href="#单峰函数求极值之黄金分割法" class="headerlink" title="单峰函数求极值之黄金分割法"></a>单峰函数求极值之黄金分割法</h3><p>对于向内的试探法，从$[a_k,b_k]$开始，当$α_1≈0.618a_k+0.382b_k,α_2≈0.382a_k+0.618b_k$时，探索的效率最高，这样的试探法就成为黄金分割法（0.618法）</p>
+<p>黄金分割法的算法复杂度为$O(\text{ln}\frac{b-a}{\epsilon})$，而且可以处理目标函数不可导的特殊情况。操作代码如下：</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">x1=<span class="number">-20</span>;x2=<span class="number">-18</span>;      </span><br><span class="line">yx=@(x)(<span class="built_in">sin</span>(x).^<span class="number">2.</span>*<span class="built_in">exp</span>(<span class="number">-0.1</span>*x)<span class="number">-0.5</span>*<span class="built_in">sin</span>(x).*(x+<span class="number">0.1</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">%设立初始最小值</span></span><br><span class="line">minf = yx(x1);</span><br><span class="line"><span class="keyword">if</span>(yx(x2)&lt;minf) </span><br><span class="line">    minf = yx(x2); </span><br><span class="line"><span class="keyword">end</span>		</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">    alpha1 = x1*<span class="number">0.618</span>+x2*<span class="number">0.382</span>;</span><br><span class="line">    alpha2 = x1*<span class="number">0.382</span>+x2*<span class="number">0.618</span>;</span><br><span class="line">    <span class="keyword">if</span>(yx(alpha1)&gt;yx(alpha2))</span><br><span class="line">        x1 = alpha1;</span><br><span class="line">        <span class="keyword">if</span>(yx(alpha2)&lt;minf) </span><br><span class="line">            minf = yx(alpha2); </span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        x2 = alpha2;</span><br><span class="line">        <span class="keyword">if</span>(yx(alpha1)&lt;minf)</span><br><span class="line">            minf = yx(alpha1);</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">if</span>(alpha2-alpha1&lt;<span class="number">1e-8</span>)</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line">minf, alpha1</span><br></pre></td></tr></table></figure>
+<h3 id="牛顿迭代法"><a href="#牛顿迭代法" class="headerlink" title="牛顿迭代法"></a>牛顿迭代法</h3><ul>
+<li><p>牛顿迭代法起源于一阶泰勒展开近似 </p>
+<script type="math/tex; mode=display">f(x) \approx f\left(x_{0}\right)+f^{\prime}\left(x_{0}\right)\left(x-x_{0}\right)</script><p> 此时, 设$\exist\bar{x},$ 满足 $f(\bar{x})=0$,则给定任意一点 $x,$有  </p>
+<script type="math/tex; mode=display">f(x) \approx f(\bar{x})+f^{\prime}(\bar{x})(x-\bar{x})=f^{\prime}(\bar{x})(x-\bar{x})</script><p>移项后即可得到</p>
+<script type="math/tex; mode=display">\bar{x} \approx x-\frac{f(x)}{f^{\prime}(x)}</script><p>对于线性函数 $f(x),$ 此法可快速求解 $f(x)=\mathbf{0}$</p>
+</li>
+<li><p>几何上讲, 牛顿迭代法类似于寻找切线方向并移动至x轴交点, 迭代公式记为：</p>
+<script type="math/tex; mode=display">x_{n+1} = x_n-\frac{f(x_n)}{f^`(x_n)}</script></li>
+<li><p>对于求局部最小值问题, 因</p>
+<script type="math/tex; mode=display">\text{argmin }_x f(x) \Leftrightarrow f^{\prime}(x)=0</script><p> 因此对应的牛顿迭代法公式只需改为导数方程问题，迭代公式：</p>
+</li>
+</ul>
+<script type="math/tex; mode=display">
+x_{n+1}=x_{n}-\frac{f^{\prime}\left(x_{n}\right)}{f^{\prime \prime}\left(x_{n}\right)}</script><p>例：求$y=e^{-0.1x}\text{sin}^2x-0.5(x+0.1)\text{sin}x$ 在 $-20\le x\le -18$的最小值，代码如下：</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">x1=<span class="number">-20</span>;x2=<span class="number">-18</span>;syms x;		</span><br><span class="line">yx=@(x)(<span class="built_in">sin</span>(x).^<span class="number">2.</span>*<span class="built_in">exp</span>(<span class="number">-0.1</span>*x)<span class="number">-0.5</span>*<span class="built_in">sin</span>(x).*(x+<span class="number">0.1</span>));</span><br><span class="line">yxp = diff(yx,x);		<span class="comment">%MATLAB默认使用sym类型储存导函数表达式</span></span><br><span class="line">yxp2 = diff(yxp,x);		<span class="comment">%二阶导函数表达式</span></span><br><span class="line">x_old = <span class="number">-19</span>;iter = <span class="number">0</span>;	<span class="comment">%迭代初始值与迭代次数</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">   iter = iter + <span class="number">1</span>;</span><br><span class="line">   x_new = x_old - double(subs(yxp, x, x_old) / subs(yxp2, x, x_old));</span><br><span class="line">   <span class="keyword">if</span>(<span class="built_in">abs</span>(x_new-x_old)&lt;<span class="number">1e-8</span>)</span><br><span class="line">       <span class="keyword">break</span></span><br><span class="line">   <span class="keyword">end</span></span><br><span class="line">   x_old = x_new;</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">disp</span>([iter, x_new, yx(x_new)]);</span><br></pre></td></tr></table></figure>
+<h1 id="非线性方程组Matlab求解"><a href="#非线性方程组Matlab求解" class="headerlink" title="非线性方程组Matlab求解"></a>非线性方程组Matlab求解</h1><p>求解非线性方程或方程组，除了单调函数二分法、光滑函数牛顿法外，还可以使用MATLAB函数进行求解，主要有以下两种形式：</p>
+<ul>
+<li><p><code>[x,fval]=fzero(fun,x0)</code>将以$x_0$为初值，尝试寻找函数句柄或匿名函数<code>fun</code>的一个零点，<code>fval</code>为对应函数值</p>
+</li>
+<li><p><code>[x,fval]=fsolve(fun,x0)</code>将以$x_0$为初值(向量)，尝试寻找函数向量<code>fun</code>的一个零点，<code>fval</code>为对应函数向量值</p>
+</li>
+</ul>
+<p>例：求 $f(t)=sin^2t·e^{-0.1t}-0.5|t|$ 的零点，代码如下：</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">% solve函数求解</span></span><br><span class="line">syms t;</span><br><span class="line">ft=<span class="built_in">sin</span>(t)^<span class="number">2</span>*<span class="built_in">exp</span>(<span class="number">-0.1</span>*t)<span class="number">-0.5</span>*<span class="built_in">abs</span>(t);</span><br><span class="line">S = solve(ft, t);</span><br><span class="line">ftS=subs(ft,t,S);</span><br><span class="line"><span class="built_in">disp</span>([S, ftS]);</span><br><span class="line"></span><br><span class="line"><span class="comment">% 作图观察</span></span><br><span class="line">y_C=@(t) <span class="built_in">sin</span>(t).^<span class="number">2.</span>*<span class="built_in">exp</span>(<span class="number">-0.1</span>*t)<span class="number">-0.5</span>*<span class="built_in">abs</span>(t); <span class="comment">%函数句柄形式的定义</span></span><br><span class="line">t=<span class="number">-10</span>:<span class="number">0.01</span>:<span class="number">10</span>;	Y=y_C(t);	<span class="comment">%句柄很多时候可以跟函数名一样使用</span></span><br><span class="line">clf,<span class="built_in">plot</span>(t,Y,<span class="string">'r'</span>);<span class="built_in">hold</span> on</span><br><span class="line"><span class="built_in">plot</span>(t,<span class="built_in">zeros</span>(<span class="built_in">size</span>(t)),<span class="string">'k'</span>);	<span class="comment">%另画一条黑色0函数曲线</span></span><br><span class="line">xlabel(<span class="string">'t'</span>);ylabel(<span class="string">'y(t)'</span>)</span><br><span class="line"><span class="built_in">hold</span> off  </span><br><span class="line"></span><br><span class="line"><span class="comment">% 观察零点位置</span></span><br><span class="line">zoom on		<span class="comment">%鼠标拉出方框，将方框选定区域放大</span></span><br><span class="line">[tt,yy]=ginput(<span class="number">5</span>);	<span class="comment">%鼠标点击五个位置（零点近似值），并记录坐标</span></span><br><span class="line">zoom off		<span class="comment">%回到正常比例</span></span><br></pre></td></tr></table></figure>
+<h1 id="多元函数最优化"><a href="#多元函数最优化" class="headerlink" title="多元函数最优化"></a>多元函数最优化</h1><p>例：求$f(x,y)=100(y-x^2)^2+(1-x)^2$的极小值点，代码如下：</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">ff=@(x)(<span class="number">100</span>*(x(<span class="number">2</span>)-x(<span class="number">1</span>)^<span class="number">2</span>)^<span class="number">2</span>+(<span class="number">1</span>-x(<span class="number">1</span>))^<span class="number">2</span>);</span><br><span class="line"><span class="comment">%函数句柄，x为输入的(行或列)向量,利用两个元素分别进行计算</span></span><br><span class="line">syms x y,ezsurfc(ff([x,y]),[<span class="number">-2</span>,<span class="number">2</span>,<span class="number">-2</span>,<span class="number">2</span>]) <span class="comment">%将横纵坐标x,y认定为ff二维自定义变量，即可进行surfc操作  </span></span><br><span class="line">format short g <span class="comment">%五位有效数字，省略小数点后尾数的0</span></span><br><span class="line">x0=[<span class="number">-5</span>,<span class="number">-2</span>,<span class="number">2</span>,<span class="number">5</span>;<span class="number">-5</span>,<span class="number">-2</span>,<span class="number">2</span>,<span class="number">5</span>]; <span class="comment">%设立4种不同的搜索起点（每一种为列向量）</span></span><br><span class="line">[sx,sfval,sexit,soutput]=fminsearch(ff,x0)</span><br><span class="line"><span class="comment">%收敛到了四种不同的解，但仅有第一个x=1,y=1是正确的</span></span><br><span class="line">format short e <span class="comment">%短科学计数法</span></span><br><span class="line"><span class="built_in">disp</span>([ff(sx(:,<span class="number">1</span>)),ff(sx(:,<span class="number">2</span>)),ff(sx(:,<span class="number">3</span>)),ff(sx(:,<span class="number">4</span>))]) </span><br><span class="line"><span class="comment">%比较四个极小值点对应的函数值，显然第一个点为四个极小值点中取最小值的 </span></span><br><span class="line"></span><br><span class="line">clear,clc</span><br><span class="line">ff=@(x) (<span class="number">100</span>*(x(<span class="number">2</span>)-x(<span class="number">1</span>)^<span class="number">2</span>)^<span class="number">2</span>+(<span class="number">1</span>-x(<span class="number">1</span>))^<span class="number">2</span>); <span class="comment">%匿名函数需以向量为变量</span></span><br><span class="line">x0=[<span class="number">5</span>,<span class="number">5</span>];                		<span class="comment">%仅接受一种初值计算，以5,5为例</span></span><br><span class="line">options = optimoptions(@fminunc,<span class="string">'OptimalityTolerance'</span>,<span class="number">1e-8</span>);</span><br><span class="line"><span class="comment">%设置迭代的终止条件，以确保误差小于1e-8（默认1e-6）</span></span><br><span class="line">[x,fval] = fminunc(ff,x0,options)</span><br><span class="line"><span class="comment">%求解（前述四种初值点均可以成功找到准确的解）</span></span><br></pre></td></tr></table></figure>
+<h3 id="梯度下降法求解多元最小值问题"><a href="#梯度下降法求解多元最小值问题" class="headerlink" title="梯度下降法求解多元最小值问题"></a>梯度下降法求解多元最小值问题</h3><p>将一元最优化问题推广到多元问题$\text{argmin}_{x\in \mathbb{R}^n}\phi(x)$，设$\phi(x)$满足一定的光滑性且其梯度除极值点外不为0向量。则 $\phi(x)$在$x=x^{(k)}$ 下降最快的方向为其负梯度方向：$\boldsymbol{p}^{(k)}=-\nabla \varphi\left(x^{(k)}\right)$。</p>
+<p>因此对于凸问题，只需按$x^{(k+1)}=x^{(k)}+\lambda p^{(k)}$进行迭代即可无限接近理论最小值，其中$\lambda&gt;\mathbf{0}$为待定步长。对于非凸问题，迭代有可能会收敛到某个<strong>局部最小值</strong>。</p>
+<p>对于多元情形：</p>
+<ul>
+<li><p>多元问题同样存在最速下降法，不过有时由于最佳步长计算复杂，也可能用固定步长$λ$代替。</p>
+</li>
+<li><p>多元问题是否为凸问题，等价于目标函数$φ(x)$的Hesse矩阵是否半正定的判定问题。</p>
+</li>
+</ul>
+<p>例：用梯度下降法求$f(x,y)=100(y-x^2)^2+(1-x)^2$的极小值点，代码如下：</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">clear,clc</span><br><span class="line">ff=@(x,y) (<span class="number">100</span>*(y-x^<span class="number">2</span>)^<span class="number">2</span>+(<span class="number">1</span>-x)^<span class="number">2</span>);<span class="comment">%函数及其导数</span></span><br><span class="line">dff =@(x,y) [<span class="number">2</span>*x - <span class="number">400</span>*x*(- x^<span class="number">2</span> + y) - <span class="number">2</span>;- <span class="number">200</span>*x^<span class="number">2</span> + <span class="number">200</span>*y];</span><br><span class="line">x0 = <span class="number">-5</span>; y0 = <span class="number">-2</span>;			<span class="comment">%初始条件（可改变）	</span></span><br><span class="line">x_old = x0;y_old = y0;iter=<span class="number">0</span>;</span><br><span class="line"><span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">    iter = iter+<span class="number">1</span>;</span><br><span class="line">    Grad = dff(x_old,y_old);	<span class="comment">%梯度方向的获得</span></span><br><span class="line">    lsf = @(lambda) ff(x_old-lambda*Grad(<span class="number">1</span>),y_old-lambda*Grad(<span class="number">2</span>));		<span class="comment">%生成对应方向关于步长的一元函数</span></span><br><span class="line">    [lambda,~]=fminbnd(lsf,<span class="number">0</span>,<span class="number">10</span>);<span class="comment">%搜索最佳步长</span></span><br><span class="line">    x_new=x_old-lambda*Grad(<span class="number">1</span>);</span><br><span class="line">    y_new=y_old-lambda*Grad(<span class="number">2</span>);</span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">abs</span>(x_new-x_old)&lt;<span class="number">1e-8</span> &amp;&amp; <span class="built_in">abs</span>(y_new-y_old)&lt;<span class="number">1e-8</span>) 		 <span class="keyword">break</span>; <span class="comment">%当x与y均保持稳定时结束迭代</span></span><br><span class="line">    <span class="keyword">end</span>			</span><br><span class="line">    x_old = x_new;y_old = y_new;</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line">iter,x_new,y_new</span><br><span class="line">err = ff(x_new,y_new)<span class="number">-0</span></span><br></pre></td></tr></table></figure>
+<p>本题使用的最速梯度下降法，虽然速度较慢，但在迭代的收敛性和准确性上，均优于基于单纯形法的MATLAB函数<code>fminsearch</code>，速度上不如新函数<code>fminunc</code></p>
+<h3 id="牛顿法解多元最小值问题"><a href="#牛顿法解多元最小值问题" class="headerlink" title="牛顿法解多元最小值问题"></a>牛顿法解多元最小值问题</h3><p>多元问题$\text{argmin}_{x\in \mathbb{R}^n}\phi(x)$在使用最速梯度下降法求解时，由于相邻迭代的梯度方向正交，导致移动方向呈现锯齿型，收敛速度与效率不佳。且对于病态矩阵无健壮性。</p>
+<p>定义Hesse矩阵 :</p>
+<script type="math/tex; mode=display">
+\nabla^{2} f(x, y)=\left[\begin{array}{ll}
+\frac{\partial^{2} f}{\partial x^{2}} & \frac{\partial^{2} f}{\partial x \partial y} \\
+\frac{\partial^{2} f}{\partial x \partial y} & \frac{\partial^{2} f}{\partial y^{2}}
+\end{array}\right]</script><p>多元问题 $argmin_{x \in \mathbb{R}^{n}} \varphi(x)$ 的牛顿迭代公 式为 (注意矩阵相乘后方向可能改变) :</p>
+<script type="math/tex; mode=display">
+x^{(k+1)}=x^{(k)}-\left.\left(\nabla^{2} f(x, y)\right)^{-1} \nabla f(x, y)\right|_{x^{(k)}}</script><p>牛顿法的一个缺点即Hessian不能出现不可逆的点。但此方法既可以增加收敛的概率，也可以大大减少运行时间。</p>
+<p>例：用牛顿法求$f(x,y)=100(y-x^2)^2+(1-x)^2$的极小值点，代码如下：</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">clear,clc</span><br><span class="line">ff=@(x,y) (<span class="number">100</span>*(y-x^<span class="number">2</span>)^<span class="number">2</span>+(<span class="number">1</span>-x)^<span class="number">2</span>); </span><br><span class="line">hidff =@(x,y) [ (x - <span class="number">1</span>)/(<span class="number">200</span>*x^<span class="number">2</span> - <span class="number">200</span>*y + <span class="number">1</span>), -(<span class="number">200</span>*x^<span class="number">4</span> - <span class="number">400</span>*x^<span class="number">2</span>*y - x^<span class="number">2</span> + <span class="number">2</span>*x + <span class="number">200</span>*y^<span class="number">2</span> - y)/(<span class="number">200</span>*x^<span class="number">2</span> - <span class="number">200</span>*y + <span class="number">1</span>)];</span><br><span class="line"><span class="comment">%提前计算的迭代步长，即inv(Hessian)*Gradient</span></span><br><span class="line">x0 = <span class="number">-5</span>; y0 = <span class="number">-5</span>;x_old = x0;y_old = y0;iter=<span class="number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span>(<span class="number">1</span>)</span><br><span class="line">    iter = iter+<span class="number">1</span>;</span><br><span class="line">    p = hidff(x_old,y_old);    </span><br><span class="line">    x_new=x_old-p(<span class="number">1</span>);    y_new=y_old-p(<span class="number">2</span>);</span><br><span class="line">    <span class="keyword">if</span>(<span class="built_in">abs</span>(x_new-x_old)&lt;<span class="number">1e-8</span> &amp;&amp; <span class="built_in">abs</span>(y_new-y_old)&lt;<span class="number">1e-8</span>) <span class="keyword">break</span>; <span class="keyword">end</span></span><br><span class="line">    x_old = x_new;y_old = y_new;</span><br><span class="line"><span class="keyword">end</span></span><br><span class="line">iter,x_new,y_new</span><br></pre></td></tr></table></figure>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://chenkai66.github.io/posts/49938fa3.html" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/posts/c84b8b36.html" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            Scipy/Scipy（1）
+          
+        </div>
+      </a>
+    
+    
+      <a href="/posts/7aa9eaaf.html" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">matlab/Matlab概率统计与曲线拟合</div>
+      </a>
+    
+  </nav>
+
+   
+<!-- valine评论 -->
+<div id="vcomments-box">
+  <div id="vcomments"></div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+<script>
+  new Valine({
+    el: "#vcomments",
+    app_id: "TQy5bHTePagP10u5BBsesx61-gzGzoHsz",
+    app_key: "O6UyJYxBFgMKQMjktBh4KGad",
+    path: window.location.pathname,
+    avatar: "monsterid",
+    placeholder: "给我的文章加点评论吧~",
+    recordIP: true,
+  });
+  const infoEle = document.querySelector("#vcomments .info");
+  if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+    infoEle.childNodes.forEach(function (item) {
+      item.parentNode.removeChild(item);
+    });
+  }
+</script>
+<style>
+  #vcomments-box {
+    padding: 5px 30px;
+  }
+
+  @media screen and (max-width: 800px) {
+    #vcomments-box {
+      padding: 5px 0px;
+    }
+  }
+
+  #vcomments-box #vcomments {
+    background-color: #fff;
+  }
+
+  .v .vlist .vcard .vh {
+    padding-right: 20px;
+  }
+
+  .v .vlist .vcard {
+    padding-left: 10px;
+  }
+</style>
+
+ 
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2020-2021
+        <i class="ri-heart-fill heart_icon"></i> chenk
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        由 帅气的CK本尊 强力驱动
+        
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></s>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="言念君子"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+
+<script src="/js/clickBoom2.js"></script>
+
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+<script src="/js/dz.js"></script>
+
+
+
+    
+  </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"live2d-widget-model-haruto"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>

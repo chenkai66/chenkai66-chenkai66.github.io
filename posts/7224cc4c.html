@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+
+
+<html lang="zh-CN">
+
+
+<head>
+  <meta charset="utf-8" />
+    
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>
+    金融量化分析基础（八）—— 量化策略交易风险防范 |  言念君子
+  </title>
+  <meta name="generator" content="hexo-theme-ayer">
+  
+  <link rel="shortcut icon" href="/favicon.ico" />
+  
+  
+<link rel="stylesheet" href="/dist/main.css">
+
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/css/remixicon.min.css">
+
+  
+<link rel="stylesheet" href="/css/custom.css">
+
+  
+  
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+  
+  
+
+  
+
+</head>
+
+</html>
+
+<body>
+  <div id="app">
+    
+      
+      <canvas width="1777" height="841"
+        style="position: fixed; left: 0px; top: 0px; z-index: 99999; pointer-events: none;"></canvas>
+      
+    <main class="content on">
+      <section class="outer">
+  <article
+  id="post-金融量化分析基础（八）—— 量化策略交易风险防范"
+  class="article article-type-post"
+  itemscope
+  itemprop="blogPost"
+  data-scroll-reveal
+>
+  <div class="article-inner">
+    
+    <header class="article-header">
+       
+<h1 class="article-title sea-center" style="border-left:0" itemprop="name">
+  金融量化分析基础（八）—— 量化策略交易风险防范
+</h1>
+ 
+
+    </header>
+     
+    <div class="article-meta">
+      <a href="/posts/7224cc4c.html" class="article-date">
+  <time datetime="2021-06-10T00:51:36.115Z" itemprop="datePublished">2021-06-10</time>
+</a> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Quantitative-Investment/">Quantitative Investment</a>
+  </div>
+  
+<div class="word_count">
+    <span class="post-time">
+        <span class="post-meta-item-icon">
+            <i class="ri-quill-pen-line"></i>
+            <span class="post-meta-item-text"> 字数统计:</span>
+            <span class="post-count">3.4k</span>
+        </span>
+    </span>
+
+    <span class="post-time">
+        &nbsp; | &nbsp;
+        <span class="post-meta-item-icon">
+            <i class="ri-book-open-line"></i>
+            <span class="post-meta-item-text"> 阅读时长≈</span>
+            <span class="post-count">11 分钟</span>
+        </span>
+    </span>
+</div>
+ 
+    </div>
+      
+    <div class="tocbot"></div>
+
+
+
+
+  
+    <div class="article-entry" itemprop="articleBody">
+       
+  <p>量化交易此种交易模式最显著的缺点就是，如果指数往一个方向发生显著变化，数量巨大且量化运算模式相似的量化基金会在同一时间段触发，造成短时间内指数价格大幅度向此方向发生变化。 面对此情景，就非常有必要探讨金融市场量化交易策略和风险，这对有效降低极端行情的发生有着至关重要的作用。<strong>量化交易一定会失效，不同的只是时间长短</strong>，因此我们需要判断量化交易策略何时失效。</p>
+<h1 id="量化交易的策略"><a href="#量化交易的策略" class="headerlink" title="量化交易的策略"></a>量化交易的策略</h1><h2 id="趋势动量类策略"><a href="#趋势动量类策略" class="headerlink" title="趋势动量类策略"></a>趋势动量类策略</h2><p>趋势动量类策略的内在含义主要是以市场均衡理论为根本，<strong>在一个事件发生后，市场将达到供需的新平衡</strong>，这个周期就形成了原始趋势。</p>
+<p>在价格趋于平稳阶段，因为市场参与者所获取的信息在时间上存在着一定的延迟，以及受到的情感上的影响，所以其价格一般来讲就不会发生变化。量化投资者通过对统计手段的利用，然后充分的挖掘量价数据，从而以某些特别指定因子变化的概率分布为基础，最终将某类资产价格计算出来，并通过对这些统计量和仓位管理算法的密切联系来实施交易的策略。</p>
+<p>此种类型的算法和大部分数量化策略并无差异，其可以在把握好长尾风险的同时，借由长期交易来实现累积收益的目标。其根<strong>本内涵在于经济中个体的从众跟风心理</strong>，在现如今备受关注的行为金融学中，市场投资决策者在面对突然事件时，过于注重眼前信息的原理，在技术分析法中也有着非常高的使用概率。</p>
+<h2 id="均值回归类策略"><a href="#均值回归类策略" class="headerlink" title="均值回归类策略"></a>均值回归类策略</h2><p>均值回归策略有着较强的适用性，在动量策略中所提到的驱使会在相应周期内发生多头行情或者空头行情的现象， 以此来对短期内来回交易次数过多的情况实施改进，其根本内涵在于价格需要和价值呈正比，<strong>从长远分析来看价格始终 围绕着价值在来回发生变化</strong>，即存在长期偏离正常价格的可能性，大多数情况下会在相应时间内表现出<strong>基差收敛的特征</strong>。通过对此特征的利用，量化投资者不但能够通过定价模型将 资产长期价值的均值和价格偏离的情况计算出来，而且<strong>在超过一定阈值时通过做多或做空某资产价格的方法，从而等待其对价值的收敛</strong>。</p>
+<p>但因为在定价资产价格的过程中会受到不同原因的影响，所以配对交易就自然而然地成为在实战中应用性非常强的一种交易策略。如在权益市场当中，将埃克森美孚和福特组成风险中性的配对交易，在大宗商品交易场所中， 可将玉米和大豆当成一组均值回归的交易对象，假如其价格对比另一价格偏离大于阈值，<strong>卖出过高估计价格的资产并看好等价的价格低谷的资产，等待价差收敛</strong>。</p>
+<p>基本来讲，<strong>套利策略也称之为回归型策略</strong>，如跨期等其实从根本来看都可以归之为对标产品合约，创建配对交易组合，可以获取广泛的应用，但由于交易机会如跨期等实质上都属于为寻找对标产品合约，建立配对交易组合，此类策略有着众多的应用，但因为交易机会暴露 时间过短，所以就经常需要借助技术的支持，以便可以加快交易的速度，从而在交易上占据绝对性的优势。</p>
+<h2 id="技术情绪"><a href="#技术情绪" class="headerlink" title="技术情绪"></a>技术情绪</h2><p>技术情绪策略，实质上主要是<strong>通过行为金融学知识和技术方法的有机联系，从而最大程度上寻找和发现市场中隐藏的基本规律</strong>，如期权市场通过对历史平均水平相对变化的观察，来将其作为市场情绪指标，然后再依据历史基准水平的情况来评估市场情绪的情况。</p>
+<p>另外，针对限价订单薄，高频量交易者可实施进一步的研究，然后通过充分的挖掘众多历史订单薄数据，从而预先推知多空博弈在未来一段周期内所带给市场价格的变化。此种交易主要应用在市商中，做市商通过对价格的变现来实现盈利的目标。</p>
+<p>技术情绪类策略经常是对某种情况的深层次挖掘，并无特殊规定的模式。虽然价格变化在整个过程中贯穿，但这并不代表价格并不存在缺口的情况，即一旦出现两根相邻 k 线的趋势，就会发生上述的结果。 此种缺口主要是指股的开盘价使 K 线图发生空档的情况，然后当成趋势操作的信号，一旦发生跳空缺口回补就可清仓停止损失时停止盈利。</p>
+<h1 id="量化交易的风险"><a href="#量化交易的风险" class="headerlink" title="量化交易的风险"></a>量化交易的风险</h1><h2 id="在历史数据的选用上容易出现幸存者偏差"><a href="#在历史数据的选用上容易出现幸存者偏差" class="headerlink" title="在历史数据的选用上容易出现幸存者偏差"></a>在历史数据的选用上容易出现幸存者偏差</h2><p>由于权益投资市场中向外提供的公司股票数据，大部分是当前上市公司的股票，而在投资决策模型中，反而并没有将 一些未持续经营公司作为训练数据输入到其中，显而易见，这是一种缺乏对关键步骤重视的表现，而如此一来，就出现了回溯测试和实盘交易两者之间结果偏差的情况。</p>
+<h2 id="数据来源的风险（未来函数）"><a href="#数据来源的风险（未来函数）" class="headerlink" title="数据来源的风险（未来函数）"></a>数据来源的风险（未来函数）</h2><p>在训练以往各时间段K线走势图时需要注意尽量不要出现将未知变量当成已知因子的情况，随着数据获取的区域越来越大，所以此种情况很难发现，由此就需要交易员增强对不同类型数据来源的认识。</p>
+<p>如公司发布的年报季报、国家每年发布的CPI、GDP、基尼系数、恩格尔系数等， 其审核后的发布时间均明显后于统计描述时间，这样的结果极易造成对特定发布时间的忽视。针对此种情况，就可以通过检查清单来避免此种风险的发生。</p>
+<h2 id="拟合风险"><a href="#拟合风险" class="headerlink" title="拟合风险"></a>拟合风险</h2><p>在模型训练过程中，经常会应用到一些机器学习算法，但采取这些手段极易产生拟合风险，特别是在一些研究方向训练数据中比较少，所以就需要进一步提升模型的泛化能力。</p>
+<p>如参数项设置的越简单，那么就预示着其模型也并无明显的复杂性，有着非常高的泛化能力，不但如此，其算法欠拟合程度也会得到较好的改善，降低预测价格的能力，而这就离不开策略开发工作者的支持，依据模型的情况来寻找最佳的平衡点。</p>
+<h2 id="交易成本风险"><a href="#交易成本风险" class="headerlink" title="交易成本风险"></a>交易成本风险</h2><p>事实上对于量化交易而言，手续费等交易成本对其有着不可或缺的作用，所以就非常有必要设置独立的成本函数，然后评估每次开仓信号的预期收益和成本间的关系，过度的开仓会增加成本，而过于严格的开仓条件，则不可避免地会减少交易数量，进而导致交易频率在整个交易中发生明显地变化。</p>
+<p>其实，量化交易的本质在于借由概率，最终对盈利情况进行统计，在小交易样本下，产品的投资回报率更多情况下极易会受到长尾的干扰，致使预测无法顺利地进行。</p>
+<h2 id="市场风格分形风险"><a href="#市场风格分形风险" class="headerlink" title="市场风格分形风险"></a>市场风格分形风险</h2><p>交易策略的差异性，极易受到市场风格分形的影响，如均值回归策略和趋势跟踪策略就是最好的例子，即前者在震荡市中有着更为显著的收益，而后者则更适宜于在牛市和熊市中。</p>
+<h1 id="策略失效"><a href="#策略失效" class="headerlink" title="策略失效"></a>策略失效</h1><h2 id="怎样判断策略失效"><a href="#怎样判断策略失效" class="headerlink" title="怎样判断策略失效"></a>怎样判断策略失效</h2><ul>
+<li>最大回撤判断：大于历史最大回撤的150%</li>
+<li>收益曲线走势判断</li>
+</ul>
+<h2 id="突发行情的止损与取舍"><a href="#突发行情的止损与取舍" class="headerlink" title="突发行情的止损与取舍"></a>突发行情的止损与取舍</h2><ul>
+<li>峰值止损：当价格变动超过某个峰值立刻停止，但不能判断随后又迅速拉回的情形</li>
+<li>均值止损：会参考几条K线，看一段时间内的价格变化确定是否止损，反应不那么快，是看一段时间的行情</li>
+<li>速率止损：考虑价格变化幅度与变化时间，兼顾了前两者</li>
+</ul>
+<p>上面三种各有优缺点，交易者可以根据自己对市场的理解与交易品种的特征决定止损方式，或者做一个组合得到自认为最优的止损方案。</p>
+<h2 id="跟踪止盈止损的陷阱"><a href="#跟踪止盈止损的陷阱" class="headerlink" title="跟踪止盈止损的陷阱"></a>跟踪止盈止损的陷阱</h2><p>常见的看似很优秀的量化策略常面临跟踪止盈止损的陷阱，这体现在实盘效果永远比回测效果差，我们应当如何防范跟踪止盈止损的陷阱，有以下亮点：</p>
+<ul>
+<li>回落幅度不能设置过小</li>
+<li>在不影响策略运行的情况下，尽量使用小周期的K线</li>
+</ul>
+<h2 id="量化策略风险防范"><a href="#量化策略风险防范" class="headerlink" title="量化策略风险防范"></a>量化策略风险防范</h2><ul>
+<li>指数与合约的不同步误差：在量化策略中，无论是回测还是调试通常都是使用某一商品的指数，交易时是交易商品的具体合约，这两者之间存在误差！</li>
+<li>交易成本：交易所需手续费；期货公司佣金；软件平台费用；滑点成本；云端服务器租金；数据费用 ；税金；心理成本</li>
+<li>软硬件事故</li>
+</ul>
+<h3 id="交易成本"><a href="#交易成本" class="headerlink" title="交易成本"></a>交易成本</h3><h4 id="滑点成本"><a href="#滑点成本" class="headerlink" title="滑点成本"></a>滑点成本</h4><p>对于交易而言，最大的成本来自于手续费和滑点。中长线交易对这点成本很无所谓，别小看这点成本，对于短线客来说，几次下来对利润有很大吞噬。手续费不说了，要找到想的对便宜的交易商，可以多了解本行业，或者做个居间人代理，手续费相对低一些。</p>
+<p><strong>滑点是指客户下单交易点位与实际交易点位有差别的一种交易现象</strong>。很多人知道什么叫滑点，但是至于滑点是怎么产生的就不知道了。有的人说行情变化大时，所以有滑点；甚至有人因此说，不滑点是不可能的，其实这不正确。正确的说法是滑点要么是交易商故意的，要么是交易商服务跟不上。</p>
+<p>第一是人为方面的因素，比如黄金交易商后台人为操控，使得黄金交易平台行情报价与实际报价存在差别，从而导致黄金白银交易者在该买入的时候没有及时买入，卖出的时候没有及时卖出。一般来说投资者很难分辨滑点是由什么因素造成的，因此也就给一些不良交易商带来了获取不正当利益的机会。</p>
+<p>第二是硬件方面的因素，比如黄金价bai格行情波动剧烈时，网络延迟，软件系统以及服务器响应等方面造成成交价格与挂单价格不一致。</p>
+<h4 id="股票投资增值税"><a href="#股票投资增值税" class="headerlink" title="股票投资增值税"></a>股票投资增值税</h4><p>投资收益要区分不同的情况，投资国债的投资收益是免交税的，其他的投资如股权投资等是要纳税的；对于分回的投资收益还必须确认是税前的还是税后的。如果是税后的，一是要看被投资企业的企业所得税率是否与公司的税率相同，若相同则不用补交若，不同(被投资企业税率小于公司)则要按差价补税。如果是税前的，分回后并入公司的利润缴税。</p>
+<p>投资收益下交增值税的有关情况：</p>
+<ol>
+<li><p>公司取得投资收益，应该按25%的税率缴纳企业所得税。</p>
+</li>
+<li><p>投资所分的利润、利息、股息、红利所得。投资收益在税收上是作为企业所得税的应税项目，应依法计征企业所得税。</p>
+</li>
+</ol>
+<h3 id="如何防范软硬件事故"><a href="#如何防范软硬件事故" class="headerlink" title="如何防范软硬件事故"></a>如何防范软硬件事故</h3><ul>
+<li>租用云服务器</li>
+<li>建立应急预案</li>
+<li>建立监督报警机制</li>
+<li>随时可以用手机登陆账户进行操作</li>
+<li>关注交易平台的群消息</li>
+</ul>
+<p>参考链接：</p>
+<ul>
+<li>魏平.金融市场量化交易策略与风险探讨[J].现代营销(下旬刊),2020(01):37-38.</li>
+</ul>
+ 
+      <!-- reward -->
+      
+    </div>
+    
+
+    <!-- copyright -->
+    
+    <div class="declare">
+      <ul class="post-copyright">
+        <li>
+          <i class="ri-copyright-line"></i>
+          <strong>版权声明： </strong>
+          本博客所有文章除特别声明外，著作权归作者所有。转载请注明出处！
+        </li>
+      </ul>
+    </div>
+    
+    <footer class="article-footer">
+       
+<div class="share-btn">
+      <span class="share-sns share-outer">
+        <i class="ri-share-forward-line"></i>
+        分享
+      </span>
+      <div class="share-wrap">
+        <i class="arrow"></i>
+        <div class="share-icons">
+          
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="ri-weibo-fill"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="ri-wechat-fill"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="ri-qq-fill"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="ri-douban-line"></i>
+          </a>
+          <!-- <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a> -->
+          
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="ri-facebook-circle-fill"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="ri-twitter-fill"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="ri-google-fill"></i>
+          </a>
+        </div>
+      </div>
+</div>
+
+<div class="wx-share-modal">
+    <a class="modal-close" href="javascript:;"><i class="ri-close-circle-line"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://chenkai66.github.io/posts/7224cc4c.html" alt="微信分享二维码">
+    </div>
+</div>
+
+<div id="share-mask"></div>  
+    </footer>
+  </div>
+
+   
+  <nav class="article-nav">
+    
+      <a href="/posts/12d4b8eb.html" class="article-nav-link">
+        <strong class="article-nav-caption">上一篇</strong>
+        <div class="article-nav-title">
+          
+            金融量化分析基础（二）—— 套利
+          
+        </div>
+      </a>
+    
+    
+      <a href="/posts/add9b4f4.html" class="article-nav-link">
+        <strong class="article-nav-caption">下一篇</strong>
+        <div class="article-nav-title">金融分析基础（十三）—— 双均线区间突破模型</div>
+      </a>
+    
+  </nav>
+
+   
+<!-- valine评论 -->
+<div id="vcomments-box">
+  <div id="vcomments"></div>
+</div>
+<script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js"></script>
+<script>
+  new Valine({
+    el: "#vcomments",
+    app_id: "TQy5bHTePagP10u5BBsesx61-gzGzoHsz",
+    app_key: "O6UyJYxBFgMKQMjktBh4KGad",
+    path: window.location.pathname,
+    avatar: "monsterid",
+    placeholder: "给我的文章加点评论吧~",
+    recordIP: true,
+  });
+  const infoEle = document.querySelector("#vcomments .info");
+  if (infoEle && infoEle.childNodes && infoEle.childNodes.length > 0) {
+    infoEle.childNodes.forEach(function (item) {
+      item.parentNode.removeChild(item);
+    });
+  }
+</script>
+<style>
+  #vcomments-box {
+    padding: 5px 30px;
+  }
+
+  @media screen and (max-width: 800px) {
+    #vcomments-box {
+      padding: 5px 0px;
+    }
+  }
+
+  #vcomments-box #vcomments {
+    background-color: #fff;
+  }
+
+  .v .vlist .vcard .vh {
+    padding-right: 20px;
+  }
+
+  .v .vlist .vcard {
+    padding-left: 10px;
+  }
+</style>
+
+ 
+     
+</article>
+
+</section>
+      <footer class="footer">
+  <div class="outer">
+    <ul>
+      <li>
+        Copyrights &copy;
+        2020-2021
+        <i class="ri-heart-fill heart_icon"></i> chenk
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        
+        由 帅气的CK本尊 强力驱动
+        
+        
+      </li>
+    </ul>
+    <ul>
+      <li>
+        
+        
+        <span>
+  <span><i class="ri-user-3-fill"></i>访问人数:<span id="busuanzi_value_site_uv"></span></s>
+  <span class="division">|</span>
+  <span><i class="ri-eye-fill"></i>浏览次数:<span id="busuanzi_value_page_pv"></span></span>
+</span>
+        
+      </li>
+    </ul>
+    <ul>
+      
+    </ul>
+    <ul>
+      <li>
+        <!-- cnzz统计 -->
+        
+      </li>
+    </ul>
+  </div>
+</footer>
+      <div class="float_btns">
+        <div class="totop" id="totop">
+  <i class="ri-arrow-up-line"></i>
+</div>
+
+<div class="todark" id="todark">
+  <i class="ri-moon-line"></i>
+</div>
+
+      </div>
+    </main>
+    <aside class="sidebar on">
+      <button class="navbar-toggle"></button>
+<nav class="navbar">
+  
+  <div class="logo">
+    <a href="/"><img src="/images/ayer-side.svg" alt="言念君子"></a>
+  </div>
+  
+  <ul class="nav nav-main">
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/">主页</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/archives">归档</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/categories">分类</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-item-link" href="/tags">标签</a>
+    </li>
+    
+  </ul>
+</nav>
+<nav class="navbar navbar-bottom">
+  <ul class="nav">
+    <li class="nav-item">
+      
+      <a class="nav-item-link nav-item-search"  title="搜索">
+        <i class="ri-search-line"></i>
+      </a>
+      
+      
+      <a class="nav-item-link" target="_blank" href="/atom.xml" title="RSS Feed">
+        <i class="ri-rss-line"></i>
+      </a>
+      
+    </li>
+  </ul>
+</nav>
+<div class="search-form-wrap">
+  <div class="local-search local-search-plugin">
+  <input type="search" id="local-search-input" class="local-search-input" placeholder="Search...">
+  <div id="local-search-result" class="local-search-result"></div>
+</div>
+</div>
+    </aside>
+    <script>
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        document.querySelector('.content').classList.remove('on');
+        document.querySelector('.sidebar').classList.remove('on');
+      }
+    </script>
+    <div id="mask"></div>
+
+<!-- #reward -->
+<div id="reward">
+  <span class="close"><i class="ri-close-line"></i></span>
+  <p class="reward-p"><i class="ri-cup-line"></i>请我喝杯咖啡吧~</p>
+  <div class="reward-box">
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/alipay.jpg">
+      <span class="reward-type">支付宝</span>
+    </div>
+    
+    
+    <div class="reward-item">
+      <img class="reward-img" src="https://cdn.jsdelivr.net/gh/Shen-Yu/cdn/img/wechat.jpg">
+      <span class="reward-type">微信</span>
+    </div>
+    
+  </div>
+</div>
+    
+<script src="/js/jquery-2.0.3.min.js"></script>
+
+
+<script src="/js/lazyload.min.js"></script>
+
+<!-- Tocbot -->
+
+
+<script src="/js/tocbot.min.js"></script>
+
+<script>
+  tocbot.init({
+    tocSelector: '.tocbot',
+    contentSelector: '.article-entry',
+    headingSelector: 'h1, h2, h3, h4, h5, h6',
+    hasInnerContainers: true,
+    scrollSmooth: true,
+    scrollContainer: 'main',
+    positionFixedSelector: '.tocbot',
+    positionFixedClass: 'is-position-fixed',
+    fixedSidebarOffset: 'auto'
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jquery-modal@0.9.2/jquery.modal.min.css">
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js"></script>
+
+<script src="/dist/main.js"></script>
+
+<!-- ImageViewer -->
+
+<!-- Root element of PhotoSwipe. Must have class pswp. -->
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    <!-- Background of PhotoSwipe. 
+         It's a separate element as animating opacity is faster than rgba(). -->
+    <div class="pswp__bg"></div>
+
+    <!-- Slides wrapper with overflow:hidden. -->
+    <div class="pswp__scroll-wrap">
+
+        <!-- Container that holds slides. 
+            PhotoSwipe keeps only 3 of them in the DOM to save memory.
+            Don't modify these 3 pswp__item elements, data is added later on. -->
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        <!-- Default (PhotoSwipeUI_Default) interface on top of sliding area. Can be changed. -->
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                <!--  Controls are self-explanatory. Order can be changed. -->
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" style="display:none" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                <!-- Preloader demo http://codepen.io/dimsemenov/pen/yyBWoR -->
+                <!-- element will get class pswp__preloader--active when preloader is running -->
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css">
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"></script>
+
+<script>
+    function viewer_init() {
+        let pswpElement = document.querySelectorAll('.pswp')[0];
+        let $imgArr = document.querySelectorAll(('.article-entry img:not(.reward-img)'))
+
+        $imgArr.forEach(($em, i) => {
+            $em.onclick = () => {
+                // slider展开状态
+                // todo: 这样不好，后面改成状态
+                if (document.querySelector('.left-col.show')) return
+                let items = []
+                $imgArr.forEach(($em2, i2) => {
+                    let img = $em2.getAttribute('data-idx', i2)
+                    let src = $em2.getAttribute('data-target') || $em2.getAttribute('src')
+                    let title = $em2.getAttribute('alt')
+                    // 获得原图尺寸
+                    const image = new Image()
+                    image.src = src
+                    items.push({
+                        src: src,
+                        w: image.width || $em2.width,
+                        h: image.height || $em2.height,
+                        title: title
+                    })
+                })
+                var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, {
+                    index: parseInt(i)
+                });
+                gallery.init()
+            }
+        })
+    }
+    viewer_init()
+</script>
+
+<!-- MathJax -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+      tex2jax: {
+          inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+          processEscapes: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+  });
+
+  MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+      for(i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+      }
+  });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.6/unpacked/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script>
+  var ayerConfig = {
+    mathjax: true
+  }
+</script>
+
+<!-- Katex -->
+
+<!-- busuanzi  -->
+
+
+<script src="/js/busuanzi-2.3.pure.min.js"></script>
+
+
+<!-- ClickLove -->
+
+<!-- ClickBoom1 -->
+
+<!-- ClickBoom2 -->
+
+
+<script src="/js/clickBoom2.js"></script>
+
+
+<!-- CodeCopy -->
+
+
+<link rel="stylesheet" href="/css/clipboard.css">
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+<script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  !function (e, t, a) {
+    var initCopyCode = function(){
+      var copyHtml = '';
+      copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+      copyHtml += '<i class="ri-file-copy-2-line"></i><span>COPY</span>';
+      copyHtml += '</button>';
+      $(".highlight .code pre").before(copyHtml);
+      $(".article pre code").before(copyHtml);
+      var clipboard = new ClipboardJS('.btn-copy', {
+        target: function(trigger) {
+          return trigger.nextElementSibling;
+        }
+      });
+      clipboard.on('success', function(e) {
+        let $btn = $(e.trigger);
+        $btn.addClass('copied');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-checkbox-circle-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPIED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-checkbox-circle-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+      clipboard.on('error', function(e) {
+        e.clearSelection();
+        let $btn = $(e.trigger);
+        $btn.addClass('copy-failed');
+        let $icon = $($btn.find('i'));
+        $icon.removeClass('ri-file-copy-2-line');
+        $icon.addClass('ri-time-line');
+        let $span = $($btn.find('span'));
+        $span[0].innerText = 'COPY FAILED';
+        
+        wait(function () { // 等待两秒钟后恢复
+          $icon.removeClass('ri-time-line');
+          $icon.addClass('ri-file-copy-2-line');
+          $span[0].innerText = 'COPY';
+        }, 2000);
+      });
+    }
+    initCopyCode();
+  }(window, document);
+</script>
+
+
+<!-- CanvasBackground -->
+
+
+<script src="/js/dz.js"></script>
+
+
+
+    
+  </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"live2d-widget-model-haruto"},"display":{"position":"left","width":150,"height":300},"mobile":{"show":false},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+
+</html>
